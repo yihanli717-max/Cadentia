@@ -11,7 +11,9 @@ const APIInput = () => {
   return (
     <div className="h-screen w-full flex items-center justify-center">
       <div className="flex flex-col gap-2 p-8 bg-white rounded-lg border w-[512px] select-none">
-        <p className={noto_serif.className}>Hi there! Welcome to Evaluaid!</p>
+        <p className={noto_serif.className}>
+          Hi there! Welcome to CritiqueComposer!
+        </p>
 
         <div className="flex flex-col gap-2 w-full">
           <input
