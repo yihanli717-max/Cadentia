@@ -1,5 +1,8 @@
 "use client";
 import React, { useRef } from "react";
+import { essay } from "@/data/essay";
+import { feedback } from "@/data/feedback";
+import { useEssayStore, useFeedbackStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 type MenuProps = {
@@ -29,19 +32,8 @@ const Menu = ({ classes }: MenuProps) => {
   };
 
   const loadDefaultData = async () => {
-    try {
-      const response = await fetch("/sample.json");
-      if (response.ok) {
-        const data = await response.json();
-        // here we can store the data in the state
-        console.log("Default data loaded");
-        console.log(data);
-      } else {
-        console.error("Failed to load default data");
-      }
-    } catch (error) {
-      console.error("Error fetching default data", error);
-    }
+    useEssayStore.setState({ essay: essay });
+    useFeedbackStore.setState({ feedback: feedback });
   };
 
   return (
