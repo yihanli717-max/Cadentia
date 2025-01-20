@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import FeedbackCard from "@/components/FeedbackCard";
+import FeedbackCard from "@/components/FeedbackGallery/FeedbackCard";
 import { useFeedbackStore } from "@/lib/store";
 import { FeedbackItem } from "@/lib/type";
 import { cn } from "@/lib/utils";
@@ -23,7 +23,7 @@ const FeedbackGallery = ({ classes }: FeedbackGalleryProps) => {
               <div key={item.id}>
                 <FeedbackCard
                   feedbackItem={item}
-                  classes="relative rounded-lg hover:scale-[1.01] transition-all duration-150"
+                  classes="relative rounded-lg hover:shadow-md"
                   close={true}
                   selectedFeedback={selectedFeedback}
                   setSelectedFeedback={setSelectedFeedback}

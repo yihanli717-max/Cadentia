@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import HelpfulnessVis from "@/components/HelpfulnessVis";
+import HelpfulnessVis from "@/components/FeedbackGallery/HelpfulnessVis";
 import { FeedbackSourceItem, FeedbackItem } from "@/lib/type";
 import { cn, isSimilarSentence, categoryColorMap } from "@/lib/utils";
 import { feedbackSource } from "@/data/source";

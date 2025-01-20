@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Header from "@/components/Header";
 import APIInput from "@/components/APIInput";
-import FeedbackGallery from "@/components/FeedbackGallery";
+import FeedbackGallery from "@/components/FeedbackGallery/FeedbackGallery";
 import { useOpenAIAPI, useFeedbackStore } from "@/lib/store";
 import { FeedbackItem } from "@/lib/type";
 
