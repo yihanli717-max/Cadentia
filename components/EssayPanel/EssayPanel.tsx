@@ -6,11 +6,7 @@ import { useEssayStore } from "@/lib/store";
 import { Sentence } from "@/lib/type";
 
 interface EssayPanelProps {
-  classes: string;
-  feedback?: string;
-  reviseSentence?: string | null;
-  selectedType?: string;
-  setSelectedType?: (selectedType: string) => void;
+  classes?: string;
 }
 
 const EssayPanel = (props: EssayPanelProps) => {

@@ -8,14 +8,14 @@ type FeedbackGalleryProps = {
   classes?: string;
 };
 
-const FeedbackGallery = ({ classes }: FeedbackGalleryProps) => {
+const FeedbackGallery = (props: FeedbackGalleryProps) => {
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const [selectedFeedback, setSelectedFeedback] = useState<
     FeedbackItem[] | undefined
   >([]);
 
   return (
-    <div className={cn(classes, "bg-gray-50")}>
+    <div className={cn(props.classes, "bg-gray-50 border-r border-gray-100")}>
       <div>
         {allFeedback &&
           (allFeedback.length > 0 ? (
