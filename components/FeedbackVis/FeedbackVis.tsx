@@ -134,6 +134,25 @@ const FeedbackVis: React.FC<FeedbackVisProps> = ({ classes }) => {
     return force;
   };
 
+  const n = 200; // Number of nodes
+  const m = 10; // Number of groups
+
+  const color = d3.scaleOrdinal(d3.range(m), d3.schemeCategory10);
+
+  // Generate data
+  const data = {
+    children: Array.from(
+      d3.group(
+        Array.from({ length: n }, () => ({
+          group: Math.floor(Math.random() * m),
+          value: -Math.log(Math.random()),
+        })),
+        (d) => d.group,
+      ),
+      ([, children]) => ({ children }),
+    ),
+  };
+
   useEffect(() => {
     if (!svgRef.current || !dimensions) return;
 
@@ -142,25 +161,6 @@ const FeedbackVis: React.FC<FeedbackVisProps> = ({ classes }) => {
     // Clear previous SVG content
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
-
-    const n = 200; // Number of nodes
-    const m = 10; // Number of groups
-
-    const color = d3.scaleOrdinal(d3.range(m), d3.schemeCategory10);
-
-    // Generate data
-    const data = {
-      children: Array.from(
-        d3.group(
-          Array.from({ length: n }, () => ({
-            group: Math.floor(Math.random() * m),
-            value: -Math.log(Math.random()),
-          })),
-          (d) => d.group,
-        ),
-        ([, children]) => ({ children }),
-      ),
-    };
 
     const pack = d3.pack<any>().size([width, height]).padding(1);
 
