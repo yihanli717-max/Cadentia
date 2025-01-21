@@ -116,7 +116,7 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
                   {/* <p>Source: {props.feedbackItem.file}</p> */}
                 </div>
               </div>
-              <h1 className="text-sm font-semibold">
+              <h1 className={cn("text-sm font-semibold")}>
                 {
                   typeMap[
                     props.feedbackItem.type.toLowerCase() as keyof typeof typeMap
@@ -146,7 +146,6 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
 
         <div
           className={cn(
-            noto_serif.className,
             "text-xs italic leading-5 max-h-40 overflow-y-auto pb-3",
           )}
         >
