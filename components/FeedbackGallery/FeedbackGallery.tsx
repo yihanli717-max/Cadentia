@@ -23,7 +23,7 @@ const FeedbackGallery = ({ classes }: FeedbackGalleryProps) => {
               <div key={item.id}>
                 <FeedbackCard
                   feedbackItem={item}
-                  classes="relative rounded-lg hover:shadow-md"
+                  classes="relative rounded-lg hover:ring-2 ring-gray-300 ring-offset-1 ring-offset-gray-50"
                   close={true}
                   selectedFeedback={selectedFeedback}
                   setSelectedFeedback={setSelectedFeedback}

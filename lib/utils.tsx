@@ -26,12 +26,12 @@ export function isSimilarSentence(
 export const categoryColorMap: {
   [key: string]: string;
 } = {
-  Claim: "#ec4899",
-  Reasoning: "#ef4444",
-  Evidence: "#f97316",
-  Rebuttal: "#f59e0b",
-  Others: "#78716c",
-  Organization: "#3b82f6",
-  "Word-usage": "#06b6d4",
-  Orthography: "#8b5cf6",
+  Claim: d3.schemeTableau10[1], // 红色
+  Reasoning: d3.schemeTableau10[2], // 橙色
+  Evidence: d3.schemeTableau10[5], // 黄色/绿色（偏暖）
+  Rebuttal: d3.schemeTableau10[7], // 深粉/暖色调蓝
+  Others: d3.schemeTableau10[9], // 紫色（冷色中性）
+  Organization: d3.schemeTableau10[0], // 棕色
+  "Word-usage": d3.schemeTableau10[3], // 青色
+  Orthography: d3.schemeTableau10[6], // 灰色
 };
