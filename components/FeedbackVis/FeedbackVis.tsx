@@ -1,4 +1,8 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
+import { useFeedbackStore } from "@/lib/store";
+import { FeedbackItem } from "@/lib/type";
+import Menu from "@/components/FeedbackVis/Menu";
+import { cn, categoryColorMap, normalizeAndTransform } from "@/lib/utils";
 import * as d3 from "d3";
 
 interface FeedbackVisProps {
@@ -6,6 +10,12 @@ interface FeedbackVisProps {
 }
 
 const FeedbackVis: React.FC<FeedbackVisProps> = ({ classes }) => {
+  const allFeedback = useFeedbackStore((state) => state.feedback);
+  const [categoricalDimension, setCategoricalDimension] =
+    useState<string>("type");
+  const [numericalDimension, setNumericalDimension] =
+    useState<string>("actionability");
+
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [dimensions, setDimensions] = useState<{
@@ -32,126 +42,46 @@ const FeedbackVis: React.FC<FeedbackVisProps> = ({ classes }) => {
     };
   }, []);
 
-  const centroid = (nodes: any[]) => {
-    let x = 0,
-      y = 0,
-      z = 0;
-    for (const d of nodes) {
-      let k = d.r ** 2;
-      x += d.x * k;
-      y += d.y * k;
-      z += k;
+  const color = useMemo(() => {
+    if (categoricalDimension === "type") {
+      return (group: string) =>
+        categoryColorMap[group] || d3.schemeTableau10[8];
+    } else {
+      const colorScale = d3.scaleOrdinal(d3.schemeTableau10);
+      return (group: string) => colorScale(group);
     }
-    return { x: x / z, y: y / z };
-  };
+  }, [categoricalDimension]);
 
-  // Define forces
-  const forceCluster = () => {
-    const strength = 0.2;
-    let nodes: any[];
+  const data = useMemo(() => {
+    // Normalize `actionability` and apply `-Math.log`
+    const actionabilityValues = allFeedback.map((item) => item.actionability);
+    const transformedActionability = normalizeAndTransform(
+      actionabilityValues,
+      (v) => v,
+    );
 
-    function force(alpha: number) {
-      const centroids = d3.rollup(nodes, centroid, (d) => d.data.group);
-      const l = alpha * strength;
-      for (const d of nodes) {
-        const { x: cx, y: cy } = centroids.get(d.data.group)!;
-        d.vx -= (d.x - cx) * l;
-        d.vy -= (d.y - cy) * l;
-      }
-    }
+    // Map the transformed actionability back to feedback items
+    const feedbackWithTransformedValues = allFeedback.map((item, index) => ({
+      ...item,
+      transformedActionability: transformedActionability[index],
+    }));
 
-    force.initialize = (_: any) => (nodes = _);
+    // Generate data based on the real feedback items
+    const groupedFeedback = d3.group(
+      feedbackWithTransformedValues,
+      (item: any) => item[categoricalDimension],
+    );
 
-    return force;
-  };
-
-  const forceCollide = () => {
-    const alpha = 0.4; // Fixed for greater rigidity
-    const padding1 = 2; // Separation between same-color nodes
-    const padding2 = 6; // Separation between different-color nodes
-    let localNodes: d3.HierarchyCircularNode<unknown>[]; // Use generic unknown
-    let maxRadius: number;
-
-    function isLeaf(
-      node:
-        | d3.QuadtreeInternalNode<d3.HierarchyCircularNode<unknown>>
-        | d3.QuadtreeLeaf<d3.HierarchyCircularNode<unknown>>,
-    ): node is d3.QuadtreeLeaf<d3.HierarchyCircularNode<unknown>> {
-      return "data" in node;
-    }
-
-    function force() {
-      const quadtree = d3.quadtree(
-        localNodes,
-        (d) => d.x!,
-        (d) => d.y!,
-      );
-
-      for (const d of localNodes) {
-        const r = d.r + maxRadius;
-        const nx1 = d.x! - r,
-          ny1 = d.y! - r;
-        const nx2 = d.x! + r,
-          ny2 = d.y! + r;
-
-        quadtree.visit((q, x1, y1, x2, y2) => {
-          if (!q.length) {
-            if (isLeaf(q) && q.data !== d) {
-              const qNode = q.data as d3.HierarchyCircularNode<any>; // Safe cast
-              const dNode = d as d3.HierarchyCircularNode<any>; // Safe cast
-
-              const r =
-                dNode.r +
-                qNode.r +
-                (dNode.data.group === qNode.data.group ? padding1 : padding2);
-              let x = dNode.x! - qNode.x!,
-                y = dNode.y! - qNode.y!,
-                l = Math.hypot(x, y);
-
-              if (l < r) {
-                l = ((l - r) / l) * alpha;
-                dNode.x! -= x *= l;
-                dNode.y! -= y *= l;
-                qNode.x! += x;
-                qNode.y! += y;
-              }
-            }
-          }
-          return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
-        });
-      }
-    }
-
-    force.initialize = (
-      _: d3.HierarchyCircularNode<unknown>[],
-      random: () => number,
-    ) => {
-      localNodes = _;
-      maxRadius =
-        d3.max(localNodes, (d) => d.r)! + Math.max(padding1, padding2);
-    };
-
-    return force;
-  };
-
-  const n = 200; // Number of nodes
-  const m = 10; // Number of groups
-
-  const color = d3.scaleOrdinal(d3.range(m), d3.schemeCategory10);
-
-  // Generate data
-  const data = {
-    children: Array.from(
-      d3.group(
-        Array.from({ length: n }, () => ({
-          group: Math.floor(Math.random() * m),
-          value: -Math.log(Math.random()),
+    return {
+      children: Array.from(groupedFeedback, ([group, children]) => ({
+        group,
+        children: children.map((item) => ({
+          group,
+          value: item.transformedActionability, // Use transformed value
         })),
-        (d) => d.group,
-      ),
-      ([, children]) => ({ children }),
-    ),
-  };
+      })),
+    };
+  }, [allFeedback, categoricalDimension]);
 
   useEffect(() => {
     if (!svgRef.current || !dimensions) return;
@@ -218,10 +148,15 @@ const FeedbackVis: React.FC<FeedbackVisProps> = ({ classes }) => {
     return () => {
       simulation.stop();
     };
-  }, [dimensions]);
+  }, [dimensions, data, color]);
 
   return (
-    <div ref={containerRef} className={classes}>
+    <div ref={containerRef} className={cn(classes, "relative")}>
+      <Menu
+        classes="absolute top-0 left-0 p-2"
+        categoricalDimension={categoricalDimension}
+        setCategoricalDimension={setCategoricalDimension}
+      />
       {dimensions && (
         <svg
           ref={svgRef}
@@ -231,6 +166,107 @@ const FeedbackVis: React.FC<FeedbackVisProps> = ({ classes }) => {
       )}
     </div>
   );
+};
+
+const centroid = (nodes: any[]) => {
+  let x = 0,
+    y = 0,
+    z = 0;
+  for (const d of nodes) {
+    let k = d.r ** 2;
+    x += d.x * k;
+    y += d.y * k;
+    z += k;
+  }
+  return { x: x / z, y: y / z };
+};
+
+// Define forces
+const forceCluster = () => {
+  const strength = 0.2;
+  let nodes: any[];
+
+  function force(alpha: number) {
+    const centroids = d3.rollup(nodes, centroid, (d) => d.data.group);
+    const l = alpha * strength;
+    for (const d of nodes) {
+      const { x: cx, y: cy } = centroids.get(d.data.group)!;
+      d.vx -= (d.x - cx) * l;
+      d.vy -= (d.y - cy) * l;
+    }
+  }
+
+  force.initialize = (_: any) => (nodes = _);
+
+  return force;
+};
+
+const forceCollide = () => {
+  const alpha = 0.4; // Fixed for greater rigidity
+  const padding1 = 2; // Separation between same-color nodes
+  const padding2 = 6; // Separation between different-color nodes
+  let localNodes: d3.HierarchyCircularNode<unknown>[]; // Use generic unknown
+  let maxRadius: number;
+
+  function isLeaf(
+    node:
+      | d3.QuadtreeInternalNode<d3.HierarchyCircularNode<unknown>>
+      | d3.QuadtreeLeaf<d3.HierarchyCircularNode<unknown>>,
+  ): node is d3.QuadtreeLeaf<d3.HierarchyCircularNode<unknown>> {
+    return "data" in node;
+  }
+
+  function force() {
+    const quadtree = d3.quadtree(
+      localNodes,
+      (d) => d.x!,
+      (d) => d.y!,
+    );
+
+    for (const d of localNodes) {
+      const r = d.r + maxRadius;
+      const nx1 = d.x! - r,
+        ny1 = d.y! - r;
+      const nx2 = d.x! + r,
+        ny2 = d.y! + r;
+
+      quadtree.visit((q, x1, y1, x2, y2) => {
+        if (!q.length) {
+          if (isLeaf(q) && q.data !== d) {
+            const qNode = q.data as d3.HierarchyCircularNode<any>; // Safe cast
+            const dNode = d as d3.HierarchyCircularNode<any>; // Safe cast
+
+            const r =
+              dNode.r +
+              qNode.r +
+              (dNode.data.group === qNode.data.group ? padding1 : padding2);
+            let x = dNode.x! - qNode.x!,
+              y = dNode.y! - qNode.y!,
+              l = Math.hypot(x, y);
+
+            if (l < r) {
+              l = ((l - r) / l) * alpha;
+              dNode.x! -= x *= l;
+              dNode.y! -= y *= l;
+              qNode.x! += x;
+              qNode.y! += y;
+            }
+          }
+        }
+        return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+      });
+    }
+  }
+
+  force.initialize = (
+    _: d3.HierarchyCircularNode<unknown>[],
+    random: () => number,
+  ) => {
+    localNodes = _;
+    maxRadius = d3.max(localNodes, (d) => d.r)! + Math.max(padding1, padding2);
+  };
+
+  return force;
 };
 
 export default FeedbackVis;
