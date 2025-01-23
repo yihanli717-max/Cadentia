@@ -69,11 +69,13 @@ export type SharedConfigState = {
     | "sentiment"
     | "specificity"
     | "length";
+  hoveredItem: number | null;
 };
 
 export type SharedConfigActions = {
   setCategoricalDimension: (dimension: string) => void;
   setNumericalDimension: (dimension: string) => void;
+  setHoveredItem: (id: number | null) => void;
 };
 
 export const useSharedConfigStore = create<
@@ -83,6 +85,7 @@ export const useSharedConfigStore = create<
     (set) => ({
       categoricalDimension: "type",
       numericalDimension: "actionability",
+      hoveredItem: null,
       setCategoricalDimension: (dimension: string) =>
         set(
           produce((state) => {
@@ -93,6 +96,12 @@ export const useSharedConfigStore = create<
         set(
           produce((state) => {
             state.numericalDimension = dimension;
+          }),
+        ),
+      setHoveredItem: (id: number | null) =>
+        set(
+          produce((state) => {
+            state.hoveredItem = id;
           }),
         ),
     }),

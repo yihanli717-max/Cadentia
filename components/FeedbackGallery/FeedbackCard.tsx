@@ -108,7 +108,7 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
           ),
         }}
       >
-        <div className="flex flex-col gap-2 items-start select-none  font-medium">
+        <div className="flex flex-col gap-2 items-start select-none font-medium">
           <div className="flex flex-row justify-between items-center w-full">
             <div className="flex flex-row gap-1 items-center pt-3">
               <div

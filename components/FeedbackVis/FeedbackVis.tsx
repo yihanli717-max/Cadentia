@@ -14,14 +14,14 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
   const [
     categoricalDimension,
-    setCategoricalDimension,
     numericalDimension,
-    setNumericalDimension,
+    hoveredItem,
+    setHoveredItem,
   ] = useSharedConfigStore((state) => [
     state.categoricalDimension,
-    state.setCategoricalDimension,
     state.numericalDimension,
-    state.setNumericalDimension,
+    state.hoveredItem,
+    state.setHoveredItem,
   ]);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -50,90 +50,96 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     };
   }, []);
 
-  const data = useMemo(() => {
-    // Normalize `actionability` and apply `-Math.log`
-    const values = allFeedback.map((item: any) => item[numericalDimension]);
-    const transformedValues = normalizeAndTransform(values, (v) => v);
-
-    // Map the transformed actionability back to feedback items
-    const feedbackWithTransformedValues = allFeedback.map((item, index) => ({
-      ...item,
-      transformedValues: transformedValues[index],
-    }));
-
-    // Generate data based on the real feedback items
-    const groupedFeedback = d3.group(
-      feedbackWithTransformedValues,
-      (item: any) => item[categoricalDimension],
-    );
-
-    return {
-      children: Array.from(groupedFeedback, ([group, children]) => ({
-        group,
-        children: children.map((item) => ({
-          group,
-          value: item.transformedValues, // Use transformed value
-        })),
-      })),
-    };
-  }, [allFeedback, categoricalDimension, numericalDimension]);
-
   useEffect(() => {
     if (!svgRef.current || !dimensions) return;
 
     const { width, height } = dimensions;
 
-    // Clear previous SVG content
+    // Calculate nodes
+    const calculateNodes = () => {
+      const values = allFeedback.map((item: any) => item[numericalDimension]);
+      const transformedValues = normalizeAndTransform(values, (v) => v);
+
+      const feedbackWithTransformedValues = allFeedback.map((item, index) => ({
+        ...item,
+        transformedValues: transformedValues[index],
+      }));
+
+      const groupedFeedback = d3.group(
+        feedbackWithTransformedValues,
+        (item: any) => item[categoricalDimension],
+      );
+
+      const data = {
+        children: Array.from(groupedFeedback, ([group, children]) => ({
+          group,
+          children: children.map((item) => ({
+            id: item.id,
+            group,
+            value: item.transformedValues,
+          })),
+        })),
+      };
+
+      const pack = d3.pack<any>().size([width, height]).padding(1);
+      return pack(d3.hierarchy(data).sum((d) => (d as any).value)).leaves();
+    };
+
+    // Create or update nodes
+    let nodes = calculateNodes();
+
     const svg = d3.select(svgRef.current);
-    svg.selectAll("*").remove();
 
-    const pack = d3.pack<any>().size([width, height]).padding(1);
+    const node = svg
+      .selectAll<SVGCircleElement, d3.HierarchyCircularNode<any>>("circle")
+      .data(nodes, (d: any) => d.data.id) // Use id as key
+      .join(
+        (enter) =>
+          enter
+            .append("circle")
+            .attr("cx", (d) => d.x!)
+            .attr("cy", (d) => d.y!)
+            .attr("r", 0) // Start with radius 0
+            .attr("fill", (d) => getColor(categoricalDimension)(d.data.group))
+            .attr("stroke", (d) => (d.data.id === hoveredItem ? "gray" : null))
 
-    const nodes = pack(
-      d3.hierarchy(data).sum((d) => (d as any).value),
-    ).leaves();
+            .call((enter) =>
+              enter
+                .transition()
+                .duration(750)
+                .attr("r", (d) => d.r),
+            )
+            .on("mouseover", function (event, d) {
+              console.log(d.data.id);
+              setHoveredItem(d.data.id); // Set hovered item id
+            })
+            .on("mouseout", function () {
+              setHoveredItem(null); // Optionally, reset hoveredItem on mouseout
+            }),
+        (update) =>
+          update.call(
+            (update) =>
+              update
+                .transition()
+                .duration(750)
+                .attr("fill", (d) =>
+                  getColor(categoricalDimension)(d.data.group),
+                ) // Update color
+                .attr("r", (d) => d.r), // Update radius
+          ),
+        (exit) =>
+          exit.call((exit) =>
+            exit.transition().duration(500).attr("r", 0).remove(),
+          ),
+      );
 
+    // Create simulation
     const simulation = d3
       .forceSimulation(nodes)
       .force("x", d3.forceX(width / 2).strength(0.01))
       .force("y", d3.forceY(height / 2).strength(0.01))
       .force("cluster", forceCluster())
       .force("collide", forceCollide());
-
-    const node = svg
-      .selectAll<SVGCircleElement, d3.HierarchyCircularNode<any>>("circle")
-      .data(nodes)
-      .join("circle")
-      .attr("cx", (d) => d.x!)
-      .attr("cy", (d) => d.y!)
-      .attr("fill", (d) => getColor(categoricalDimension)(d.data.group))
-      .call(
-        d3
-          .drag<SVGCircleElement, d3.HierarchyCircularNode<any>>() // Explicitly type the drag behavior
-          .on("start", (event, d: any) => {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            d.fx = d.x;
-            d.fy = d.y;
-          })
-          .on("drag", (event, d: any) => {
-            d.fx = event.x;
-            d.fy = event.y;
-          })
-          .on("end", (event, d: any) => {
-            if (!event.active) simulation.alphaTarget(0);
-            d.fx = null;
-            d.fy = null;
-          }),
-      );
-
-    node
-      .transition()
-      .delay((d, i) => Math.random() * 500)
-      .duration(750)
-      .attrTween("r", (d: any) => {
-        const i = d3.interpolate(0, d.r);
-        return (t) => (d.r = i(t));
-      });
 
     simulation.on("tick", () => {
       node
@@ -147,14 +153,48 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         });
     });
 
-    // Cleanup on unmount
+    // Cleanup
     return () => {
       simulation.stop();
     };
-  }, [dimensions, data]);
+  }, [dimensions, allFeedback, categoricalDimension, numericalDimension]);
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    const svg = d3.select(svgRef.current);
+
+    // Reset all nodes to remove stroke
+    svg
+      .selectAll<SVGCircleElement, any>("circle")
+      // .attr("filter", null)
+      .attr("opacity", 0.8)
+      .attr("stroke", null)
+      .attr("stroke-width", 0);
+
+    const defs = svg.append("defs");
+    defs
+      .append("filter")
+      .attr("id", "glow")
+      .append("feGaussianBlur")
+      .attr("stdDeviation", 3)
+      .attr("result", "coloredBlur");
+
+    // Highlight the hovered item if present
+    if (hoveredItem) {
+      svg
+        .selectAll<SVGCircleElement, any>("circle")
+        .filter((d) => d.data.id === hoveredItem)
+        // .attr("filter", "url(#glow)")
+        .attr("opacity", 1)
+        .attr("stroke", "#d1d5db")
+        .attr("stroke-width", 2);
+    }
+  }, [hoveredItem]);
 
   return (
     <div ref={containerRef} className={cn(props.classes, "relative")}>
+      {/* <div className="absolute">{hoveredItem}</div> */}
       <Menu classes="absolute top-0 left-0 p-2" />
       {dimensions && (
         <svg

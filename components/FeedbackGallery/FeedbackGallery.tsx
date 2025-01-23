@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import FeedbackCard from "@/components/FeedbackGallery/FeedbackCard";
-import { useFeedbackStore } from "@/lib/store";
+import { useFeedbackStore, useSharedConfigStore } from "@/lib/store";
 import { FeedbackItem } from "@/lib/type";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +9,8 @@ type FeedbackGalleryProps = {
 };
 
 const FeedbackGallery = (props: FeedbackGalleryProps) => {
+  const setHoveredItem = useSharedConfigStore((state) => state.setHoveredItem);
+
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const [selectedFeedback, setSelectedFeedback] = useState<
     FeedbackItem[] | undefined
@@ -20,7 +22,11 @@ const FeedbackGallery = (props: FeedbackGalleryProps) => {
         {allFeedback &&
           (allFeedback.length > 0 ? (
             allFeedback.map((item) => (
-              <div key={item.id}>
+              <div
+                key={item.id}
+                onMouseEnter={() => setHoveredItem(item.id)}
+                onMouseLeave={() => setHoveredItem(null)}
+              >
                 <FeedbackCard
                   feedbackItem={item}
                   classes="relative rounded-lg hover:ring-2 ring-gray-300 ring-offset-1 ring-offset-gray-50"
