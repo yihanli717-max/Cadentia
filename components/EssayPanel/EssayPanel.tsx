@@ -2,7 +2,11 @@
 
 import React, { useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { useEssayStore } from "@/lib/store";
+import {
+  useEssayStore,
+  useFeedbackStore,
+  useSharedConfigStore,
+} from "@/lib/store";
 import { Sentence } from "@/lib/type";
 
 interface EssayPanelProps {
@@ -10,6 +14,22 @@ interface EssayPanelProps {
 }
 
 const EssayPanel = (props: EssayPanelProps) => {
+  const [hoveredItem] = useSharedConfigStore((state) => [state.hoveredItem]);
+  const allFeedback = useFeedbackStore((state) => state.feedback);
+  const hoveredFeedback = useMemo(
+    () => allFeedback.find((item) => item.id === hoveredItem),
+    [allFeedback, hoveredItem],
+  );
+  const highlightSentences = useMemo(() => {
+    // iterate through hoveredFeedback's plan and get all sentences
+    const sentences = new Set<string>();
+    hoveredFeedback?.plan.forEach((item) => {
+      sentences.add(item.sentence);
+    });
+    // console.log(sentences);
+    return sentences;
+  }, [hoveredFeedback]);
+
   const essay = useEssayStore((state) => state.essay);
   const paragraphs = useMemo(() => {
     return essay.reduce(
@@ -43,7 +63,14 @@ const EssayPanel = (props: EssayPanelProps) => {
             >
               {sections.map((section) => (
                 <React.Fragment key={`section-${section.id}`}>
-                  <span id={section.id.toString()}>
+                  <span
+                    id={section.id.toString()}
+                    className={
+                      highlightSentences.has(section.content)
+                        ? "bg-yellow-100"
+                        : ""
+                    }
+                  >
                     {section.content + " "}
                   </span>
                 </React.Fragment>

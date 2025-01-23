@@ -115,7 +115,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
               hoverTimer = setTimeout(() => {
                 console.log(d.data.id);
                 setHoveredItem(d.data.id); // Set hovered item id
-              }, 5);
+              }, 150);
             })
             .on("mouseout", function () {
               if (hoverTimer) {
