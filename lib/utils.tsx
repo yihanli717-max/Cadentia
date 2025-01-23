@@ -47,10 +47,14 @@ export const normalizeAndTransform = (
 
   if (min === max) {
     // Handle edge case where all values are the same
-    return values.map(() => transform(0.5));
+    return values.map(() => transform(0.55)); // 0.55 is the middle of the range [0.1, 1]
   }
 
-  return values.map((value) => transform((value - min) / (max - min)));
+  return values.map((value) => {
+    const normalized = (value - min) / (max - min); // Map to [0, 1]
+    const scaled = normalized * 0.9 + 0.1; // Map to [0.1, 1]
+    return transform(scaled);
+  });
 };
 
 const colorScales: { [key: string]: d3.ScaleOrdinal<string, string> } = {
@@ -67,4 +71,9 @@ export const getColor = (categoricalDimension: string) => {
   } else {
     return (group: string) => d3.schemeTableau10[0];
   }
+};
+
+export const countWords = (text: string) => {
+  const words = text.match(/\b\w+\b/g);
+  return words ? words.length : 0;
 };

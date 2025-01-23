@@ -52,16 +52,13 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
   const data = useMemo(() => {
     // Normalize `actionability` and apply `-Math.log`
-    const actionabilityValues = allFeedback.map((item) => item.actionability);
-    const transformedActionability = normalizeAndTransform(
-      actionabilityValues,
-      (v) => v,
-    );
+    const values = allFeedback.map((item: any) => item[numericalDimension]);
+    const transformedValues = normalizeAndTransform(values, (v) => v);
 
     // Map the transformed actionability back to feedback items
     const feedbackWithTransformedValues = allFeedback.map((item, index) => ({
       ...item,
-      transformedActionability: transformedActionability[index],
+      transformedValues: transformedValues[index],
     }));
 
     // Generate data based on the real feedback items
@@ -75,11 +72,11 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         group,
         children: children.map((item) => ({
           group,
-          value: item.transformedActionability, // Use transformed value
+          value: item.transformedValues, // Use transformed value
         })),
       })),
     };
-  }, [allFeedback, categoricalDimension]);
+  }, [allFeedback, categoricalDimension, numericalDimension]);
 
   useEffect(() => {
     if (!svgRef.current || !dimensions) return;
@@ -139,7 +136,15 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       });
 
     simulation.on("tick", () => {
-      node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+      node
+        .attr("cx", (d) => {
+          d.x = Math.max(d.r, Math.min(width - d.r, d.x));
+          return d.x;
+        })
+        .attr("cy", (d) => {
+          d.y = Math.max(d.r, Math.min(height - d.r, d.y));
+          return d.y;
+        });
     });
 
     // Cleanup on unmount

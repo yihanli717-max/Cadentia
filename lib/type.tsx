@@ -29,6 +29,7 @@ export type GPTPlan = {
 export type FeedbackItem = {
   id: number;
   content: string;
+  length?: number;
   actionability: number;
   justification: number;
   sentiment: number;

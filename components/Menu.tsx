@@ -3,7 +3,7 @@ import React, { useRef } from "react";
 import { essay } from "@/data/essay";
 import { feedback } from "@/data/feedback";
 import { useEssayStore, useFeedbackStore } from "@/lib/store";
-import { cn } from "@/lib/utils";
+import { cn, countWords } from "@/lib/utils";
 
 type MenuProps = {
   classes?: string;
@@ -33,7 +33,14 @@ const Menu = ({ classes }: MenuProps) => {
 
   const loadDefaultData = async () => {
     useEssayStore.setState({ essay: essay });
-    useFeedbackStore.setState({ feedback: feedback });
+    // useFeedbackStore.setState({ feedback: feedback })
+
+    // iterate over the feedback and calculate the sentence lengths of each feedback content
+    const feedbackWithLength = feedback.map((item) => ({
+      ...item,
+      length: countWords(item.content),
+    }));
+    useFeedbackStore.setState({ feedback: feedbackWithLength });
   };
 
   return (
