@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useState, useEffect } from "react";
+import { useSharedConfigStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 type HelpfulnessVisProps = {
@@ -13,6 +14,10 @@ type HelpfulnessVisProps = {
 };
 
 const HelpfulnessVis = (props: HelpfulnessVisProps) => {
+  const numericalDimension = useSharedConfigStore(
+    (state) => state.numericalDimension,
+  );
+
   const [hoveredDimension, setHoveredDimension] = useState<string | null>(null);
   const [hoverTip, setHoverTip] = useState<{
     dimension: string | null;
@@ -33,35 +38,53 @@ const HelpfulnessVis = (props: HelpfulnessVisProps) => {
   };
 
   return (
-    <div>
+    <div className="relative">
       <div
         className="flex items-end"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
         <div
-          className="w-2 bg-sky-500 transition-all duration-150 ease-in-out hover:scale-125 hover:-translate-y-[1px]"
+          className={cn(
+            numericalDimension === "sentiment" ? "bg-sky-500" : "bg-gray-300",
+            "w-2 transition-all duration-150 ease-in-out hover:scale-125 hover:-translate-y-[1px]",
+          )}
           style={{ height: `${2 + props.sentiment * 16}px` }}
           onMouseEnter={() => {
             setHoveredDimension("sentiment");
           }}
         ></div>
         <div
-          className="w-2 bg-pink-500 transition-all duration-150 ease-in-out hover:scale-125 hover:-translate-y-[1px]"
+          className={cn(
+            numericalDimension === "actionability"
+              ? "bg-pink-500"
+              : "bg-gray-300",
+            "w-2 transition-all duration-150 ease-in-out hover:scale-125 hover:-translate-y-[1px]",
+          )}
           style={{ height: `${2 + props.actionability * 16}px` }}
           onMouseEnter={() => {
             setHoveredDimension("actionability");
           }}
         ></div>
         <div
-          className="w-2 bg-emerald-500 transition-all duration-150 ease-in-out hover:scale-125 hover:-translate-y-[1px]"
+          className={cn(
+            numericalDimension === "justification"
+              ? "bg-emerald-500"
+              : "bg-gray-300",
+            "w-2 transition-all duration-150 ease-in-out hover:scale-125 hover:-translate-y-[1px]",
+          )}
           style={{ height: `${2 + props.justification * 16}px` }}
           onMouseEnter={() => {
             setHoveredDimension("justification");
           }}
         ></div>
         <div
-          className="w-2 bg-purple-500 transition-all duration-150 ease-in-out hover:scale-125 hover:-translate-y-[1px]"
+          className={cn(
+            numericalDimension === "specificity"
+              ? "bg-purple-500"
+              : "bg-gray-300",
+            "w-2 transition-all duration-150 ease-in-out hover:scale-125 hover:-translate-y-[1px]",
+          )}
           style={{ height: `${2 + props.specificity * 16}px` }}
           onMouseEnter={() => {
             setHoveredDimension("specificity");
@@ -70,20 +93,7 @@ const HelpfulnessVis = (props: HelpfulnessVisProps) => {
       </div>
 
       {hoverTip && hoverTip.visible && (
-        <div
-          className="fixed whitespace-nowrap border rounded-lg bg-white text-[10px] shadow-lg p-2 flex flex-col gap-1 z-50"
-          style={
-            props.hideContent
-              ? {
-                  left: "80px",
-                  top: "0px",
-                }
-              : {
-                  left: "8px",
-                  top: "44px",
-                }
-          }
-        >
+        <div className="absolute border rounded-lg bg-white text-[9px] shadow-lg p-2 flex flex-col gap-1 z-50 right-0 top-6 w-60">
           {
             <>
               <p>
@@ -113,10 +123,7 @@ const HelpfulnessVis = (props: HelpfulnessVisProps) => {
                   })}
                 >
                   ({props.actionability.toFixed(2)}),{" "}
-                </span>
-              </p>
-              <p>
-                {" "}
+                </span>{" "}
                 {Number(props.justification.toFixed(2)) > 0.6
                   ? "is well justified"
                   : Number(props.justification.toFixed(2)) < 0.4
