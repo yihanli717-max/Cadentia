@@ -90,6 +90,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     const svg = d3.select(svgRef.current);
 
+    let hoverTimer: NodeJS.Timeout | null = null;
+
     const node = svg
       .selectAll<SVGCircleElement, d3.HierarchyCircularNode<any>>("circle")
       .data(nodes, (d: any) => d.data.id) // Use id as key
@@ -102,7 +104,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             .attr("r", 0) // Start with radius 0
             .attr("fill", (d) => getColor(categoricalDimension)(d.data.group))
             .attr("stroke", (d) => (d.data.id === hoveredItem ? "gray" : null))
-
+            .attr("opacity", 0.6)
             .call((enter) =>
               enter
                 .transition()
@@ -110,10 +112,16 @@ const FeedbackVis = (props: FeedbackVisProps) => {
                 .attr("r", (d) => d.r),
             )
             .on("mouseover", function (event, d) {
-              console.log(d.data.id);
-              setHoveredItem(d.data.id); // Set hovered item id
+              hoverTimer = setTimeout(() => {
+                console.log(d.data.id);
+                setHoveredItem(d.data.id); // Set hovered item id
+              }, 5);
             })
             .on("mouseout", function () {
+              if (hoverTimer) {
+                clearTimeout(hoverTimer);
+                hoverTimer = null;
+              }
               setHoveredItem(null); // Optionally, reset hoveredItem on mouseout
             }),
         (update) =>
@@ -132,6 +140,25 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             exit.transition().duration(500).attr("r", 0).remove(),
           ),
       );
+
+    node.call(
+      d3
+        .drag<SVGCircleElement, d3.HierarchyCircularNode<any>>() // Explicitly type the drag behavior
+        .on("start", (event, d: any) => {
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          d.fx = d.x;
+          d.fy = d.y;
+        })
+        .on("drag", (event, d: any) => {
+          d.fx = event.x;
+          d.fy = event.y;
+        })
+        .on("end", (event, d: any) => {
+          if (!event.active) simulation.alphaTarget(0);
+          d.fx = null;
+          d.fy = null;
+        }),
+    );
 
     // Create simulation
     const simulation = d3
@@ -168,7 +195,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     svg
       .selectAll<SVGCircleElement, any>("circle")
       // .attr("filter", null)
-      .attr("opacity", 0.8)
+      .attr("opacity", 0.6)
       .attr("stroke", null)
       .attr("stroke-width", 0);
 
@@ -201,6 +228,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           ref={svgRef}
           width={dimensions.width}
           height={dimensions.height}
+          className="cursor-pointer"
         ></svg>
       )}
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import FeedbackCard from "@/components/FeedbackGallery/FeedbackCard";
 import { useFeedbackStore, useSharedConfigStore } from "@/lib/store";
 import { FeedbackItem } from "@/lib/type";
@@ -9,12 +9,34 @@ type FeedbackGalleryProps = {
 };
 
 const FeedbackGallery = (props: FeedbackGalleryProps) => {
-  const setHoveredItem = useSharedConfigStore((state) => state.setHoveredItem);
+  const [hoveredItem, setHoveredItem] = useSharedConfigStore((state) => [
+    state.hoveredItem,
+    state.setHoveredItem,
+  ]);
 
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const [selectedFeedback, setSelectedFeedback] = useState<
     FeedbackItem[] | undefined
   >([]);
+
+  // Ref to store all feedback item refs
+  const feedbackRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const [ifHovered, setIfHovered] = useState(false);
+
+  // Scroll to the hovered item when it changes
+  useEffect(() => {
+    if (!ifHovered) {
+      if (hoveredItem) {
+        const targetRef = feedbackRefs.current.get(hoveredItem);
+        if (targetRef) {
+          targetRef.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }
+      }
+    }
+  }, [hoveredItem]);
 
   return (
     <div className={cn(props.classes, "bg-gray-50 border-r border-gray-100")}>
@@ -24,12 +46,30 @@ const FeedbackGallery = (props: FeedbackGalleryProps) => {
             allFeedback.map((item) => (
               <div
                 key={item.id}
-                onMouseEnter={() => setHoveredItem(item.id)}
-                onMouseLeave={() => setHoveredItem(null)}
+                ref={(el) => {
+                  if (el) {
+                    feedbackRefs.current.set(item.id, el);
+                  } else {
+                    feedbackRefs.current.delete(item.id);
+                  }
+                }}
+                onMouseEnter={() => {
+                  setHoveredItem(item.id);
+                  setIfHovered(true);
+                }}
+                onMouseLeave={() => {
+                  setHoveredItem(null);
+                  setIfHovered(false);
+                }}
               >
                 <FeedbackCard
                   feedbackItem={item}
-                  classes="relative rounded-lg hover:ring-2 ring-gray-300 ring-offset-1 ring-offset-gray-50"
+                  classes={
+                    "relative rounded-lg ring-gray-300 ring-offset-1 ring-offset-gray-50" +
+                    (hoveredItem === item.id
+                      ? " ring-2 scale-[1.01] transition-all duration-150 ease-in-out"
+                      : "")
+                  }
                   close={true}
                   selectedFeedback={selectedFeedback}
                   setSelectedFeedback={setSelectedFeedback}
