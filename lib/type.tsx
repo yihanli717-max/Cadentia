@@ -36,7 +36,7 @@ export type FeedbackItem = {
   engagement: number;
   source: number;
   type: string;
-  file: string;
+  provider: string;
   plan: GPTPlan[];
   addressed: boolean;
 };
@@ -44,7 +44,7 @@ export type FeedbackItem = {
 export type FeedbackSourceItem = {
   id: number;
   content: string;
-  file: string;
+  provider: string;
 };
 
 export type RevisionItem = {

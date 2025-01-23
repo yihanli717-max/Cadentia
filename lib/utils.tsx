@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { useSharedConfigStore } from "@/lib/store";
 import * as d3 from "d3";
 
 export function cn(...inputs: ClassValue[]) {
@@ -50,4 +51,20 @@ export const normalizeAndTransform = (
   }
 
   return values.map((value) => transform((value - min) / (max - min)));
+};
+
+const colorScales: { [key: string]: d3.ScaleOrdinal<string, string> } = {
+  provider: d3.scaleOrdinal(d3.schemeTableau10),
+  type: d3.scaleOrdinal(d3.schemeCategory10),
+};
+
+export const getColor = (categoricalDimension: string) => {
+  if (categoricalDimension === "type") {
+    return (group: string) => categoryColorMap[group] || d3.schemeTableau10[8];
+  } else if (categoricalDimension === "provider") {
+    const colorScale = colorScales.provider;
+    return (group: string) => colorScale(group);
+  } else {
+    return (group: string) => d3.schemeTableau10[0];
+  }
 };

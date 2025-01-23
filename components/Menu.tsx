@@ -40,7 +40,7 @@ const Menu = ({ classes }: MenuProps) => {
     <div className={cn(classes, "flex flex-row select-none items-center")}>
       <div className="flex flex-row gap-2 items-center">
         <input
-          type="file"
+          type="provider"
           accept=".json"
           ref={fileInputRef}
           className="hidden"

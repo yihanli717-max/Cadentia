@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from "react";
 import HelpfulnessVis from "@/components/FeedbackGallery/HelpfulnessVis";
 import { FeedbackSourceItem, FeedbackItem } from "@/lib/type";
-import { cn, isSimilarSentence, categoryColorMap } from "@/lib/utils";
+import { cn, isSimilarSentence, categoryColorMap, getColor } from "@/lib/utils";
 import { feedbackSource } from "@/data/source";
+import { useSharedConfigStore } from "@/lib/store";
 import { TbX, TbClipboardText } from "react-icons/tb";
 import { noto_serif } from "@/app/fonts";
 
@@ -34,6 +35,10 @@ const typeMap = {
 export const FeedbackCard = (props: FeedbackCardProps) => {
   const [showSource, setShowSource] = useState(false);
   const [newFeedbackContent, setNewFeedbackContent] = useState("");
+
+  const [categoricalDimension, numericalDimension] = useSharedConfigStore(
+    (state) => [state.categoricalDimension, state.numericalDimension],
+  );
 
   const handleMouseEnterCheckSource = () => {
     // find id = props.feedbackItem.source in feedbackSource
@@ -98,7 +103,9 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
       <div
         className="px-3 py-1 bg-white border-2 rounded-lg select-none space-y-2"
         style={{
-          borderColor: categoryColorMap[props.feedbackItem.type],
+          borderColor: getColor(categoricalDimension)(
+            props.feedbackItem[categoricalDimension],
+          ),
         }}
       >
         <div className="flex flex-col gap-2 items-start select-none  font-medium">
@@ -117,11 +124,11 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
                 </div>
               </div>
               <h1 className={cn("text-sm font-semibold")}>
-                {
-                  typeMap[
-                    props.feedbackItem.type.toLowerCase() as keyof typeof typeMap
-                  ]
-                }
+                {categoricalDimension === "type"
+                  ? typeMap[
+                      props.feedbackItem.type.toLowerCase() as keyof typeof typeMap
+                    ]
+                  : props.feedbackItem[categoricalDimension]}
               </h1>
             </div>
 

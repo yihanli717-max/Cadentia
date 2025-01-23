@@ -59,3 +59,37 @@ export const useFeedbackStore = create<FeedbackState & FeedbackActions>()(
     { name: "feedback", skipHydration: false },
   ),
 );
+
+export type SharedConfigState = {
+  categoricalDimension: "type" | "provider";
+  numericalDimension: string;
+};
+
+export type SharedConfigActions = {
+  setCategoricalDimension: (dimension: string) => void;
+  setNumericalDimension: (dimension: string) => void;
+};
+
+export const useSharedConfigStore = create<
+  SharedConfigState & SharedConfigActions
+>()(
+  persist(
+    (set) => ({
+      categoricalDimension: "type",
+      numericalDimension: "actionability",
+      setCategoricalDimension: (dimension: string) =>
+        set(
+          produce((state) => {
+            state.categoricalDimension = dimension;
+          }),
+        ),
+      setNumericalDimension: (dimension: string) =>
+        set(
+          produce((state) => {
+            state.numericalDimension = dimension;
+          }),
+        ),
+    }),
+    { name: "shared-config", skipHydration: false },
+  ),
+);

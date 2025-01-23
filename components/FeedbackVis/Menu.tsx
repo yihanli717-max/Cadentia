@@ -1,19 +1,30 @@
 import React from "react";
+import { useSharedConfigStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 interface MenuProps {
   classes?: string;
-  categoricalDimension: string;
-  setCategoricalDimension: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const Menu = (props: MenuProps) => {
+  const [
+    categoricalDimension,
+    setCategoricalDimension,
+    numericalDimension,
+    setNumericalDimension,
+  ] = useSharedConfigStore((state) => [
+    state.categoricalDimension,
+    state.setCategoricalDimension,
+    state.numericalDimension,
+    state.setNumericalDimension,
+  ]);
+
   return (
     <div className={cn(props.classes, "space-x-2")}>
       <div className="dropdown">
         <div tabIndex={0} role="button" className="btn text-xs m-1">
           <span className="text-gray-400">Color by</span>
-          <span className="capitalize">{props.categoricalDimension}</span>
+          <span className="capitalize">{categoricalDimension}</span>
         </div>
         <ul
           tabIndex={0}
@@ -21,20 +32,18 @@ const Menu = (props: MenuProps) => {
         >
           <li>
             <a
-              onClick={() => props.setCategoricalDimension("type")}
-              className={props.categoricalDimension === "type" ? "active" : ""}
+              onClick={() => setCategoricalDimension("type")}
+              className={categoricalDimension === "type" ? "active" : ""}
             >
               Type
             </a>
           </li>
           <li>
             <a
-              onClick={() => props.setCategoricalDimension("source")}
-              className={
-                props.categoricalDimension === "source" ? "active" : ""
-              }
+              onClick={() => setCategoricalDimension("provider")}
+              className={categoricalDimension === "provider" ? "active" : ""}
             >
-              Source
+              Provider
             </a>
           </li>
         </ul>

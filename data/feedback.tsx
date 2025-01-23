@@ -3,7 +3,7 @@ import { FeedbackItem } from "@/lib/type";
 export const feedback: FeedbackItem[] = [
   {
     source: 1,
-    file: "Alex",
+    provider: "Alex",
     content:
       "The thesis of this paper can be improved, it should be presented as a statement in the introduction.",
     type: "Claim",
@@ -42,7 +42,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 1,
-    file: "Alex",
+    provider: "Alex",
     content:
       "The text is good but there could have been more information or explanation for each point made. Ideas were good but should provide a better explanation.",
     type: "Reasoning",
@@ -173,7 +173,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 1,
-    file: "Alex",
+    provider: "Alex",
     content:
       "The analysis needs improvements, each paragraph had parts broken up into them regarding each point rather than having each paragraph be a singular idea, solution, etc.",
     type: "Organization",
@@ -304,7 +304,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 1,
-    file: "Alex",
+    provider: "Alex",
     content:
       "There are some examples for each point but could be separated into paragraphs along with each analysis made.",
     type: "Organization",
@@ -389,7 +389,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 1,
-    file: "Alex",
+    provider: "Alex",
     content:
       "Alternative positions are mentioned but not explored, we need more information!",
     type: "Rebuttal",
@@ -474,7 +474,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 1,
-    file: "Alex",
+    provider: "Alex",
     content:
       "Excellent clarity, the introduction needs to be stronger. It feels lazy.",
     type: "Organization",
@@ -582,7 +582,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 1,
-    file: "Alex",
+    provider: "Alex",
     content:
       "The body is a little disorganized, keep all points together instead of spread out in the paper.",
     type: "Organization",
@@ -667,7 +667,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 1,
-    file: "Alex",
+    provider: "Alex",
     content:
       "The conclusion does circle back to the introduction but it also brings up a solution; needs more explanation such as what can make them pay attention to develop or pay attention to new technologies?",
     type: "Reasoning",
@@ -706,7 +706,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 1,
-    file: "Alex",
+    provider: "Alex",
     content:
       'Overall this is a paper that would "pass" but it\'s not excellent and it could be better with more organization and ideas.',
     type: "Organization",
@@ -837,7 +837,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    file: "Instructor",
+    provider: "Instructor",
     content:
       "The essay presents a nuanced perspective on the role of technology in modern society, but suffers from inconsistencies in word usage, insufficient evidence, and minor orthography errors.",
     type: "Word-usage",
@@ -991,7 +991,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    file: "Instructor",
+    provider: "Instructor",
     content:
       'Phrases like "improved beyond recognition" could be toned down for academic sobriety, and "intricate problems" might benefit from examples to ground the discussion in concrete terms.',
     type: "Word-usage",
@@ -1053,7 +1053,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    file: "Instructor",
+    provider: "Instructor",
     content:
       "The essay lacks robust evidence to support its claims, relying on broad assertions (e.g., the benefits of hi-tech devices and medical advances) without citing specific studies, technologies, or statistical data. This undermines the argument's credibility, as it doesn't provide the reader with a clear basis for its conclusions.",
     type: "Evidence",
@@ -1253,7 +1253,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    file: "Instructor",
+    provider: "Instructor",
     content:
       "The essay could benefit from closer attention to punctuation, particularly in the use of commas for clarity in longer sentences.",
     type: "Orthography",
@@ -1430,7 +1430,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    file: "Instructor",
+    provider: "Instructor",
     content:
       'Moreover, transitioning phrases like "to begin with" and "however" could be employed more strategically to enhance coherence and flow.',
     type: "Organization",
@@ -1492,7 +1492,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    file: "Instructor",
+    provider: "Instructor",
     content:
       "The conclusion could be strengthened by addressing the counterargument more directly, thus providing a more balanced view.",
     type: "Rebuttal",
@@ -1577,7 +1577,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 3,
-    file: "Jun",
+    provider: "Jun",
     content:
       'The thesis is ambiguously worded in the first paragraph and isn\'t clearly stated until near the close of the essay. The writer should consider moving the statement, "(technological advances) clearly outweigh its disadvantages, ... it can contribute greatly to the development of the world" to the opening paragraph.',
     type: "Organization",
@@ -1639,7 +1639,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 3,
-    file: "Jun",
+    provider: "Jun",
     content:
       "The second and third paragraphs do more to seemingly contradict each other rather than building a cohesive argument.",
     type: "Reasoning",
@@ -1701,7 +1701,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 3,
-    file: "Jun",
+    provider: "Jun",
     content:
       "The second paragraph builds a good case for the benefits of technology, but the evidence is a bit anecdotal. If the writer has time, it would benefit them to give numbers and citations to further prove their points.",
     type: "Evidence",
@@ -1809,7 +1809,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 3,
-    file: "Jun",
+    provider: "Jun",
     content:
       'The criticisms of the third paragraph would either be better to omit, or to use in order to further the author\'s intent. Some of the conditions described by use of technology are more indicative of how work and our current lifestyles are "in-flux." There are technological and sociological solutions to these issues that the author could mention, but omits.',
     type: "Rebuttal",
@@ -1940,7 +1940,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 3,
-    file: "Jun",
+    provider: "Jun",
     content:
       "Ultimately, the essay sounds as though the author is trying to be impartial while clearly having an opinion. Essays as such are not cohesive to readers. It would be better for the author to focus on their thesis, and think about how each statement or fact ties into what they are trying to convey.",
     type: "Reasoning",
@@ -2048,7 +2048,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 4,
-    file: "April",
+    provider: "April",
     content:
       "Although the writer successfully dissects the argument into relevant parts for the reader to easily digest, more effective and substantial examples could have been provided.",
     type: "Evidence",
@@ -2156,7 +2156,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 4,
-    file: "April",
+    provider: "April",
     content:
       "Overall, the writer makes their argument easy to follow and understand their reasoning for the given point of view despite quickly ending their essay with an unsatisfying tying of loose ends.",
     type: "Others",
@@ -2195,7 +2195,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 5,
-    file: "EssayForum Reviewer 1",
+    provider: "EssayForum Reviewer 1",
     content:
       "The introduction effectively presents the author's stance but could enhance clarity by providing a more explicit statement of the thesis.",
     type: "Organization",
@@ -2234,7 +2234,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 5,
-    file: "EssayForum Reviewer 1",
+    provider: "EssayForum Reviewer 1",
     content:
       "While the essay demonstrates a balanced perspective, some transitions between points could be smoother for better cohesion.",
     type: "Organization",
@@ -2296,7 +2296,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    file: "EssayForum Reviewer 2",
+    provider: "EssayForum Reviewer 2",
     content: "Overall, the essay feels and reads fragmented and scattered.",
     type: "Organization",
     actionability: 0.0,
@@ -2472,7 +2472,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    file: "EssayForum Reviewer 2",
+    provider: "EssayForum Reviewer 2",
     content:
       "There is no real thesis to guide and develop the author's argument, although upon reading in full I was able to determine what I thought the author intended the thesis to be.",
     type: "Claim",
@@ -2511,7 +2511,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    file: "EssayForum Reviewer 2",
+    provider: "EssayForum Reviewer 2",
     content:
       "The essay is also lacking in support for the arguments set forth, and the counter-argument presented is brief and not well developed.",
     type: "Rebuttal",
@@ -2596,7 +2596,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    file: "EssayForum Reviewer 2",
+    provider: "EssayForum Reviewer 2",
     content:
       'The author needs to take a more determined and solid stance on the topic. He/she leads the paper by stating they "partly disagree" with the point of view that less emphasis needs to be placed on technological solutions. The author needs to pick a side and develop the essay around this assertion.',
     type: "Claim",
@@ -2635,7 +2635,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    file: "EssayForum Reviewer 2",
+    provider: "EssayForum Reviewer 2",
     content:
       "The organization of the essay was adequate, but the clarity was lacking. There were strange transitions from sentence to sentence, paragraph to paragraph.",
     type: "Organization",
@@ -2743,7 +2743,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    file: "EssayForum Reviewer 2",
+    provider: "EssayForum Reviewer 2",
     content:
       'Simple changes in leading words could solve this quite easily. Also, some of the work choices were awkward, such as "borne in mind" and "serious problems springing from modern technology." Again, this is a simple fix for the author.',
     type: "Word-usage",
@@ -2805,7 +2805,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 7,
-    file: "EssayForum Reviewer 3",
+    provider: "EssayForum Reviewer 3",
     content:
       'I do think the last sentence is doing tell more than show and I would have liked it to not be as generic with telling directly their arguments. When they say "and the reasons are given below" it feels calculated and doesn\'t flow well.',
     type: "Organization",
@@ -2844,7 +2844,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 7,
-    file: "EssayForum Reviewer 3",
+    provider: "EssayForum Reviewer 3",
     content:
       "I feel like the body paragraphs are on the right track, but are weak in their argument. I would have liked to see more supporting documentation and sources to support their analysis.",
     type: "Evidence",
@@ -2952,7 +2952,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 7,
-    file: "EssayForum Reviewer 3",
+    provider: "EssayForum Reviewer 3",
     content:
       "The closing paragraph to me is not strong. It to me goes against the opening paragraph and argument and to me makes the argument set in the beginning not as strong.",
     type: "Claim",
@@ -3037,7 +3037,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 8,
-    file: "EssayForum Reviewer 4",
+    provider: "EssayForum Reviewer 4",
     content:
       'Maybe I am misinterpreting the conclusion of your essay. You finish this essay by saying scientists should focus on new technology rather than technological solutions. Though, through the examples you have given and by your initial thesis statement, you are providing examples of technological solutions, are you not? These "hi tech devices" that help us study and work more efficiently and the medical advances we have made are, in my mind as an uninformed reader, the exact definition of technological solutions.',
     type: "Reasoning",
@@ -3076,7 +3076,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 8,
-    file: "EssayForum Reviewer 4",
+    provider: "EssayForum Reviewer 4",
     content:
       'I enjoy how you\'ve clearly laid out the pros and cons of technology, though I feel that you may need to define your terms a little more thoroughly. How am I supposed to know the difference between "technological solutions" versus "new technology?" What makes them so different? What makes one better than the other? And what makes your final statement relate to where our values should be placed as a society?',
     type: "Reasoning",
@@ -3161,7 +3161,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 8,
-    file: "EssayForum Reviewer 4",
+    provider: "EssayForum Reviewer 4",
     content:
       "I really would've loved to see you delve into the other values, like politics and education. And I would've loved even more if you outlined those values already existing relationships with technology and how it could improve (or worsen!).",
     type: "Others",
@@ -3223,7 +3223,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 8,
-    file: "EssayForum Reviewer 4",
+    provider: "EssayForum Reviewer 4",
     content:
       "This essay just reads as a simple pros/cons list over a very nuanced topic and I feel like there is much more for you to explore on this topic.",
     type: "Others",
@@ -3331,7 +3331,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    file: "EssayForum Reviewer 5",
+    provider: "EssayForum Reviewer 5",
     content: "The argument is weak and difficult to follow. ",
     type: "Reasoning",
     actionability: 0.0,
@@ -3484,7 +3484,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    file: "EssayForum Reviewer 5",
+    provider: "EssayForum Reviewer 5",
     content:
       "The writer doesn't take a firm stance and their arguments are not well fleshed out. ",
     type: "Claim",
@@ -3615,7 +3615,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    file: "EssayForum Reviewer 5",
+    provider: "EssayForum Reviewer 5",
     content:
       "The arguments themselves are not well presented. They need to be more detailed and be presented more confidently. ",
     type: "Reasoning",
@@ -3723,7 +3723,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    file: "EssayForum Reviewer 5",
+    provider: "EssayForum Reviewer 5",
     content:
       "It felt like the writer didn't come into the essay with a strong opinion and was allowing themselves to be convinced by counter arguments as they wrote. ",
     type: "Claim",
@@ -3808,7 +3808,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    file: "EssayForum Reviewer 5",
+    provider: "EssayForum Reviewer 5",
     content:
       "Only a couple of arguments are even given to support the thesis and they are flimsy at best. ",
     type: "Evidence",
@@ -3916,7 +3916,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    file: "EssayForum Reviewer 5",
+    provider: "EssayForum Reviewer 5",
     content: "The essay needs to be longer and the ideas better supported. ",
     type: "Others",
     actionability: 0.0,
@@ -4046,7 +4046,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    file: "EssayForum Reviewer 5",
+    provider: "EssayForum Reviewer 5",
     content:
       "The writing could also be stronger. The sentence structure is often poor and the ideas do not come across as clear and coherent.",
     type: "Organization",
@@ -4223,7 +4223,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    file: "EssayForum Reviewer 6",
+    provider: "EssayForum Reviewer 6",
     content:
       "The essay would benefit from specific examples or citations to support claims about technology's positive impacts and the serious problems it causes, such as references to particular studies or statistics on technology's role in improving productivity or health outcomes, as well as the negative consequences of technology addiction.",
     type: "Evidence",
@@ -4423,7 +4423,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    file: "EssayForum Reviewer 6",
+    provider: "EssayForum Reviewer 6",
     content:
       "The essay would benefit from specific examples or citations to support claims about technology's positive impacts and the serious problems it causes, such as references to particular studies or statistics on technology's role in improving productivity or health outcomes, as well as the negative consequences of technology addiction.",
     type: "Evidence",
@@ -4462,7 +4462,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    file: "EssayForum Reviewer 6",
+    provider: "EssayForum Reviewer 6",
     content:
       "The essay would benefit from specific examples or citations to support claims about technology's positive impacts and the serious problems it causes, such as references to particular studies or statistics on technology's role in improving productivity or health outcomes, as well as the negative consequences of technology addiction.",
     type: "Evidence",
@@ -4501,7 +4501,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    file: "EssayForum Reviewer 6",
+    provider: "EssayForum Reviewer 6",
     content:
       "The essay would benefit from specific examples or citations to support claims about technology's positive impacts and the serious problems it causes, such as references to particular studies or statistics on technology's role in improving productivity or health outcomes, as well as the negative consequences of technology addiction.",
     type: "Evidence",
@@ -4540,7 +4540,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    file: "EssayForum Reviewer 6",
+    provider: "EssayForum Reviewer 6",
     content:
       "The essay would benefit from specific examples or citations to support claims about technology's positive impacts and the serious problems it causes, such as references to particular studies or statistics on technology's role in improving productivity or health outcomes, as well as the negative consequences of technology addiction.",
     type: "Evidence",
@@ -4579,7 +4579,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    file: "EssayForum Reviewer 6",
+    provider: "EssayForum Reviewer 6",
     content:
       "The essay would benefit from specific examples or citations to support claims about technology's positive impacts and the serious problems it causes, such as references to particular studies or statistics on technology's role in improving productivity or health outcomes, as well as the negative consequences of technology addiction.",
     type: "Evidence",
@@ -4618,7 +4618,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    file: "EssayForum Reviewer 6",
+    provider: "EssayForum Reviewer 6",
     content:
       'The use of vague phrases like "many aspects of our lives" and "many dangerous diseases" could be replaced with more precise terminology.',
     type: "Word-usage",
@@ -4680,7 +4680,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    file: "EssayForum Reviewer 6",
+    provider: "EssayForum Reviewer 6",
     content:
       "The argument might be clearer if it directly addressed how economic, political, and educational values could be integrated with technological advancements rather than presenting them as separate or opposing forces.",
     type: "Reasoning",
@@ -4742,7 +4742,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    file: "EssayForum Reviewer 6",
+    provider: "EssayForum Reviewer 6",
     content:
       'Spelling and grammar are generally correct, but the essay could improve its academic tone by avoiding colloquial expressions such as "beyond recognition".',
     type: "Word-usage",
@@ -4781,7 +4781,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    file: "EssayForum Reviewer 6",
+    provider: "EssayForum Reviewer 6",
     content:
       "Finally, the essay could enhance its persuasiveness by incorporating theoretical frameworks or models that explain the relationship between technology and societal development.",
     type: "Evidence",

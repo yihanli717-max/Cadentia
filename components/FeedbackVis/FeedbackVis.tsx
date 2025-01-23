@@ -1,20 +1,28 @@
 import React, { useRef, useEffect, useState, useMemo } from "react";
-import { useFeedbackStore } from "@/lib/store";
+import { useFeedbackStore, useSharedConfigStore } from "@/lib/store";
 import { FeedbackItem } from "@/lib/type";
 import Menu from "@/components/FeedbackVis/Menu";
-import { cn, categoryColorMap, normalizeAndTransform } from "@/lib/utils";
+import { cn, getColor, normalizeAndTransform } from "@/lib/utils";
 import * as d3 from "d3";
 
 interface FeedbackVisProps {
   classes?: string;
 }
 
-const FeedbackVis: React.FC<FeedbackVisProps> = ({ classes }) => {
+const FeedbackVis = (props: FeedbackVisProps) => {
   const allFeedback = useFeedbackStore((state) => state.feedback);
-  const [categoricalDimension, setCategoricalDimension] =
-    useState<string>("type");
-  const [numericalDimension, setNumericalDimension] =
-    useState<string>("actionability");
+
+  const [
+    categoricalDimension,
+    setCategoricalDimension,
+    numericalDimension,
+    setNumericalDimension,
+  ] = useSharedConfigStore((state) => [
+    state.categoricalDimension,
+    state.setCategoricalDimension,
+    state.numericalDimension,
+    state.setNumericalDimension,
+  ]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -41,16 +49,6 @@ const FeedbackVis: React.FC<FeedbackVisProps> = ({ classes }) => {
       window.removeEventListener("resize", updateDimensions);
     };
   }, []);
-
-  const color = useMemo(() => {
-    if (categoricalDimension === "type") {
-      return (group: string) =>
-        categoryColorMap[group] || d3.schemeTableau10[8];
-    } else {
-      const colorScale = d3.scaleOrdinal(d3.schemeTableau10);
-      return (group: string) => colorScale(group);
-    }
-  }, [categoricalDimension]);
 
   const data = useMemo(() => {
     // Normalize `actionability` and apply `-Math.log`
@@ -111,7 +109,7 @@ const FeedbackVis: React.FC<FeedbackVisProps> = ({ classes }) => {
       .join("circle")
       .attr("cx", (d) => d.x!)
       .attr("cy", (d) => d.y!)
-      .attr("fill", (d) => color(d.data.group))
+      .attr("fill", (d) => getColor(categoricalDimension)(d.data.group))
       .call(
         d3
           .drag<SVGCircleElement, d3.HierarchyCircularNode<any>>() // Explicitly type the drag behavior
@@ -148,15 +146,11 @@ const FeedbackVis: React.FC<FeedbackVisProps> = ({ classes }) => {
     return () => {
       simulation.stop();
     };
-  }, [dimensions, data, color]);
+  }, [dimensions, data]);
 
   return (
-    <div ref={containerRef} className={cn(classes, "relative")}>
-      <Menu
-        classes="absolute top-0 left-0 p-2"
-        categoricalDimension={categoricalDimension}
-        setCategoricalDimension={setCategoricalDimension}
-      />
+    <div ref={containerRef} className={cn(props.classes, "relative")}>
+      <Menu classes="absolute top-0 left-0 p-2" />
       {dimensions && (
         <svg
           ref={svgRef}
