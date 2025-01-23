@@ -11,7 +11,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.5,
-    engagement: 3.2573825779386363,
+    helpfulness: 3.2573825779386363,
     addressed: false,
     plan: [
       {
@@ -50,7 +50,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 0.0,
     sentiment: 0.2,
-    engagement: 2.8502097556963064,
+    helpfulness: 2.8502097556963064,
     addressed: false,
     plan: [
       {
@@ -181,7 +181,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.7,
-    engagement: 1.9544295467631816,
+    helpfulness: 1.9544295467631816,
     addressed: false,
     plan: [
       {
@@ -312,7 +312,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.5,
-    engagement: 3.2573825779386363,
+    helpfulness: 3.2573825779386363,
     addressed: false,
     plan: [
       {
@@ -397,7 +397,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 0.0,
     sentiment: 0.1875,
-    engagement: 1.2011598256148721,
+    helpfulness: 1.2011598256148721,
     addressed: false,
     plan: [
       {
@@ -482,7 +482,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.3125,
-    engagement: 1.3233116722875709,
+    helpfulness: 1.3233116722875709,
     addressed: false,
     plan: [
       {
@@ -590,7 +590,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.59375,
-    engagement: 1.7813810973101916,
+    helpfulness: 1.7813810973101916,
     addressed: false,
     plan: [
       {
@@ -675,7 +675,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.65,
     justification: 1.0,
     sentiment: 0.42045454545454547,
-    engagement: 3.372131282388747,
+    helpfulness: 3.372131282388747,
     addressed: false,
     plan: [
       {
@@ -714,7 +714,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 0.0,
     sentiment: 0.4375,
-    engagement: 3.2370239368265197,
+    helpfulness: 3.2370239368265197,
     addressed: false,
     plan: [
       {
@@ -845,7 +845,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.45,
     justification: 0.0,
     sentiment: 0.56875,
-    engagement: 1.6592292506374928,
+    helpfulness: 1.6592292506374928,
     addressed: false,
     plan: [
       {
@@ -999,7 +999,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.65,
     justification: 0.0,
     sentiment: 0.5009259259259259,
-    engagement: 3.50319431877382,
+    helpfulness: 3.50319431877382,
     addressed: false,
     plan: [
       {
@@ -1061,7 +1061,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.65,
     justification: 0.0,
     sentiment: 0.4796875,
-    engagement: 1.8399121905075264,
+    helpfulness: 1.8399121905075264,
     addressed: false,
     plan: [
       {
@@ -1261,7 +1261,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.4166666666666667,
-    engagement: 3.12165830385786,
+    helpfulness: 3.12165830385786,
     addressed: false,
     plan: [
       {
@@ -1438,7 +1438,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.65,
     justification: 0.0,
     sentiment: 0.25,
-    engagement: 3.0945134490417043,
+    helpfulness: 3.0945134490417043,
     addressed: false,
     plan: [
       {
@@ -1500,7 +1500,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 1.0,
     sentiment: 0.31666666666666665,
-    engagement: 4.668915028378711,
+    helpfulness: 4.668915028378711,
     addressed: false,
     plan: [
       {
@@ -1585,7 +1585,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.38,
-    engagement: 2.2475939787776587,
+    helpfulness: 2.2475939787776587,
     addressed: false,
     plan: [
       {
@@ -1647,7 +1647,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 0.0,
     sentiment: 0.453125,
-    engagement: 3.2624722382166653,
+    helpfulness: 3.2624722382166653,
     addressed: false,
     plan: [
       {
@@ -1709,7 +1709,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.5,
     sentiment: 0.3416666666666667,
-    engagement: 2.999506457185161,
+    helpfulness: 2.999506457185161,
     addressed: false,
     plan: [
       {
@@ -1817,7 +1817,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 0.0,
     sentiment: 0.4,
-    engagement: 2.6330509171670644,
+    helpfulness: 2.6330509171670644,
     addressed: false,
     plan: [
       {
@@ -1948,7 +1948,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 0.0,
     sentiment: 0.425,
-    engagement: 2.1308711030681913,
+    helpfulness: 2.1308711030681913,
     addressed: false,
     plan: [
       {
@@ -2056,7 +2056,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 0.0,
     sentiment: 0.2316666666666667,
-    engagement: 2.9017849798470015,
+    helpfulness: 2.9017849798470015,
     addressed: false,
     plan: [
       {
@@ -2164,7 +2164,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 1.0,
     sentiment: 0.41378205128205126,
-    engagement: 3.198394720357376,
+    helpfulness: 3.198394720357376,
     addressed: false,
     plan: [
       {
@@ -2203,7 +2203,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 0.0,
     sentiment: 0.22499999999999998,
-    engagement: 2.8909270379205396,
+    helpfulness: 2.8909270379205396,
     addressed: false,
     plan: [
       {
@@ -2242,7 +2242,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.25,
-    engagement: 2.8502097556963064,
+    helpfulness: 2.8502097556963064,
     addressed: false,
     plan: [
       {
@@ -2303,7 +2303,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.5,
-    engagement: 1.6286912889693181,
+    helpfulness: 1.6286912889693181,
     addressed: false,
     plan: [
       {
@@ -2480,7 +2480,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.6,
     justification: 0.0,
     sentiment: 0.375,
-    engagement: 1.5879740067450852,
+    helpfulness: 1.5879740067450852,
     addressed: false,
     plan: [
       {
@@ -2519,7 +2519,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.4,
     justification: 0.0,
     sentiment: 0.475,
-    engagement: 1.4251048778481532,
+    helpfulness: 1.4251048778481532,
     addressed: false,
     plan: [
       {
@@ -2604,7 +2604,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.65,
     justification: 0.0,
     sentiment: 0.4444444444444444,
-    engagement: 1.7825121329275317,
+    helpfulness: 1.7825121329275317,
     addressed: false,
     plan: [
       {
@@ -2643,7 +2643,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.4291666666666667,
-    engagement: 1.5133256560006583,
+    helpfulness: 1.5133256560006583,
     addressed: false,
     plan: [
       {
@@ -2751,7 +2751,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.5214285714285715,
-    engagement: 2.206488912913195,
+    helpfulness: 2.206488912913195,
     addressed: false,
     plan: [
       {
@@ -2813,7 +2813,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.65,
     justification: 0.5,
     sentiment: 0.38,
-    engagement: 3.3062433166077154,
+    helpfulness: 3.3062433166077154,
     addressed: false,
     plan: [
       {
@@ -2852,7 +2852,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 0.0,
     sentiment: 0.37392857142857144,
-    engagement: 2.3191400604002395,
+    helpfulness: 2.3191400604002395,
     addressed: false,
     plan: [
       {
@@ -2960,7 +2960,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.44583333333333336,
-    engagement: 1.540470510816813,
+    helpfulness: 1.540470510816813,
     addressed: false,
     plan: [
       {
@@ -3045,7 +3045,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 0.25,
     sentiment: 0.4113636363636364,
-    engagement: 2.3801102245619807,
+    helpfulness: 2.3801102245619807,
     addressed: false,
     plan: [
       {
@@ -3084,7 +3084,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 0.0,
     sentiment: 0.4264520202020202,
-    engagement: 1.5903388993995229,
+    helpfulness: 1.5903388993995229,
     addressed: false,
     plan: [
       {
@@ -3169,7 +3169,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 0.0,
     sentiment: 0.29000000000000004,
-    engagement: 2.4538948753804393,
+    helpfulness: 2.4538948753804393,
     addressed: false,
     plan: [
       {
@@ -3231,7 +3231,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 0.0,
     sentiment: 0.38333333333333336,
-    engagement: 1.520111869704697,
+    helpfulness: 1.520111869704697,
     addressed: false,
     plan: [
       {
@@ -3338,7 +3338,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.3,
     justification: 0.0,
     sentiment: 0.71875,
-    engagement: 1.6592292506374928,
+    helpfulness: 1.6592292506374928,
     addressed: false,
     plan: [
       {
@@ -3492,7 +3492,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.65,
     justification: 0.0,
     sentiment: 0.6,
-    engagement: 2.0358641112116476,
+    helpfulness: 2.0358641112116476,
     addressed: false,
     plan: [
       {
@@ -3623,7 +3623,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 0.0,
     sentiment: 0.2625,
-    engagement: 1.3233116722875709,
+    helpfulness: 1.3233116722875709,
     addressed: false,
     plan: [
       {
@@ -3731,7 +3731,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.2833333333333333,
-    engagement: 1.2758081763592992,
+    helpfulness: 1.2758081763592992,
     addressed: false,
     plan: [
       {
@@ -3816,7 +3816,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.25,
-    engagement: 1.2215184667269885,
+    helpfulness: 1.2215184667269885,
     addressed: false,
     plan: [
       {
@@ -3923,7 +3923,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.4,
     justification: 0.0,
     sentiment: 0.25,
-    engagement: 1.0586493378300568,
+    helpfulness: 1.0586493378300568,
     addressed: false,
     plan: [
       {
@@ -4054,7 +4054,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.4666666666666667,
-    engagement: 2.3887472238216665,
+    helpfulness: 2.3887472238216665,
     addressed: false,
     plan: [
       {
@@ -4231,7 +4231,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 1.0,
     sentiment: 0.5199494949494949,
-    engagement: 5.0,
+    helpfulness: 5.0,
     addressed: false,
     plan: [
       {
@@ -4431,7 +4431,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0,
     justification: 1.0,
     sentiment: 0.5199494949494949,
-    engagement: 5.0,
+    helpfulness: 5.0,
     addressed: false,
     plan: [
       {
@@ -4470,7 +4470,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0,
     justification: 1.0,
     sentiment: 0.5199494949494949,
-    engagement: 5.0,
+    helpfulness: 5.0,
     addressed: false,
     plan: [
       {
@@ -4509,7 +4509,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0,
     justification: 1.0,
     sentiment: 0.5199494949494949,
-    engagement: 5.0,
+    helpfulness: 5.0,
     addressed: false,
     plan: [
       {
@@ -4548,7 +4548,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0,
     justification: 1.0,
     sentiment: 0.5199494949494949,
-    engagement: 5.0,
+    helpfulness: 5.0,
     addressed: false,
     plan: [
       {
@@ -4587,7 +4587,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0,
     justification: 1.0,
     sentiment: 0.5199494949494949,
-    engagement: 5.0,
+    helpfulness: 5.0,
     addressed: false,
     plan: [
       {
@@ -4626,7 +4626,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.65,
     justification: 0.0,
     sentiment: 0.43333333333333335,
-    engagement: 3.393106852019413,
+    helpfulness: 3.393106852019413,
     addressed: false,
     plan: [
       {
@@ -4688,7 +4688,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.43125,
-    engagement: 3.1454100518219956,
+    helpfulness: 3.1454100518219956,
     addressed: false,
     plan: [
       {
@@ -4750,7 +4750,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.55,
     justification: 0.0,
     sentiment: 0.49166666666666664,
-    engagement: 3.325244714979025,
+    helpfulness: 3.325244714979025,
     addressed: false,
     plan: [
       {
@@ -4789,7 +4789,7 @@ export const feedback: FeedbackItem[] = [
     specificity: 0.5,
     justification: 0.0,
     sentiment: 0.5,
-    engagement: 3.2573825779386363,
+    helpfulness: 3.2573825779386363,
     addressed: false,
     plan: [
       {

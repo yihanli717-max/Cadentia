@@ -62,7 +62,13 @@ export const useFeedbackStore = create<FeedbackState & FeedbackActions>()(
 
 export type SharedConfigState = {
   categoricalDimension: "type" | "provider";
-  numericalDimension: string;
+  numericalDimension:
+    | "helpfulness"
+    | "actionability"
+    | "justification"
+    | "sentiment"
+    | "specificity"
+    | "length";
 };
 
 export type SharedConfigActions = {

@@ -65,6 +65,14 @@ const Menu = (props: MenuProps) => {
               Length
             </a>
           </li>
+          {/* <li title="Helpfulness is the sum of actionability, specificity, and justification.">
+            <a
+              onClick={() => setNumericalDimension("helpfulness")}
+              className={numericalDimension === "helpfulness" ? "active" : ""}
+            >
+              Helpfulness
+            </a>
+          </li> */}
           <li title="Actionability is the number of actionable suggestions in the feedback.">
             <a
               onClick={() => setNumericalDimension("actionability")}

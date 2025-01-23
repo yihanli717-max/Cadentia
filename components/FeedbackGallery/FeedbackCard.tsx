@@ -153,7 +153,7 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
 
         <div
           className={cn(
-            "text-xs italic leading-5 max-h-40 overflow-y-auto pb-3",
+            "text-xs italic leading-relaxed max-h-40 overflow-y-auto pb-3",
           )}
         >
           {newFeedbackContent ? (

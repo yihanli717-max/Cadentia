@@ -34,7 +34,7 @@ export type FeedbackItem = {
   justification: number;
   sentiment: number;
   specificity: number;
-  engagement: number;
+  helpfulness: number;
   source: number;
   type: string;
   provider: string;
