@@ -8,13 +8,17 @@ import {
   useSharedConfigStore,
 } from "@/lib/store";
 import { Sentence } from "@/lib/type";
+import { stat } from "fs";
 
 interface EssayPanelProps {
   classes?: string;
 }
 
 const EssayPanel = (props: EssayPanelProps) => {
-  const [hoveredItem] = useSharedConfigStore((state) => [state.hoveredItem]);
+  const [hoveredItem, currentSelectedItems] = useSharedConfigStore((state) => [
+    state.hoveredItem,
+    state.currentSelectedItems,
+  ]);
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const hoveredFeedback = useMemo(
     () => allFeedback.find((item) => item.id === hoveredItem),
@@ -29,6 +33,22 @@ const EssayPanel = (props: EssayPanelProps) => {
     // console.log(sentences);
     return sentences;
   }, [hoveredFeedback]);
+  const currentSelectedFeedbacks = useMemo(
+    () =>
+      currentSelectedItems.map((id) =>
+        allFeedback.find((item) => item.id === id),
+      ),
+    [currentSelectedItems, allFeedback],
+  );
+  const currentSelectedSentences = useMemo(() => {
+    const sentences = new Set<string>();
+    currentSelectedFeedbacks.forEach((feedback) => {
+      feedback?.plan.forEach((item) => {
+        sentences.add(item.sentence);
+      });
+    });
+    return sentences;
+  }, [currentSelectedFeedbacks]);
 
   const essay = useEssayStore((state) => state.essay);
   const paragraphs = useMemo(() => {
@@ -65,11 +85,14 @@ const EssayPanel = (props: EssayPanelProps) => {
                 <React.Fragment key={`section-${section.id}`}>
                   <span
                     id={section.id.toString()}
-                    className={
+                    className={cn(
                       highlightSentences.has(section.content)
                         ? "bg-blue-100"
-                        : ""
-                    }
+                        : "",
+                      currentSelectedSentences.has(section.content)
+                        ? "bg-yellow-100"
+                        : "",
+                    )}
                   >
                     {section.content + " "}
                   </span>

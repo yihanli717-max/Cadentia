@@ -9,10 +9,12 @@ type FeedbackGalleryProps = {
 };
 
 const FeedbackGallery = (props: FeedbackGalleryProps) => {
-  const [hoveredItem, setHoveredItem] = useSharedConfigStore((state) => [
-    state.hoveredItem,
-    state.setHoveredItem,
-  ]);
+  const [hoveredItem, setHoveredItem, currentSelectedItems] =
+    useSharedConfigStore((state) => [
+      state.hoveredItem,
+      state.setHoveredItem,
+      state.currentSelectedItems,
+    ]);
 
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const [selectedFeedback, setSelectedFeedback] = useState<
@@ -64,12 +66,15 @@ const FeedbackGallery = (props: FeedbackGalleryProps) => {
               >
                 <FeedbackCard
                   feedbackItem={item}
-                  classes={
-                    "relative rounded-lg ring-blue-300 ring-offset-1 ring-offset-gray-50" +
-                    (hoveredItem === item.id
-                      ? " ring-2 scale-[1.01] transition-all duration-150 ease-in-out"
-                      : "")
-                  }
+                  classes={cn(
+                    "relative rounded-lg ring-offset-1 ring-offset-gray-50",
+                    hoveredItem === item.id
+                      ? "ring-blue-300 ring-3 scale-[1.01] transition-all duration-150 ease-in-out"
+                      : "",
+                    currentSelectedItems?.find((id) => id === item.id)
+                      ? "ring-yellow-400 ring-3"
+                      : "",
+                  )}
                   close={true}
                   selectedFeedback={selectedFeedback}
                   setSelectedFeedback={setSelectedFeedback}

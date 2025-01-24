@@ -72,7 +72,7 @@ export type SharedConfigState = {
   hoveredItem: number | null;
   searchedEmeddings: number[] | undefined;
   similarityThreshold: number;
-  currentSelectedFeedbacks: number[];
+  currentSelectedItems: number[];
 };
 
 export type SharedConfigActions = {
@@ -81,7 +81,7 @@ export type SharedConfigActions = {
   setHoveredItem: (id: number | null) => void;
   setSearchedEmbeddings: (embeddings: number[] | undefined) => void;
   setSimilarityThreshold: (threshold: number) => void;
-  setCurrentSelectedFeedbacks: (feedbacks: number[]) => void;
+  setCurrentSelectedItems: (feedbacks: number[]) => void;
 };
 
 export const useSharedConfigStore = create<
@@ -94,7 +94,7 @@ export const useSharedConfigStore = create<
       hoveredItem: null,
       searchedEmeddings: undefined,
       similarityThreshold: 0.6,
-      currentSelectedFeedbacks: [],
+      currentSelectedItems: [],
       setCategoricalDimension: (dimension: string) =>
         set(
           produce((state) => {
@@ -126,10 +126,10 @@ export const useSharedConfigStore = create<
             state.similarityThreshold = threshold;
           }),
         ),
-      setCurrentSelectedFeedbacks: (feedbacks: number[]) =>
+      setCurrentSelectedItems: (feedbacks: number[]) =>
         set(
           produce((state) => {
-            state.currentSelectedFeedbacks = feedbacks;
+            state.currentSelectedItems = feedbacks;
           }),
         ),
     }),

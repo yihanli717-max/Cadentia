@@ -19,7 +19,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     setHoveredItem,
     searchedEmeddings,
     similarityThreshold,
-    currentSelectedFeedbacks,
+    currentSelectedItems,
   ] = useSharedConfigStore((state) => [
     state.categoricalDimension,
     state.numericalDimension,
@@ -27,7 +27,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     state.setHoveredItem,
     state.searchedEmeddings,
     state.similarityThreshold,
-    state.currentSelectedFeedbacks,
+    state.currentSelectedItems,
   ]);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -130,16 +130,16 @@ const FeedbackVis = (props: FeedbackVisProps) => {
                 .attr("r", (d) => d.r),
             )
             .on("click", function (event, d) {
-              const { currentSelectedFeedbacks, setCurrentSelectedFeedbacks } =
+              const { currentSelectedItems, setCurrentSelectedItems } =
                 useSharedConfigStore.getState();
 
-              const newSelectedFeedbacks = currentSelectedFeedbacks.includes(
+              const newSelectedFeedbacks = currentSelectedItems.includes(
                 d.data.id,
               )
-                ? currentSelectedFeedbacks.filter((id) => id !== d.data.id)
-                : [...currentSelectedFeedbacks, d.data.id];
+                ? currentSelectedItems.filter((id) => id !== d.data.id)
+                : [...currentSelectedItems, d.data.id];
 
-              setCurrentSelectedFeedbacks(newSelectedFeedbacks);
+              setCurrentSelectedItems(newSelectedFeedbacks);
 
               console.log(newSelectedFeedbacks);
             })
@@ -291,8 +291,13 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       .selectAll<SVGCircleElement, any>(".fill-circle")
       .attr("filter", null)
       .attr("opacity", (d) =>
-        currentSelectedFeedbacks.includes(d.data.id) ? 0.9 : 0.6,
+        currentSelectedItems.includes(d.data.id) ? 1 : 0.6,
       );
+
+    svg
+      .selectAll<SVGCircleElement, any>(".fill-circle")
+      .filter((d) => !currentSelectedItems.includes(d.data.id))
+      .attr("stroke", null);
 
     svg.selectAll<SVGCircleElement, any>(".stroke-circle").attr("filter", null);
 
@@ -308,13 +313,18 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
       svg
         .selectAll<SVGCircleElement, any>(".fill-circle")
-        .filter((d) => d.data.id === hoveredItem)
+        .filter(
+          (d) =>
+            // is the hovered item but not the selected item
+            d.data.id === hoveredItem &&
+            !currentSelectedItems.includes(d.data.id),
+        )
         .transition()
         .duration(300)
         // .attr("filter", "url(#glow)")
-        // .attr("stroke", "#93c5fd")
-        // .attr("stroke-width", 2)
-        .attr("opacity", 0.9);
+        .attr("stroke", "#93c5fd")
+        .attr("stroke-width", 3)
+        .attr("opacity", 1);
 
       svg
         .selectAll<SVGCircleElement, any>(".fill-circle")
@@ -326,9 +336,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             allFeedback.find((item) => item.id === hoveredItem)!
               .embeddings as number[],
             d.data.embeddings,
-          ) > similarityThreshold ||
-          currentSelectedFeedbacks.includes(d.data.id)
-            ? 0.9
+          ) > similarityThreshold || currentSelectedItems.includes(d.data.id)
+            ? 1
             : 0.6,
         )
         .attr("filter", (d) =>
@@ -356,7 +365,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             : null,
         );
     }
-  }, [hoveredItem, similarityThreshold, allFeedback, currentSelectedFeedbacks]);
+  }, [hoveredItem, similarityThreshold, allFeedback, currentSelectedItems]);
 
   useEffect(() => {
     if (!svgRef.current) return;
@@ -370,20 +379,20 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       .attr("opacity", 0.6);
 
     // Highlight selected feedbacks
-    if (currentSelectedFeedbacks.length > 0) {
+    if (currentSelectedItems.length > 0) {
       svg
         .selectAll<SVGCircleElement, any>(".fill-circle")
         .transition()
         .duration(300)
         .attr("stroke", (d) =>
-          currentSelectedFeedbacks.includes(d.data.id) ? "#facc15" : null,
+          currentSelectedItems.includes(d.data.id) ? "#facc15" : null,
         )
-        .attr("stroke-width", 4)
+        .attr("stroke-width", 3)
         .attr("opacity", (d) =>
-          currentSelectedFeedbacks.includes(d.data.id) ? 0.9 : 0.6,
+          currentSelectedItems.includes(d.data.id) ? 1 : 0.6,
         );
     }
-  }, [currentSelectedFeedbacks]);
+  }, [currentSelectedItems]);
 
   return (
     <div ref={containerRef} className={cn(props.classes, "relative")}>

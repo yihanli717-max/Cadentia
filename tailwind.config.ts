@@ -12,6 +12,9 @@ const config: Config = {
       fontSize: {
         "2xs": ["10px", "16px"],
       },
+      ringWidth: {
+        "3": "3px",
+      },
     },
   },
   safelist: [
