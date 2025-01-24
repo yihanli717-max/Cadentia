@@ -282,7 +282,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       .attr("filter", null)
       .attr("stroke", null)
       .attr("stroke-width", 0)
-      .attr("opacity", 0.5);
+      .attr("opacity", 0.6);
 
     const defs = svg.append("defs");
     defs
@@ -313,7 +313,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             d.data.embeddings,
           ) > similarityThreshold
             ? 0.9
-            : 0.5,
+            : 0.6,
         )
         .attr("filter", (d) =>
           cosineSimilarity(
