@@ -106,16 +106,6 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         (enter) => {
           const group = enter.append("g"); // Create a group for each node
 
-          // Circle for the stroke
-          group
-            .append("circle")
-            .attr("class", "stroke-circle")
-            .attr("cx", (d) => d.x!)
-            .attr("cy", (d) => d.y!)
-            .attr("r", 0)
-            .attr("fill", "none")
-            .attr("stroke-linecap", "round");
-
           // Circle for the fill
           group
             .append("circle")
@@ -167,38 +157,22 @@ const FeedbackVis = (props: FeedbackVisProps) => {
               setHoveredItem(null); // Optionally, reset hoveredItem on mouseout
             });
 
+          // Circle for the stroke
+          group
+            .append("circle")
+            .attr("class", "stroke-circle")
+            .attr("cx", (d) => d.x!)
+            .attr("cy", (d) => d.y!)
+            .attr("r", (d) => d.r - 6)
+            .attr("fill", "none")
+            .attr("stroke-dasharray", (d) => `0 ${2 * Math.PI * d.r}`)
+            .attr("stroke-linecap", "round");
+
           return group;
         },
         (update) =>
           update.each(function (d) {
             const group = d3.select(this);
-
-            // Update stroke circle
-            if (searchedEmeddings) {
-              group
-                .select(".stroke-circle")
-                .transition()
-                .duration(600)
-                .attr("opacity", 1)
-                .attr("stroke-width", 4)
-                .attr("stroke", getColor(categoricalDimension)(d.data.group))
-                .attr("stroke-dashoffset", (d) => -Math.PI / 2)
-                .attr(
-                  "stroke-dasharray",
-                  (d: any) =>
-                    `${2 * Math.PI * d.r * cosineSimilarity(searchedEmeddings, d.data.embeddings)} ${2 * Math.PI * d.r}`,
-                )
-                .attr("r", d.r - 6);
-            } else {
-              // Reset stroke circle length to 0
-              group
-                .select(".stroke-circle")
-                .transition()
-                .duration(600)
-                .attr("opacity", 0)
-                .attr("stroke-width", 4)
-                .attr("stroke-dasharray", (d: any) => `0 ${2 * Math.PI * d.r}`);
-            }
 
             // Update fill circle
             group
@@ -280,18 +254,37 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     return () => {
       simulation.stop();
     };
-  }, [
-    dimensions,
-    allFeedback,
-    categoricalDimension,
-    numericalDimension,
-    searchedEmeddings,
-  ]);
+  }, [dimensions, allFeedback, categoricalDimension, numericalDimension]);
 
   useEffect(() => {
     if (!svgRef.current) return;
 
     const svg = d3.select(svgRef.current);
+
+    svg
+      .selectAll<SVGGElement, d3.HierarchyCircularNode<any>>("g")
+      .select(".stroke-circle")
+      .transition()
+      .duration(600)
+      .attr("opacity", 0.8)
+      .attr("stroke-width", 4)
+      .attr("stroke", (d) => (searchedEmeddings ? "#ffffff" : null))
+      .attr("stroke-dasharray", (d) =>
+        searchedEmeddings
+          ? `${2 * Math.PI * d.r * cosineSimilarity(searchedEmeddings, d.data.embeddings)} ${
+              2 * Math.PI * d.r
+            }`
+          : `0 ${2 * Math.PI * d.r}`,
+      )
+      .attr("r", (d) => d.r - 6);
+  }, [searchedEmeddings, categoricalDimension]);
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    const svg = d3.select(svgRef.current);
+
+    svg.select("defs").remove();
 
     // Reset all nodes to default
     svg
@@ -301,7 +294,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         currentSelectedFeedbacks.includes(d.data.id) ? 0.9 : 0.6,
       );
 
-    svg.select("defs").remove();
+    svg.selectAll<SVGCircleElement, any>(".stroke-circle").attr("filter", null);
 
     // Highlight the hovered item if present
     if (hoveredItem) {
@@ -338,6 +331,21 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             ? 0.9
             : 0.6,
         )
+        .attr("filter", (d) =>
+          cosineSimilarity(
+            allFeedback.find((item) => item.id === hoveredItem)!
+              .embeddings as number[],
+            d.data.embeddings,
+          ) < similarityThreshold
+            ? "url(#glow)"
+            : null,
+        );
+
+      svg
+        .selectAll<SVGCircleElement, any>(".stroke-circle")
+        .filter((d) => d.data.id !== hoveredItem)
+        .transition()
+        .duration(300)
         .attr("filter", (d) =>
           cosineSimilarity(
             allFeedback.find((item) => item.id === hoveredItem)!
