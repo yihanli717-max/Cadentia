@@ -35,7 +35,7 @@ const Menu = (props: MenuProps) => {
       <div
         className={cn(
           props.classes,
-          "absolute top-0 left-0 p-2 gap-2 flex flex-row items-center",
+          "absolute top-0 left-0 p-2 gap-2 flex flex-row items-center z-50",
         )}
       >
         <div className="dropdown">

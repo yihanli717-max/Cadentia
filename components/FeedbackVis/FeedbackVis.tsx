@@ -1,6 +1,5 @@
-import React, { useRef, useEffect, useState, useMemo } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useFeedbackStore, useSharedConfigStore } from "@/lib/store";
-import { FeedbackItem } from "@/lib/type";
 import Menu from "@/components/FeedbackVis/Menu";
 import { cn, getColor, normalizeAndTransform } from "@/lib/utils";
 import { cosineSimilarity } from "fast-cosine-similarity";
@@ -20,6 +19,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     setHoveredItem,
     searchedEmeddings,
     similarityThreshold,
+    currentSelectedFeedbacks,
   ] = useSharedConfigStore((state) => [
     state.categoricalDimension,
     state.numericalDimension,
@@ -27,6 +27,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     state.setHoveredItem,
     state.searchedEmeddings,
     state.similarityThreshold,
+    state.currentSelectedFeedbacks,
   ]);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -123,7 +124,9 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             .attr("cy", (d) => d.y!)
             .attr("r", 0)
             .attr("fill", (d) => getColor(categoricalDimension)(d.data.group))
-            .attr("opacity", 0.6)
+            .attr("stroke", null)
+            .attr("stroke-width", 0)
+            .attr("opacity", (d) => 0.6)
             .call((enter) =>
               enter
                 .transition()
@@ -136,9 +139,23 @@ const FeedbackVis = (props: FeedbackVisProps) => {
                 .duration(600)
                 .attr("r", (d) => d.r),
             )
+            .on("click", function (event, d) {
+              const { currentSelectedFeedbacks, setCurrentSelectedFeedbacks } =
+                useSharedConfigStore.getState();
+
+              const newSelectedFeedbacks = currentSelectedFeedbacks.includes(
+                d.data.id,
+              )
+                ? currentSelectedFeedbacks.filter((id) => id !== d.data.id)
+                : [...currentSelectedFeedbacks, d.data.id];
+
+              setCurrentSelectedFeedbacks(newSelectedFeedbacks);
+
+              console.log(newSelectedFeedbacks);
+            })
             .on("mouseover", function (event, d) {
               hoverTimer = setTimeout(() => {
-                console.log(d.data.id);
+                // console.log(d.data.id);
                 setHoveredItem(d.data.id); // Set hovered item id
               }, 150);
             })
@@ -276,32 +293,34 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     const svg = d3.select(svgRef.current);
 
-    // Reset all nodes to remove stroke
+    // Reset all nodes to default
     svg
       .selectAll<SVGCircleElement, any>(".fill-circle")
       .attr("filter", null)
-      .attr("stroke", null)
-      .attr("stroke-width", 0)
-      .attr("opacity", 0.6);
+      .attr("opacity", (d) =>
+        currentSelectedFeedbacks.includes(d.data.id) ? 0.9 : 0.6,
+      );
 
-    const defs = svg.append("defs");
-    defs
-      .append("filter")
-      .attr("id", "glow")
-      .append("feGaussianBlur")
-      .attr("stdDeviation", 3)
-      .attr("result", "coloredBlur");
+    svg.select("defs").remove();
 
     // Highlight the hovered item if present
     if (hoveredItem) {
+      const defs = svg.append("defs");
+      defs
+        .append("filter")
+        .attr("id", "glow")
+        .append("feGaussianBlur")
+        .attr("stdDeviation", 3)
+        .attr("result", "coloredBlur");
+
       svg
         .selectAll<SVGCircleElement, any>(".fill-circle")
         .filter((d) => d.data.id === hoveredItem)
         .transition()
         .duration(300)
         // .attr("filter", "url(#glow)")
-        .attr("stroke", "#93c5fd")
-        .attr("stroke-width", 2)
+        // .attr("stroke", "#93c5fd")
+        // .attr("stroke-width", 2)
         .attr("opacity", 0.9);
 
       svg
@@ -314,7 +333,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             allFeedback.find((item) => item.id === hoveredItem)!
               .embeddings as number[],
             d.data.embeddings,
-          ) > similarityThreshold
+          ) > similarityThreshold ||
+          currentSelectedFeedbacks.includes(d.data.id)
             ? 0.9
             : 0.6,
         )
@@ -328,7 +348,34 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             : null,
         );
     }
-  }, [hoveredItem, similarityThreshold, allFeedback]);
+  }, [hoveredItem, similarityThreshold, allFeedback, currentSelectedFeedbacks]);
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    const svg = d3.select(svgRef.current);
+
+    // Reset all nodes to remove stroke
+    svg
+      .selectAll<SVGCircleElement, any>(".fill-circle")
+      .attr("stroke", null)
+      .attr("opacity", 0.6);
+
+    // Highlight selected feedbacks
+    if (currentSelectedFeedbacks.length > 0) {
+      svg
+        .selectAll<SVGCircleElement, any>(".fill-circle")
+        .transition()
+        .duration(300)
+        .attr("stroke", (d) =>
+          currentSelectedFeedbacks.includes(d.data.id) ? "#facc15" : null,
+        )
+        .attr("stroke-width", 4)
+        .attr("opacity", (d) =>
+          currentSelectedFeedbacks.includes(d.data.id) ? 0.9 : 0.6,
+        );
+    }
+  }, [currentSelectedFeedbacks]);
 
   return (
     <div ref={containerRef} className={cn(props.classes, "relative")}>
