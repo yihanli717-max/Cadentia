@@ -25,19 +25,6 @@ export function isSimilarSentence(
   });
 }
 
-export const categoryColorMap: {
-  [key: string]: string;
-} = {
-  Claim: d3.schemeTableau10[1],
-  Reasoning: d3.schemeTableau10[2],
-  Evidence: d3.schemeTableau10[5],
-  Rebuttal: d3.schemeTableau10[7],
-  Others: d3.schemeTableau10[9],
-  Organization: d3.schemeTableau10[0],
-  "Word-usage": d3.schemeTableau10[3],
-  Orthography: d3.schemeTableau10[6],
-};
-
 // Utility function for normalization and transformation
 export const normalizeAndTransform = (
   values: number[],
@@ -58,9 +45,22 @@ export const normalizeAndTransform = (
   });
 };
 
+export const categoryColorMap: {
+  [key: string]: string;
+} = {
+  Claim: d3.schemeTableau10[1],
+  Reasoning: d3.schemeTableau10[2],
+  Evidence: d3.schemeTableau10[5],
+  Rebuttal: d3.schemeTableau10[7],
+  Others: d3.schemeTableau10[9],
+  Organization: d3.schemeTableau10[0],
+  "Word-usage": d3.schemeTableau10[3],
+  Orthography: d3.schemeTableau10[6],
+};
+
 const colorScales: { [key: string]: d3.ScaleOrdinal<string, string> } = {
   provider: d3.scaleOrdinal(d3.schemeTableau10),
-  type: d3.scaleOrdinal(d3.schemeCategory10),
+  type: d3.scaleOrdinal(d3.schemeTableau10),
 };
 
 export const getColor = (categoricalDimension: string) => {

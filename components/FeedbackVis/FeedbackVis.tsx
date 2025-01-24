@@ -41,7 +41,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     const updateDimensions = () => {
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
-        setDimensions({ width, height });
+        setDimensions({ width, height: height - 64 });
       }
     };
 
@@ -297,13 +297,16 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       svg
         .selectAll<SVGCircleElement, any>(".fill-circle")
         .filter((d) => d.data.id === hoveredItem)
+        .transition()
+        .duration(300)
         // .attr("filter", "url(#glow)")
         .attr("stroke", "#93c5fd")
-        .attr("stroke-width", 3)
+        .attr("stroke-width", 2)
         .attr("opacity", 0.9);
 
       svg
         .selectAll<SVGCircleElement, any>(".fill-circle")
+        .filter((d) => d.data.id !== hoveredItem)
         .transition()
         .duration(300)
         .attr("opacity", (d) =>
@@ -330,13 +333,13 @@ const FeedbackVis = (props: FeedbackVisProps) => {
   return (
     <div ref={containerRef} className={cn(props.classes, "relative")}>
       {/* <div className="absolute">{hoveredItem}</div> */}
-      <Menu classes="absolute top-0 left-0 p-2" />
+      <Menu classes="" />
       {dimensions && (
         <svg
           ref={svgRef}
           width={dimensions.width}
           height={dimensions.height}
-          className="cursor-pointer"
+          className="cursor-pointer absolute bottom-8"
         ></svg>
       )}
     </div>

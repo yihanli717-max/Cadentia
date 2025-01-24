@@ -67,10 +67,14 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
 
     return newContentSentences.map((sentence, index) => {
       if (isSimilarSentence(sentence, originalContentSentences)) {
-        return <span key={index}>{sentence} </span>;
+        return (
+          <span key={index} className="font-medium">
+            {sentence}{" "}
+          </span>
+        );
       } else {
         return (
-          <span key={index} className="text-gray-300">
+          <span key={index} className="opacity-60">
             {sentence}{" "}
           </span>
         );
@@ -101,7 +105,7 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
       onDragStart={props.onDragStart}
     >
       <div
-        className="px-3 py-1 bg-white border-2 rounded-lg select-none space-y-2"
+        className="px-3 pt-1 pb-2 bg-white border-2 rounded-lg select-none space-y-2"
         style={{
           borderColor: getColor(categoricalDimension)(
             props.feedbackItem[categoricalDimension],
@@ -151,22 +155,39 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
           </div>
         </div>
 
-        <div
-          className={cn(
-            "text-xs italic leading-relaxed max-h-40 overflow-y-auto pb-3",
-          )}
-        >
+        <hr
+          className="opacity-20"
+          style={{
+            borderColor: getColor(categoricalDimension)(
+              props.feedbackItem[categoricalDimension],
+            ),
+          }}
+        />
+
+        <div className={cn("text-xs leading-relaxed max-h-40 overflow-y-auto")}>
           {newFeedbackContent ? (
-            <div>
+            <span>
+              "
               {renderContentWithHighlights(
                 newFeedbackContent,
                 props.feedbackItem.content,
               )}
-            </div>
+              "
+            </span>
           ) : props.hideContent ? null : (
-            <p>{props.feedbackItem.content}</p>
+            <span className="font-medium">"{props.feedbackItem.content}"</span>
           )}
         </div>
+
+        <span className="card-actions justify-start flex mt-1">
+          <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded">
+            {categoricalDimension === "type"
+              ? props.feedbackItem["provider"]
+              : typeMap[
+                  props.feedbackItem.type.toLowerCase() as keyof typeof typeMap
+                ]}
+          </span>
+        </span>
       </div>
     </div>
   );

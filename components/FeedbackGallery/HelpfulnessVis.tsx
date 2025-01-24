@@ -38,7 +38,7 @@ const HelpfulnessVis = (props: HelpfulnessVisProps) => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative text-gray-800">
       <div
         className="flex items-end"
         onMouseEnter={handleMouseEnter}
