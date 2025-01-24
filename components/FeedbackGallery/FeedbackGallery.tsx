@@ -65,7 +65,7 @@ const FeedbackGallery = (props: FeedbackGalleryProps) => {
                 <FeedbackCard
                   feedbackItem={item}
                   classes={
-                    "relative rounded-lg ring-gray-300 ring-offset-1 ring-offset-gray-50" +
+                    "relative rounded-lg ring-blue-300 ring-offset-1 ring-offset-gray-50" +
                     (hoveredItem === item.id
                       ? " ring-2 scale-[1.01] transition-all duration-150 ease-in-out"
                       : "")

@@ -70,12 +70,16 @@ export type SharedConfigState = {
     | "specificity"
     | "length";
   hoveredItem: number | null;
+  searchedEmeddings: number[] | undefined;
+  similarityThreshold: number;
 };
 
 export type SharedConfigActions = {
   setCategoricalDimension: (dimension: string) => void;
   setNumericalDimension: (dimension: string) => void;
   setHoveredItem: (id: number | null) => void;
+  setSearchedEmbeddings: (embeddings: number[] | undefined) => void;
+  setSimilarityThreshold: (threshold: number) => void;
 };
 
 export const useSharedConfigStore = create<
@@ -86,6 +90,8 @@ export const useSharedConfigStore = create<
       categoricalDimension: "type",
       numericalDimension: "actionability",
       hoveredItem: null,
+      searchedEmeddings: undefined,
+      similarityThreshold: 0.6,
       setCategoricalDimension: (dimension: string) =>
         set(
           produce((state) => {
@@ -102,6 +108,19 @@ export const useSharedConfigStore = create<
         set(
           produce((state) => {
             state.hoveredItem = id;
+          }),
+        ),
+      setSearchedEmbeddings: (embeddings: number[] | undefined) =>
+        set(
+          produce((state) => {
+            console.log("embeddings", embeddings);
+            state.searchedEmeddings = embeddings;
+          }),
+        ),
+      setSimilarityThreshold: (threshold: number) =>
+        set(
+          produce((state) => {
+            state.similarityThreshold = threshold;
           }),
         ),
     }),

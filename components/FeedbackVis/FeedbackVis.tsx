@@ -3,6 +3,7 @@ import { useFeedbackStore, useSharedConfigStore } from "@/lib/store";
 import { FeedbackItem } from "@/lib/type";
 import Menu from "@/components/FeedbackVis/Menu";
 import { cn, getColor, normalizeAndTransform } from "@/lib/utils";
+import { cosineSimilarity } from "fast-cosine-similarity";
 import * as d3 from "d3";
 
 interface FeedbackVisProps {
@@ -17,11 +18,15 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     numericalDimension,
     hoveredItem,
     setHoveredItem,
+    searchedEmeddings,
+    similarityThreshold,
   ] = useSharedConfigStore((state) => [
     state.categoricalDimension,
     state.numericalDimension,
     state.hoveredItem,
     state.setHoveredItem,
+    state.searchedEmeddings,
+    state.similarityThreshold,
   ]);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -77,6 +82,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             id: item.id,
             group,
             value: item.transformedValues,
+            embeddings: item.embeddings,
           })),
         })),
       };
@@ -93,22 +99,41 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     let hoverTimer: NodeJS.Timeout | null = null;
 
     const node = svg
-      .selectAll<SVGCircleElement, d3.HierarchyCircularNode<any>>("circle")
+      .selectAll<SVGGElement, d3.HierarchyCircularNode<any>>("g")
       .data(nodes, (d: any) => d.data.id) // Use id as key
       .join(
-        (enter) =>
-          enter
+        (enter) => {
+          const group = enter.append("g"); // Create a group for each node
+
+          // Circle for the stroke
+          group
             .append("circle")
+            .attr("class", "stroke-circle")
             .attr("cx", (d) => d.x!)
             .attr("cy", (d) => d.y!)
-            .attr("r", 0) // Start with radius 0
+            .attr("r", 0)
+            .attr("fill", "none")
+            .attr("stroke-linecap", "round");
+
+          // Circle for the fill
+          group
+            .append("circle")
+            .attr("class", "fill-circle")
+            .attr("cx", (d) => d.x!)
+            .attr("cy", (d) => d.y!)
+            .attr("r", 0)
             .attr("fill", (d) => getColor(categoricalDimension)(d.data.group))
-            .attr("stroke", (d) => (d.data.id === hoveredItem ? "gray" : null))
             .attr("opacity", 0.6)
             .call((enter) =>
               enter
                 .transition()
-                .duration(750)
+                .duration(600)
+                .attr("r", (d) => d.r),
+            )
+            .call((enter) =>
+              enter
+                .transition()
+                .duration(600)
                 .attr("r", (d) => d.r),
             )
             .on("mouseover", function (event, d) {
@@ -123,42 +148,84 @@ const FeedbackVis = (props: FeedbackVisProps) => {
                 hoverTimer = null;
               }
               setHoveredItem(null); // Optionally, reset hoveredItem on mouseout
-            }),
+            });
+
+          return group;
+        },
         (update) =>
-          update.call(
-            (update) =>
-              update
+          update.each(function (d) {
+            const group = d3.select(this);
+
+            // Update stroke circle
+            if (searchedEmeddings) {
+              group
+                .select(".stroke-circle")
                 .transition()
-                .duration(750)
-                .attr("fill", (d) =>
-                  getColor(categoricalDimension)(d.data.group),
-                ) // Update color
-                .attr("r", (d) => d.r), // Update radius
-          ),
+                .duration(600)
+                .attr("opacity", 1)
+                .attr("stroke-width", 4)
+                .attr("stroke", getColor(categoricalDimension)(d.data.group))
+                .attr("stroke-dashoffset", (d) => -Math.PI / 2)
+                .attr(
+                  "stroke-dasharray",
+                  (d: any) =>
+                    `${2 * Math.PI * d.r * cosineSimilarity(searchedEmeddings, d.data.embeddings)} ${2 * Math.PI * d.r}`,
+                )
+                .attr("r", d.r - 6);
+            } else {
+              // Reset stroke circle length to 0
+              group
+                .select(".stroke-circle")
+                .transition()
+                .duration(600)
+                .attr("opacity", 0)
+                .attr("stroke-width", 4)
+                .attr("stroke-dasharray", (d: any) => `0 ${2 * Math.PI * d.r}`);
+            }
+
+            // Update fill circle
+            group
+              .select(".fill-circle")
+              .transition()
+              .duration(600)
+              .attr("fill", getColor(categoricalDimension)(d.data.group))
+              .attr("r", d.r);
+          }),
         (exit) =>
           exit.call((exit) =>
-            exit.transition().duration(500).attr("r", 0).remove(),
+            exit
+              .selectAll("circle")
+              .transition()
+              .duration(300)
+              .attr("r", 0)
+              .remove(),
           ),
       );
 
-    node.call(
-      d3
-        .drag<SVGCircleElement, d3.HierarchyCircularNode<any>>() // Explicitly type the drag behavior
-        .on("start", (event, d: any) => {
-          if (!event.active) simulation.alphaTarget(0.3).restart();
-          d.fx = d.x;
-          d.fy = d.y;
-        })
-        .on("drag", (event, d: any) => {
-          d.fx = event.x;
-          d.fy = event.y;
-        })
-        .on("end", (event, d: any) => {
-          if (!event.active) simulation.alphaTarget(0);
-          d.fx = null;
-          d.fy = null;
-        }),
-    );
+    // Apply drag behavior only to fill circles
+    node
+      .selectAll<
+        SVGCircleElement,
+        d3.HierarchyCircularNode<any>
+      >(".fill-circle")
+      .call(
+        d3
+          .drag<SVGCircleElement, d3.HierarchyCircularNode<any>>() // Explicitly type the drag behavior
+          .on("start", (event, d: any) => {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+          })
+          .on("drag", (event, d: any) => {
+            d.fx = event.x;
+            d.fy = event.y;
+          })
+          .on("end", (event, d: any) => {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+          }),
+      );
 
     // Create simulation
     const simulation = d3
@@ -169,22 +236,40 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       .force("collide", forceCollide());
 
     simulation.on("tick", () => {
-      node
-        .attr("cx", (d) => {
-          d.x = Math.max(d.r, Math.min(width - d.r, d.x));
-          return d.x;
-        })
-        .attr("cy", (d) => {
-          d.y = Math.max(d.r, Math.min(height - d.r, d.y));
-          return d.y;
-        });
+      node.each(function (d) {
+        const group = d3.select(this);
+
+        // Update fill-circle position
+        group
+          .select(".fill-circle")
+          .attr("cx", (d: any) => {
+            d.x = Math.max(d.r, Math.min(width - d.r, d.x));
+            return d.x;
+          })
+          .attr("cy", (d: any) => {
+            d.y = Math.max(d.r, Math.min(height - d.r, d.y));
+            return d.y;
+          });
+
+        // Update stroke-circle position
+        group
+          .select(".stroke-circle")
+          .attr("cx", (d: any) => d.x)
+          .attr("cy", (d: any) => d.y);
+      });
     });
 
     // Cleanup
     return () => {
       simulation.stop();
     };
-  }, [dimensions, allFeedback, categoricalDimension, numericalDimension]);
+  }, [
+    dimensions,
+    allFeedback,
+    categoricalDimension,
+    numericalDimension,
+    searchedEmeddings,
+  ]);
 
   useEffect(() => {
     if (!svgRef.current) return;
@@ -193,11 +278,11 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     // Reset all nodes to remove stroke
     svg
-      .selectAll<SVGCircleElement, any>("circle")
-      // .attr("filter", null)
-      .attr("opacity", 0.6)
+      .selectAll<SVGCircleElement, any>(".fill-circle")
+      .attr("filter", null)
       .attr("stroke", null)
-      .attr("stroke-width", 0);
+      .attr("stroke-width", 0)
+      .attr("opacity", 0.5);
 
     const defs = svg.append("defs");
     defs
@@ -210,14 +295,37 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     // Highlight the hovered item if present
     if (hoveredItem) {
       svg
-        .selectAll<SVGCircleElement, any>("circle")
+        .selectAll<SVGCircleElement, any>(".fill-circle")
         .filter((d) => d.data.id === hoveredItem)
         // .attr("filter", "url(#glow)")
-        .attr("opacity", 1)
-        .attr("stroke", "#d1d5db")
-        .attr("stroke-width", 2);
+        .attr("stroke", "#93c5fd")
+        .attr("stroke-width", 3)
+        .attr("opacity", 0.9);
+
+      svg
+        .selectAll<SVGCircleElement, any>(".fill-circle")
+        .transition()
+        .duration(300)
+        .attr("opacity", (d) =>
+          cosineSimilarity(
+            allFeedback.find((item) => item.id === hoveredItem)!
+              .embeddings as number[],
+            d.data.embeddings,
+          ) > similarityThreshold
+            ? 0.9
+            : 0.5,
+        )
+        .attr("filter", (d) =>
+          cosineSimilarity(
+            allFeedback.find((item) => item.id === hoveredItem)!
+              .embeddings as number[],
+            d.data.embeddings,
+          ) < similarityThreshold
+            ? "url(#glow)"
+            : null,
+        );
     }
-  }, [hoveredItem]);
+  }, [hoveredItem, similarityThreshold, allFeedback]);
 
   return (
     <div ref={containerRef} className={cn(props.classes, "relative")}>
@@ -270,7 +378,7 @@ const forceCluster = () => {
 
 const forceCollide = () => {
   const alpha = 0.4; // Fixed for greater rigidity
-  const padding1 = 2; // Separation between same-color nodes
+  const padding1 = 4; // Separation between same-color nodes
   const padding2 = 6; // Separation between different-color nodes
   let localNodes: d3.HierarchyCircularNode<unknown>[]; // Use generic unknown
   let maxRadius: number;

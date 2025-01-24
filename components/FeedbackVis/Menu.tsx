@@ -1,26 +1,37 @@
-import React from "react";
-import { useSharedConfigStore } from "@/lib/store";
-import { cn } from "@/lib/utils";
+import React, { useEffect, useState } from "react";
+import { useFeedbackStore, useSharedConfigStore } from "@/lib/store";
+import { cn, getEmbedding } from "@/lib/utils";
 
 interface MenuProps {
   classes?: string;
 }
 
 const Menu = (props: MenuProps) => {
+  const allFeedback = useFeedbackStore((state) => state.feedback);
+  const [searchedText, setSearchedText] = useState("");
+
   const [
     categoricalDimension,
     setCategoricalDimension,
     numericalDimension,
     setNumericalDimension,
+    searchedEmeddings,
+    setSearchedEmbeddings,
+    similarityThreshold,
+    setSimilarityThreshold,
   ] = useSharedConfigStore((state) => [
     state.categoricalDimension,
     state.setCategoricalDimension,
     state.numericalDimension,
     state.setNumericalDimension,
+    state.searchedEmeddings,
+    state.setSearchedEmbeddings,
+    state.similarityThreshold,
+    state.setSimilarityThreshold,
   ]);
 
   return (
-    <div className={cn(props.classes, "space-x-2")}>
+    <div className={cn(props.classes, "gap-2 flex flex-row items-center")}>
       <div className="dropdown">
         <div tabIndex={0} role="button" className="btn text-xs m-1 w-36">
           <span className="text-gray-400">Color by</span>
@@ -49,7 +60,7 @@ const Menu = (props: MenuProps) => {
         </ul>
       </div>
       <div className="dropdown">
-        <div tabIndex={0} role="button" className="btn text-xs m-1 w-40">
+        <div tabIndex={0} role="button" className="btn text-xs m-1 w-40 h-10">
           <span className="text-gray-400">Size by</span>
           <span className="capitalize">{numericalDimension}</span>
         </div>
@@ -106,6 +117,42 @@ const Menu = (props: MenuProps) => {
             </a>
           </li>
         </ul>
+      </div>
+      <label className="input input-bordered flex items-center gap-2 text-xs h-10">
+        <input
+          type="text"
+          value={searchedText}
+          onChange={(e) => setSearchedText(e.target.value)}
+          onKeyDown={async (e) => {
+            if (e.key === "Enter") {
+              if (!searchedText) {
+                console.log("No search text");
+                setSearchedEmbeddings(undefined);
+                return;
+              }
+              const embeddings = await getEmbedding(searchedText);
+              setSearchedEmbeddings(embeddings);
+            }
+          }}
+          className="grow"
+          placeholder="Relevance to ..."
+        />
+        <kbd className="kbd kbd-sm">↵</kbd>
+      </label>
+
+      <div className="ml-2 flex flex-col gap-1 w-48">
+        <p className="ml-2 text-xs">
+          Similarity Threshold: {similarityThreshold}
+        </p>
+        <input
+          type="range"
+          min={0}
+          max="1"
+          value={similarityThreshold}
+          step="0.1"
+          className="range range-xs"
+          onChange={(e) => setSimilarityThreshold(parseFloat(e.target.value))}
+        />
       </div>
     </div>
   );

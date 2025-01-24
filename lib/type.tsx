@@ -40,6 +40,7 @@ export type FeedbackItem = {
   provider: string;
   plan: GPTPlan[];
   addressed: boolean;
+  embeddings?: number[];
 };
 
 export type FeedbackSourceItem = {

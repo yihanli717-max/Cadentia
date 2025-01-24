@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { useSharedConfigStore } from "@/lib/store";
+import OpenAI from "openai";
+import { useOpenAIAPI } from "@/lib/store";
 import * as d3 from "d3";
 
 export function cn(...inputs: ClassValue[]) {
@@ -77,3 +78,22 @@ export const countWords = (text: string) => {
   const words = text.match(/\b\w+\b/g);
   return words ? words.length : 0;
 };
+
+export async function getEmbedding(
+  text: string,
+  model: string = "text-embedding-3-small",
+): Promise<number[]> {
+  const API = useOpenAIAPI.getState().API;
+  const openai = new OpenAI({
+    apiKey: API,
+    dangerouslyAllowBrowser: true,
+  });
+
+  const response = await openai.embeddings.create({
+    model,
+    input: text,
+    encoding_format: "float",
+  });
+
+  return response.data[0].embedding;
+}
