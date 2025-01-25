@@ -187,7 +187,9 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
               &quot;
             </span>
           ) : props.hideContent ? null : (
-            <span className="font-medium">"{props.feedbackItem.content}"</span>
+            <span className="font-medium">
+              &quot;{props.feedbackItem.content}&quot;
+            </span>
           )}
         </div>
 
