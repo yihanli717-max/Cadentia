@@ -9,17 +9,26 @@ type FeedbackGalleryProps = {
 };
 
 const FeedbackGallery = (props: FeedbackGalleryProps) => {
-  const [hoveredItem, setHoveredItem, currentSelectedItems] =
-    useSharedConfigStore((state) => [
-      state.hoveredItem,
-      state.setHoveredItem,
-      state.currentSelectedItems,
-    ]);
+  const [
+    hoveredItem,
+    setHoveredItem,
+    currentSelectedItems,
+    numericalDimension,
+  ] = useSharedConfigStore((state) => [
+    state.hoveredItem,
+    state.setHoveredItem,
+    state.currentSelectedItems,
+    state.numericalDimension,
+  ]);
 
-  const allFeedback = useFeedbackStore((state) => state.feedback);
-  const [selectedFeedback, setSelectedFeedback] = useState<
-    FeedbackItem[] | undefined
-  >([]);
+  const allFeedback = useFeedbackStore((state) => state.feedback).sort(
+    (a, b) => {
+      if (!numericalDimension) {
+        return 0;
+      }
+      return (b[numericalDimension] || 0) - (a[numericalDimension] || 0);
+    },
+  );
 
   // Ref to store all feedback item refs
   const feedbackRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -68,16 +77,14 @@ const FeedbackGallery = (props: FeedbackGalleryProps) => {
                   feedbackItem={item}
                   classes={cn(
                     "relative rounded-lg ring-offset-1 ring-offset-gray-50",
-                    hoveredItem === item.id
-                      ? "ring-blue-300 ring-3 scale-[1.01] transition-all duration-150 ease-in-out"
-                      : "",
                     currentSelectedItems?.find((id) => id === item.id)
-                      ? "ring-yellow-400 ring-3"
+                      ? "ring-blue-400 ring-3"
+                      : "",
+                    hoveredItem === item.id
+                      ? "ring-zinc-400 ring-3 scale-[1.01] transition-all duration-150 ease-in-out"
                       : "",
                   )}
                   close={true}
-                  selectedFeedback={selectedFeedback}
-                  setSelectedFeedback={setSelectedFeedback}
                 />
                 {/* <div className="border-t border-dashed border-gray-200 w-full" /> */}
               </div>

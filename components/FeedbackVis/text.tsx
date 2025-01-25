@@ -10,6 +10,7 @@ interface FeedbackVisProps {
 }
 
 const FeedbackVis = (props: FeedbackVisProps) => {
+  const [isApplied, setIsApplied] = useState(false);
   const allFeedback = useFeedbackStore((state) => state.feedback);
 
   const [
@@ -88,113 +89,183 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         })),
       };
 
+      console.log(data);
+
       const pack = d3.pack<any>().size([width, height]).padding(1);
       return pack(d3.hierarchy(data).sum((d) => (d as any).value)).leaves();
     };
 
     // Create or update nodes
-    let nodes = calculateNodes();
+    const nodes = calculateNodes();
 
     const svg = d3.select(svgRef.current);
 
-    let hoverTimer: NodeJS.Timeout | null = null;
+    const createSimulation = (
+      nodeGroup: d3.HierarchyCircularNode<any>[],
+      nodeElement: d3.Selection<
+        SVGGElement,
+        d3.HierarchyCircularNode<any>,
+        SVGSVGElement,
+        unknown
+      >,
+      targetX: number,
+    ) => {
+      // Create simulation
+      const simulation = d3
+        .forceSimulation(nodeGroup)
+        .force("x", d3.forceX(targetX).strength(0.01))
+        .force("y", d3.forceY(height / 2).strength(0.01))
+        .force("cluster", forceCluster())
+        .force("collide", forceCollide());
 
-    const node = svg
-      .selectAll<SVGGElement, d3.HierarchyCircularNode<any>>("g")
-      .data(nodes, (d: any) => d.data.id) // Use id as key
-      .join(
-        (enter) => {
-          const group = enter.append("g"); // Create a group for each node
+      simulation.on("tick", () => {
+        nodeElement.each(function () {
+          const group = d3.select(this);
 
-          // Circle for the fill
+          // Update fill-circle position
           group
-            .append("circle")
-            .attr("class", "fill-circle")
-            .attr("cx", (d) => d.x!)
-            .attr("cy", (d) => d.y!)
-            .attr("r", 0)
-            .attr("fill", (d) => getColor(categoricalDimension)(d.data.group))
-            .attr("stroke", null)
-            .attr("stroke-width", 0)
-            .attr("opacity", (d) => 0.5)
-            .call((enter) =>
-              enter
-                .transition()
-                .duration(600)
-                .attr("r", (d) => d.r),
-            )
-            .call((enter) =>
-              enter
-                .transition()
-                .duration(600)
-                .attr("r", (d) => d.r),
-            )
-            .on("click", function (event, d) {
-              const { currentSelectedItems, setCurrentSelectedItems } =
-                useSharedConfigStore.getState();
-
-              const newSelectedFeedbacks = currentSelectedItems.includes(
-                d.data.id,
-              )
-                ? currentSelectedItems.filter((id) => id !== d.data.id)
-                : [...currentSelectedItems, d.data.id];
-
-              setCurrentSelectedItems(newSelectedFeedbacks);
-
-              console.log(newSelectedFeedbacks);
+            .select(".fill-circle")
+            .attr("cx", (d: any) => {
+              d.x = Math.max(d.r, Math.min(width - d.r, d.x));
+              return d.x;
             })
-            .on("mouseover", function (event, d) {
-              hoverTimer = setTimeout(() => {
-                // console.log(d.data.id);
-                setHoveredItem(d.data.id); // Set hovered item id
-              }, 150);
-            })
-            .on("mouseout", function () {
-              if (hoverTimer) {
-                clearTimeout(hoverTimer);
-                hoverTimer = null;
-              }
-              setHoveredItem(null); // Optionally, reset hoveredItem on mouseout
+            .attr("cy", (d: any) => {
+              d.y = Math.max(d.r, Math.min(height - d.r, d.y));
+              return d.y;
             });
 
-          // Circle for the stroke
+          // Update bar-circle position
           group
-            .append("circle")
-            .attr("class", "bar-circle")
-            .attr("cx", (d) => d.x!)
-            .attr("cy", (d) => d.y!)
-            .attr("r", (d) => d.r - 6)
-            .attr("fill", "none")
-            .attr("stroke-dasharray", (d) => `0 ${2 * Math.PI * d.r}`)
-            .attr("stroke-linecap", "round");
+            .select(".bar-circle")
+            .attr("cx", (d: any) => d.x)
+            .attr("cy", (d: any) => d.y);
 
-          return group;
-        },
-        (update) =>
-          update.each(function (d) {
-            const group = d3.select(this);
+          // Update ring-circle position
+          group
+            .select(".ring-circle")
+            .attr("cx", (d: any) => d.x)
+            .attr("cy", (d: any) => d.y);
+        });
+      });
 
-            // Update fill circle
+      return simulation;
+    };
+
+    const createNodeElement = (nodeGroup: d3.HierarchyCircularNode<any>[]) => {
+      let hoverTimer: NodeJS.Timeout | null = null;
+
+      const nodeElement = svg
+        .selectAll<SVGGElement, d3.HierarchyCircularNode<any>>("g")
+        .data(nodeGroup, (d: any) => d.data.id) // Use id as key
+        .join(
+          (enter) => {
+            const group = enter.append("g"); // Create a group for each nodeElement
+
+            // Circle for the ring
             group
-              .select(".fill-circle")
-              .transition()
-              .duration(600)
-              .attr("fill", getColor(categoricalDimension)(d.data.group))
-              .attr("r", d.r);
-          }),
-        (exit) =>
-          exit.call((exit) =>
-            exit
-              .selectAll("circle")
-              .transition()
-              .duration(300)
+              .append("circle")
+              .attr("class", "ring-circle")
+              .attr("cx", (d) => d.x!)
+              .attr("cy", (d) => d.y!)
+              .attr("r", (d) => d.r + 3)
+              .attr("fill", "none")
+              .attr("stroke", "none");
+
+            // Circle for the fill
+            group
+              .append("circle")
+              .attr("class", "fill-circle")
+              .attr("cx", (d) => d.x!)
+              .attr("cy", (d) => d.y!)
               .attr("r", 0)
-              .remove(),
-          ),
-      );
+              .attr("fill", (d) => getColor(categoricalDimension)(d.data.group))
+              .attr("stroke", null)
+              .attr("stroke-width", 0)
+              .attr("opacity", (d) => 0.6)
+              .call((enter) =>
+                enter
+                  .transition()
+                  .duration(600)
+                  .attr("r", (d) => d.r),
+              )
+              .call((enter) =>
+                enter
+                  .transition()
+                  .duration(600)
+                  .attr("r", (d) => d.r),
+              )
+              .on("click", function (event, d) {
+                const { currentSelectedItems, setCurrentSelectedItems } =
+                  useSharedConfigStore.getState();
+
+                const newSelectedFeedbacks = currentSelectedItems.includes(
+                  d.data.id,
+                )
+                  ? currentSelectedItems.filter((id) => id !== d.data.id)
+                  : [...currentSelectedItems, d.data.id];
+
+                setCurrentSelectedItems(newSelectedFeedbacks);
+
+                // console.log(newSelectedFeedbacks);
+              })
+              .on("mouseover", function (event, d) {
+                hoverTimer = setTimeout(() => {
+                  // console.log(d.data.id);
+                  setHoveredItem(d.data.id); // Set hovered item id
+                }, 150);
+              })
+              .on("mouseout", function () {
+                if (hoverTimer) {
+                  clearTimeout(hoverTimer);
+                  hoverTimer = null;
+                }
+                setHoveredItem(null); // Optionally, reset hoveredItem on mouseout
+              });
+
+            // Circle for the bar
+            group
+              .append("circle")
+              .attr("class", "bar-circle")
+              .attr("cx", (d) => d.x!)
+              .attr("cy", (d) => d.y!)
+              .attr("r", (d) => d.r - 6)
+              .attr("fill", "none")
+              .attr("stroke-dasharray", (d) => `0 ${2 * Math.PI * d.r}`)
+              .attr("stroke-linecap", "round");
+
+            return group;
+          },
+          (update) =>
+            update.each(function (d) {
+              const group = d3.select(this);
+
+              // Update fill circle
+              group
+                .select(".fill-circle")
+                .transition()
+                .duration(600)
+                .attr("fill", getColor(categoricalDimension)(d.data.group))
+                .attr("r", d.r);
+            }),
+          (exit) =>
+            exit.call((exit) =>
+              exit
+                .selectAll("circle")
+                .transition()
+                .duration(300)
+                .attr("r", 0)
+                .remove(),
+            ),
+        );
+
+      return nodeElement;
+    };
+
+    const nodeElement = createNodeElement(nodes);
+    const simulation = createSimulation(nodes, nodeElement, width / 2);
 
     // Apply drag behavior only to fill circles
-    node
+    nodeElement
       .selectAll<
         SVGCircleElement,
         d3.HierarchyCircularNode<any>
@@ -217,38 +288,6 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             d.fy = null;
           }),
       );
-
-    // Create simulation
-    const simulation = d3
-      .forceSimulation(nodes)
-      .force("x", d3.forceX(width / 2).strength(0.01))
-      .force("y", d3.forceY(height / 2).strength(0.01))
-      .force("cluster", forceCluster())
-      .force("collide", forceCollide());
-
-    simulation.on("tick", () => {
-      node.each(function (d) {
-        const group = d3.select(this);
-
-        // Update fill-circle position
-        group
-          .select(".fill-circle")
-          .attr("cx", (d: any) => {
-            d.x = Math.max(d.r, Math.min(width - d.r, d.x));
-            return d.x;
-          })
-          .attr("cy", (d: any) => {
-            d.y = Math.max(d.r, Math.min(height - d.r, d.y));
-            return d.y;
-          });
-
-        // Update bar-circle position
-        group
-          .select(".bar-circle")
-          .attr("cx", (d: any) => d.x)
-          .attr("cy", (d: any) => d.y);
-      });
-    });
 
     // Cleanup
     return () => {
@@ -291,20 +330,11 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       .selectAll<SVGCircleElement, any>(".fill-circle")
       .attr("filter", null)
       .attr("opacity", (d) =>
-        currentSelectedItems.includes(d.data.id) ? 1 : 0.5,
+        currentSelectedItems.includes(d.data.id) ? 1 : 0.6,
       );
-
-    svg
-      .selectAll<SVGCircleElement, any>(".fill-circle")
-      .filter((d) => !currentSelectedItems.includes(d.data.id))
-      .attr("stroke", null);
-
-    svg
-      .selectAll<SVGCircleElement, any>(".fill-circle")
-      .filter((d) => currentSelectedItems.includes(d.data.id))
-      .attr("stroke", "#60a5fa");
-
+    svg.selectAll<SVGCircleElement, any>(".fill-circle").attr("stroke", null);
     svg.selectAll<SVGCircleElement, any>(".bar-circle").attr("filter", null);
+    svg.selectAll<SVGCircleElement, any>(".ring-circle").attr("filter", null);
 
     // Highlight the hovered item if present
     if (hoveredItem) {
@@ -322,7 +352,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .transition()
         .duration(300)
         // .attr("filter", "url(#glow)")
-        .attr("stroke", "#a1a1aa")
+        .attr("stroke", "#93c5fd")
         .attr("stroke-width", 3)
         .attr("opacity", 1);
 
@@ -338,7 +368,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             d.data.embeddings,
           ) > similarityThreshold || currentSelectedItems.includes(d.data.id)
             ? 1
-            : 0.5,
+            : 0.6,
         )
         .attr("filter", (d) =>
           cosineSimilarity(
@@ -364,8 +394,30 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             ? "url(#glow)"
             : null,
         );
+
+      svg
+        .selectAll<SVGCircleElement, any>(".ring-circle")
+        .filter((d) => d.data.id !== hoveredItem)
+        .transition()
+        .duration(300)
+        .attr("filter", (d) =>
+          cosineSimilarity(
+            allFeedback.find((item) => item.id === hoveredItem)!
+              .embeddings as number[],
+            d.data.embeddings,
+          ) < similarityThreshold
+            ? "url(#glow)"
+            : null,
+        );
     }
-  }, [hoveredItem, similarityThreshold, allFeedback, currentSelectedItems]);
+  }, [
+    hoveredItem,
+    similarityThreshold,
+    allFeedback,
+    currentSelectedItems,
+    categoricalDimension,
+    numericalDimension,
+  ]);
 
   useEffect(() => {
     if (!svgRef.current) return;
@@ -373,10 +425,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     const svg = d3.select(svgRef.current);
 
     // Reset all nodes to remove stroke
-    svg
-      .selectAll<SVGCircleElement, any>(".fill-circle")
-      .attr("stroke", null)
-      .attr("opacity", 0.5);
+    svg.selectAll<SVGCircleElement, any>(".fill-circle").attr("opacity", 0.6);
+    svg.selectAll<SVGCircleElement, any>(".ring-circle").attr("stroke", null);
 
     // Highlight selected feedbacks
     if (currentSelectedItems.length > 0) {
@@ -384,15 +434,20 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .selectAll<SVGCircleElement, any>(".fill-circle")
         .transition()
         .duration(300)
-        .attr("stroke", (d) =>
-          currentSelectedItems.includes(d.data.id) ? "#60a5fa" : null,
-        )
-        .attr("stroke-width", 3)
         .attr("opacity", (d) =>
-          currentSelectedItems.includes(d.data.id) ? 1 : 0.5,
+          currentSelectedItems.includes(d.data.id) ? 1 : 0.6,
         );
+
+      svg
+        .selectAll<SVGCircleElement, any>(".ring-circle")
+        .transition()
+        .duration(300)
+        .attr("stroke", (d) =>
+          currentSelectedItems.includes(d.data.id) ? "#ff00d3" : null,
+        )
+        .attr("stroke-width", 3);
     }
-  }, [currentSelectedItems]);
+  }, [currentSelectedItems, categoricalDimension, numericalDimension]);
 
   return (
     <div ref={containerRef} className={cn(props.classes, "relative")}>
@@ -403,7 +458,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           ref={svgRef}
           width={dimensions.width}
           height={dimensions.height}
-          className="cursor-pointer absolute bottom-8"
+          className="cursor-pointer absolute bottom-6"
         ></svg>
       )}
     </div>
@@ -445,17 +500,17 @@ const forceCluster = () => {
 
 const forceCollide = () => {
   const alpha = 0.4; // Fixed for greater rigidity
-  const padding1 = 4; // Separation between same-color nodes
-  const padding2 = 6; // Separation between different-color nodes
+  const padding1 = 8; // Separation between same-color nodes
+  const padding2 = 10; // Separation between different-color nodes
   let localNodes: d3.HierarchyCircularNode<unknown>[]; // Use generic unknown
   let maxRadius: number;
 
   function isLeaf(
-    node:
+    nodeElement:
       | d3.QuadtreeInternalNode<d3.HierarchyCircularNode<unknown>>
       | d3.QuadtreeLeaf<d3.HierarchyCircularNode<unknown>>,
-  ): node is d3.QuadtreeLeaf<d3.HierarchyCircularNode<unknown>> {
-    return "data" in node;
+  ): nodeElement is d3.QuadtreeLeaf<d3.HierarchyCircularNode<unknown>> {
+    return "data" in nodeElement;
   }
 
   function force() {

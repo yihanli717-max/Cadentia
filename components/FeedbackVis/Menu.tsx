@@ -144,23 +144,26 @@ const Menu = (props: MenuProps) => {
                 setSearchedEmbeddings(embeddings);
               }
             }}
-            className="grow"
+            className="grow 2xl:w-96"
             placeholder="Relevance to ..."
           />
           <kbd className="kbd kbd-sm">↵</kbd>
         </label>
       </div>
-      <div className="absolute left-0 p-2 bottom-2 ml-2 flex flex-col gap-1 w-48 z-50">
-        <p className="text-xs">Similarity Threshold: {similarityThreshold}</p>
-        <input
-          type="range"
-          min={0}
-          max="1"
-          value={similarityThreshold}
-          step="0.1"
-          className="range range-xs"
-          onChange={(e) => setSimilarityThreshold(parseFloat(e.target.value))}
-        />
+      <div className="absolute left-0 p-2 bottom-2 z-50 w-full flex flex-row justify-between items-end">
+        <div className="ml-2 flex flex-col gap-1 w-48">
+          <p className="text-xs">Similarity Threshold: {similarityThreshold}</p>
+          <input
+            type="range"
+            min={0}
+            max="1"
+            value={similarityThreshold}
+            step="0.1"
+            className="range range-xs"
+            onChange={(e) => setSimilarityThreshold(parseFloat(e.target.value))}
+          />
+        </div>
+        <button className="btn btn-neutral text-xs mr-4">Apply</button>
       </div>
     </>
   );

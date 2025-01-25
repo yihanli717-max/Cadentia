@@ -99,13 +99,25 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
     <div
       className={cn(
         props.classes,
-        "bg-gray-50 overflow-auto text-gray-800 h-full m-2",
+        "bg-gray-50 overflow-auto text-gray-800 h-full m-2 my-[10px] cursor-pointer",
       )}
       draggable={props.draggable}
       onDragStart={props.onDragStart}
+      onClick={() => {
+        const { currentSelectedItems, setCurrentSelectedItems } =
+          useSharedConfigStore.getState();
+
+        const newSelectedFeedbacks = currentSelectedItems.includes(
+          props.feedbackItem.id,
+        )
+          ? currentSelectedItems.filter((id) => id !== props.feedbackItem.id)
+          : [...currentSelectedItems, props.feedbackItem.id];
+
+        setCurrentSelectedItems(newSelectedFeedbacks);
+      }}
     >
       <div
-        className="px-3 pt-1 pb-2 bg-white border-2 rounded-lg select-none space-y-2"
+        className="px-3 pb-2 bg-white border-2 rounded-lg select-none space-y-2"
         style={{
           borderColor: getColor(categoricalDimension)(
             props.feedbackItem[categoricalDimension],
@@ -167,12 +179,12 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
         <div className={cn("text-xs leading-relaxed max-h-40 overflow-y-auto")}>
           {newFeedbackContent ? (
             <span>
-              "
+              &quot;
               {renderContentWithHighlights(
                 newFeedbackContent,
                 props.feedbackItem.content,
               )}
-              "
+              &quot;
             </span>
           ) : props.hideContent ? null : (
             <span className="font-medium">"{props.feedbackItem.content}"</span>

@@ -86,11 +86,11 @@ const EssayPanel = (props: EssayPanelProps) => {
                   <span
                     id={section.id.toString()}
                     className={cn(
-                      highlightSentences.has(section.content)
+                      currentSelectedSentences.has(section.content)
                         ? "bg-blue-100"
                         : "",
-                      currentSelectedSentences.has(section.content)
-                        ? "bg-yellow-100"
+                      highlightSentences.has(section.content)
+                        ? "bg-zinc-200"
                         : "",
                     )}
                   >

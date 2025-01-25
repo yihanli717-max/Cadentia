@@ -40,7 +40,7 @@ export const normalizeAndTransform = (
 
   return values.map((value) => {
     const normalized = (value - min) / (max - min); // Map to [0, 1]
-    const scaled = normalized * 0.9 + 0.1; // Map to [0.1, 1]
+    const scaled = normalized * 0.8 + 0.2; // Map to [0.2, 1]
     return transform(scaled);
   });
 };
