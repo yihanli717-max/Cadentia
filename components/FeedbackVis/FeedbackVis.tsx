@@ -116,7 +116,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             .attr("fill", (d) => getColor(categoricalDimension)(d.data.group))
             .attr("stroke", null)
             .attr("stroke-width", 0)
-            .attr("opacity", (d) => 0.5)
+            .attr("opacity", (d) => 0.6)
             .call((enter) =>
               enter
                 .transition()
@@ -267,7 +267,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       .transition()
       .duration(600)
       .attr("opacity", 0.8)
-      .attr("stroke-width", 4)
+      .attr("stroke-width", 5)
       .attr("stroke", (d) => (searchedEmeddings ? "#ffffff" : null))
       .attr("stroke-dasharray", (d) =>
         searchedEmeddings
@@ -291,7 +291,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       .selectAll<SVGCircleElement, any>(".fill-circle")
       .attr("filter", null)
       .attr("opacity", (d) =>
-        currentSelectedItems.includes(d.data.id) ? 1 : 0.5,
+        currentSelectedItems.includes(d.data.id) ? 1 : 0.6,
       );
 
     svg
@@ -302,7 +302,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     svg
       .selectAll<SVGCircleElement, any>(".fill-circle")
       .filter((d) => currentSelectedItems.includes(d.data.id))
-      .attr("stroke", "#60a5fa");
+      .attr("stroke", "#ffbe00");
 
     svg.selectAll<SVGCircleElement, any>(".bar-circle").attr("filter", null);
 
@@ -322,8 +322,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .transition()
         .duration(300)
         // .attr("filter", "url(#glow)")
-        .attr("stroke", "#a1a1aa")
-        .attr("stroke-width", 3)
+        .attr("stroke", "#00b6ff")
+        .attr("stroke-width", 5)
         .attr("opacity", 1);
 
       svg
@@ -338,7 +338,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             d.data.embeddings,
           ) > similarityThreshold || currentSelectedItems.includes(d.data.id)
             ? 1
-            : 0.5,
+            : 0.6,
         )
         .attr("filter", (d) =>
           cosineSimilarity(
@@ -376,7 +376,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     svg
       .selectAll<SVGCircleElement, any>(".fill-circle")
       .attr("stroke", null)
-      .attr("opacity", 0.5);
+      .attr("opacity", 0.6);
 
     // Highlight selected feedbacks
     if (currentSelectedItems.length > 0) {
@@ -385,11 +385,11 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .transition()
         .duration(300)
         .attr("stroke", (d) =>
-          currentSelectedItems.includes(d.data.id) ? "#60a5fa" : null,
+          currentSelectedItems.includes(d.data.id) ? "#ffbe00" : null,
         )
-        .attr("stroke-width", 3)
+        .attr("stroke-width", 5)
         .attr("opacity", (d) =>
-          currentSelectedItems.includes(d.data.id) ? 1 : 0.5,
+          currentSelectedItems.includes(d.data.id) ? 1 : 0.6,
         );
     }
   }, [currentSelectedItems]);

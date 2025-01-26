@@ -78,10 +78,10 @@ const FeedbackGallery = (props: FeedbackGalleryProps) => {
                   classes={cn(
                     "relative rounded-lg ring-offset-1 ring-offset-gray-50",
                     currentSelectedItems?.find((id) => id === item.id)
-                      ? "ring-blue-400 ring-3"
+                      ? "ring-warning ring-3"
                       : "",
                     hoveredItem === item.id
-                      ? "ring-zinc-400 ring-3 scale-[1.01] transition-all duration-150 ease-in-out"
+                      ? "ring-info ring-3 scale-[1.01] transition-all duration-150 ease-in-out"
                       : "",
                   )}
                   close={true}

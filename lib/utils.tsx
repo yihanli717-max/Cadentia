@@ -50,8 +50,8 @@ export const categoryColorMap: {
 } = {
   Claim: d3.schemeTableau10[1],
   Reasoning: d3.schemeTableau10[2],
-  Evidence: d3.schemeTableau10[5],
-  Rebuttal: d3.schemeTableau10[7],
+  Evidence: d3.schemeTableau10[7],
+  Rebuttal: d3.schemeTableau10[5],
   Others: d3.schemeTableau10[9],
   Organization: d3.schemeTableau10[0],
   "Word-usage": d3.schemeTableau10[3],
