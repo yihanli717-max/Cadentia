@@ -66,6 +66,7 @@ export const useFeedbackStore = create<FeedbackState & FeedbackActions>()(
 );
 
 export type SharedConfigState = {
+  isLoading: boolean;
   categoricalDimension: "type" | "provider";
   numericalDimension:
     | "helpfulness"
@@ -83,6 +84,8 @@ export type SharedConfigState = {
 };
 
 export type SharedConfigActions = {
+  resetSharedConfig: () => void;
+  setLoading: (loading: boolean) => void;
   setCategoricalDimension: (dimension: string) => void;
   setNumericalDimension: (dimension: string) => void;
   setHoveredItem: (id: number | null) => void;
@@ -98,6 +101,7 @@ export const useSharedConfigStore = create<
 >()(
   persist(
     (set) => ({
+      isLoading: false,
       categoricalDimension: "type",
       numericalDimension: "actionability",
       hoveredItem: null,
@@ -106,6 +110,25 @@ export const useSharedConfigStore = create<
       currentSelectedItems: [],
       currentRevisionItem: 0,
       comparisonMode: false,
+      resetSharedConfig: () =>
+        set(
+          produce((state) => {
+            state.categoricalDimension = "type";
+            state.numericalDimension = "actionability";
+            state.hoveredItem = null;
+            state.searchedEmeddings = undefined;
+            state.similarityThreshold = 0.6;
+            state.currentSelectedItems = [];
+            state.currentRevisionItem = 0;
+            state.comparisonMode = false;
+          }),
+        ),
+      setLoading: (loading: boolean) =>
+        set(
+          produce((state) => {
+            state.isLoading = loading;
+          }),
+        ),
       setCategoricalDimension: (dimension: string) =>
         set(
           produce((state) => {
@@ -156,7 +179,7 @@ export const useSharedConfigStore = create<
           }),
         ),
     }),
-    { name: "shared-config", skipHydration: true },
+    { name: "shared-config", skipHydration: false },
   ),
 );
 
@@ -176,6 +199,7 @@ export type RevisionListActions = {
       revision: RevisionItem[];
     }[],
   ) => void;
+  createRevision: () => void;
 };
 
 export const useRevisionListStore = create<
@@ -185,6 +209,16 @@ export const useRevisionListStore = create<
     (set) => ({
       revisionList: [],
       setRevisionList: (revisionList) => set({ revisionList }),
+      createRevision: () =>
+        set(
+          produce((state) => {
+            state.revisionList.push({
+              id: state.revisionList.length,
+              feedback: [],
+              revision: [],
+            });
+          }),
+        ),
     }),
     { name: "revision-list", skipHydration: false },
   ),

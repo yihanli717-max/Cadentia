@@ -119,9 +119,13 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             .attr("cy", (d) => d.y!)
             .attr("r", 0)
             .attr("fill", (d) => getColor(categoricalDimension)(d.data.group))
-            .attr("stroke", null)
-            .attr("stroke-width", 0)
-            .attr("opacity", (d) => 0.6)
+            .attr("stroke", (d) =>
+              currentSelectedItems.includes(d.data.id) ? "#ffbe00" : null,
+            )
+            .attr("stroke-width", 5)
+            .attr("opacity", (d) =>
+              currentSelectedItems.includes(d.data.id) ? 1 : 0.6,
+            )
             .call((enter) =>
               enter
                 .transition()

@@ -132,7 +132,11 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
                   showSource ? "text-gray-800" : "text-gray-400",
                   "text-xs font-normal cursor-pointer",
                 )}
-                onClick={() => setShowSource(!showSource)}
+                onClick={(e) => {
+                  // Avoid the event to be propagated to the parent div
+                  setShowSource(!showSource);
+                  e.stopPropagation();
+                }}
               >
                 <div className="flex flex-row gap-2 items-center">
                   <TbClipboardText size={20} />

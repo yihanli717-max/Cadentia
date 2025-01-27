@@ -13,10 +13,10 @@ const TextDiff = (props: TextDiffProps) => {
     <span>
       {differences.map((part: any, index: any) => {
         const color = part.added
-          ? "#59a24f"
+          ? "#00a96e"
           : part.removed
-            ? "#e15759"
-            : "#bbb0ab";
+            ? "#ff5961"
+            : "grey";
         const textDecoration = part.removed ? "line-through" : "none";
         return (
           <span key={index} style={{ color, textDecoration }}>

@@ -26,6 +26,7 @@ const Menu = (props: MenuProps) => {
     setSimilarityThreshold,
     currentSelectedItems,
     currentRevisionItem,
+    setLoading,
   ] = useSharedConfigStore((state) => [
     state.categoricalDimension,
     state.setCategoricalDimension,
@@ -37,6 +38,7 @@ const Menu = (props: MenuProps) => {
     state.setSimilarityThreshold,
     state.currentSelectedItems,
     state.currentRevisionItem,
+    state.setLoading,
   ]);
 
   return (
@@ -194,12 +196,15 @@ const Menu = (props: MenuProps) => {
             // Find the essay
             const essay = useEssayStore.getState().essay;
 
+            setLoading(true);
+
             // Generate the revision
             const revision = generateRevision(
               essay,
               selectedFeedbacks,
               Array.from(sentences),
             ).then((revision) => {
+              setLoading(false);
               if (revision) {
                 console.log(JSON.parse(revision));
                 // add the revision to the revision list
@@ -222,6 +227,15 @@ const Menu = (props: MenuProps) => {
                         : item,
                     ),
                   );
+                } else {
+                  setRevisionList([
+                    ...revisionList,
+                    {
+                      id: currentRevisionItem,
+                      feedback: currentSelectedItems,
+                      revision: JSON.parse(revision).revision,
+                    },
+                  ]);
                 }
               }
             });

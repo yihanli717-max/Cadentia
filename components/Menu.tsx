@@ -2,7 +2,11 @@
 import React, { useRef } from "react";
 import { essay } from "@/data/essay";
 import { feedback } from "@/data/feedback";
-import { useEssayStore, useFeedbackStore } from "@/lib/store";
+import {
+  useEssayStore,
+  useFeedbackStore,
+  useSharedConfigStore,
+} from "@/lib/store";
 import { cn, countWords, getEmbedding } from "@/lib/utils";
 
 type MenuProps = {
@@ -10,6 +14,8 @@ type MenuProps = {
 };
 
 const Menu = ({ classes }: MenuProps) => {
+  const setLoading = useSharedConfigStore((state) => state.setLoading);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExport = () => {};
@@ -35,6 +41,8 @@ const Menu = ({ classes }: MenuProps) => {
     useEssayStore.setState({ essay: essay });
     // useFeedbackStore.setState({ feedback: feedback })
 
+    setLoading(true);
+
     // iterate over the feedback and calculate the sentence lengths of each feedback content
     const feedbackWithLengthAndEmbeddings = await Promise.all(
       feedback.map(async (item) => ({
@@ -42,7 +50,10 @@ const Menu = ({ classes }: MenuProps) => {
         length: countWords(item.content),
         embeddings: await getEmbedding(item.content),
       })),
-    );
+    ).then((result) => {
+      setLoading(false);
+      return result;
+    });
 
     console.log(feedbackWithLengthAndEmbeddings);
 
