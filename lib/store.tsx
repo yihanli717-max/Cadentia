@@ -79,6 +79,7 @@ export type SharedConfigState = {
   similarityThreshold: number;
   currentSelectedItems: number[];
   currentRevisionItem: number;
+  comparisonMode: boolean;
 };
 
 export type SharedConfigActions = {
@@ -89,6 +90,7 @@ export type SharedConfigActions = {
   setSimilarityThreshold: (threshold: number) => void;
   setCurrentSelectedItems: (feedbacks: number[]) => void;
   setCurrentRevisionItem: (id: number) => void;
+  setComparisonMode: (mode: boolean) => void;
 };
 
 export const useSharedConfigStore = create<
@@ -103,6 +105,7 @@ export const useSharedConfigStore = create<
       similarityThreshold: 0.6,
       currentSelectedItems: [],
       currentRevisionItem: 0,
+      comparisonMode: false,
       setCategoricalDimension: (dimension: string) =>
         set(
           produce((state) => {
@@ -144,6 +147,12 @@ export const useSharedConfigStore = create<
         set(
           produce((state) => {
             state.currentRevisionItem = id;
+          }),
+        ),
+      setComparisonMode: (mode: boolean) =>
+        set(
+          produce((state) => {
+            state.comparisonMode = mode;
           }),
         ),
     }),

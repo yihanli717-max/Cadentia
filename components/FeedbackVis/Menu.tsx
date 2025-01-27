@@ -25,6 +25,7 @@ const Menu = (props: MenuProps) => {
     similarityThreshold,
     setSimilarityThreshold,
     currentSelectedItems,
+    currentRevisionItem,
   ] = useSharedConfigStore((state) => [
     state.categoricalDimension,
     state.setCategoricalDimension,
@@ -35,6 +36,7 @@ const Menu = (props: MenuProps) => {
     state.similarityThreshold,
     state.setSimilarityThreshold,
     state.currentSelectedItems,
+    state.currentRevisionItem,
   ]);
 
   return (
@@ -204,14 +206,23 @@ const Menu = (props: MenuProps) => {
                 const { revisionList, setRevisionList } =
                   useRevisionListStore.getState();
 
-                setRevisionList([
-                  ...revisionList,
-                  {
-                    id: 0,
-                    feedback: currentSelectedItems,
-                    revision: JSON.parse(revision).revision,
-                  },
-                ]);
+                // if the revision list already has an item with the same feedback, update the revision
+                const existingRevision = revisionList.find(
+                  (item) => item.id === currentRevisionItem,
+                );
+                if (existingRevision) {
+                  setRevisionList(
+                    revisionList.map((item) =>
+                      item.id === currentRevisionItem
+                        ? {
+                            ...item,
+                            feedback: currentSelectedItems,
+                            revision: JSON.parse(revision).revision,
+                          }
+                        : item,
+                    ),
+                  );
+                }
               }
             });
           }}
