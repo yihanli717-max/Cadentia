@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useFeedbackStore, useSharedConfigStore } from "@/lib/store";
-import { cn, getEmbedding } from "@/lib/utils";
+import {
+  useEssayStore,
+  useFeedbackStore,
+  useSharedConfigStore,
+  useRevisionListStore,
+} from "@/lib/store";
+import { cn, getEmbedding, generateRevision } from "@/lib/utils";
 
 interface MenuProps {
   classes?: string;
@@ -19,6 +24,7 @@ const Menu = (props: MenuProps) => {
     setSearchedEmbeddings,
     similarityThreshold,
     setSimilarityThreshold,
+    currentSelectedItems,
   ] = useSharedConfigStore((state) => [
     state.categoricalDimension,
     state.setCategoricalDimension,
@@ -28,6 +34,7 @@ const Menu = (props: MenuProps) => {
     state.setSearchedEmbeddings,
     state.similarityThreshold,
     state.setSimilarityThreshold,
+    state.currentSelectedItems,
   ]);
 
   return (
@@ -163,7 +170,54 @@ const Menu = (props: MenuProps) => {
             onChange={(e) => setSimilarityThreshold(parseFloat(e.target.value))}
           />
         </div>
-        <button className="btn btn-neutral text-xs mr-4">Apply</button>
+        <button
+          className="btn btn-neutral text-xs mr-4"
+          onClick={() => {
+            // Find the feedback content of the selected items from the feedback
+            const selectedFeedbacks = currentSelectedItems.map(
+              (id) => allFeedback.find((item) => item.id === id)?.content,
+            ) as string[];
+
+            // Find the target sentences from the selected feedback items
+            const sentences = new Set<string>();
+            currentSelectedItems
+              .map((id) => allFeedback.find((item) => item.id === id))
+              .forEach((feedback) => {
+                feedback?.plan.forEach((item) => {
+                  sentences.add(item.sentence);
+                });
+              });
+            console.log(sentences);
+
+            // Find the essay
+            const essay = useEssayStore.getState().essay;
+
+            // Generate the revision
+            const revision = generateRevision(
+              essay,
+              selectedFeedbacks,
+              Array.from(sentences),
+            ).then((revision) => {
+              if (revision) {
+                console.log(JSON.parse(revision));
+                // add the revision to the revision list
+                const { revisionList, setRevisionList } =
+                  useRevisionListStore.getState();
+
+                setRevisionList([
+                  ...revisionList,
+                  {
+                    id: 0,
+                    feedback: currentSelectedItems,
+                    revision: JSON.parse(revision).revision,
+                  },
+                ]);
+              }
+            });
+          }}
+        >
+          Apply
+        </button>
       </div>
     </>
   );

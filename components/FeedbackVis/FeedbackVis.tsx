@@ -1,7 +1,12 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useFeedbackStore, useSharedConfigStore } from "@/lib/store";
 import Menu from "@/components/FeedbackVis/Menu";
-import { cn, getColor, normalizeAndTransform } from "@/lib/utils";
+import {
+  cn,
+  getColor,
+  normalizeAndTransform,
+  generateRevision,
+} from "@/lib/utils";
 import { cosineSimilarity } from "fast-cosine-similarity";
 import * as d3 from "d3";
 

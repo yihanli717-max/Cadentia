@@ -50,13 +50,6 @@ export type FeedbackSourceItem = {
 };
 
 export type RevisionItem = {
-  revision: string;
-  better: boolean;
-  explanation: string;
-};
-
-export type Revision = {
-  id: number;
-  sentence: string;
-  revision: RevisionItem[];
+  original: string;
+  revised: string;
 };

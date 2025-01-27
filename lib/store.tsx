@@ -1,7 +1,12 @@
 import { produce } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { Sentence, FeedbackItem, FeedbackSourceItem } from "@/lib/type";
+import {
+  Sentence,
+  FeedbackItem,
+  FeedbackSourceItem,
+  RevisionItem,
+} from "@/lib/type";
 
 export type OpenAIAPIState = {
   API: string;
@@ -73,6 +78,7 @@ export type SharedConfigState = {
   searchedEmeddings: number[] | undefined;
   similarityThreshold: number;
   currentSelectedItems: number[];
+  currentRevisionItem: number;
 };
 
 export type SharedConfigActions = {
@@ -82,6 +88,7 @@ export type SharedConfigActions = {
   setSearchedEmbeddings: (embeddings: number[] | undefined) => void;
   setSimilarityThreshold: (threshold: number) => void;
   setCurrentSelectedItems: (feedbacks: number[]) => void;
+  setCurrentRevisionItem: (id: number) => void;
 };
 
 export const useSharedConfigStore = create<
@@ -95,6 +102,7 @@ export const useSharedConfigStore = create<
       searchedEmeddings: undefined,
       similarityThreshold: 0.6,
       currentSelectedItems: [],
+      currentRevisionItem: 0,
       setCategoricalDimension: (dimension: string) =>
         set(
           produce((state) => {
@@ -132,7 +140,43 @@ export const useSharedConfigStore = create<
             state.currentSelectedItems = feedbacks;
           }),
         ),
+      setCurrentRevisionItem: (id: number) =>
+        set(
+          produce((state) => {
+            state.currentRevisionItem = id;
+          }),
+        ),
     }),
     { name: "shared-config", skipHydration: true },
+  ),
+);
+
+export type RevisionListState = {
+  revisionList: {
+    id: number;
+    feedback: number[];
+    revision: RevisionItem[];
+  }[];
+};
+
+export type RevisionListActions = {
+  setRevisionList: (
+    revisionList: {
+      id: number;
+      feedback: number[];
+      revision: RevisionItem[];
+    }[],
+  ) => void;
+};
+
+export const useRevisionListStore = create<
+  RevisionListState & RevisionListActions
+>()(
+  persist(
+    (set) => ({
+      revisionList: [],
+      setRevisionList: (revisionList) => set({ revisionList }),
+    }),
+    { name: "revision-list", skipHydration: false },
   ),
 );

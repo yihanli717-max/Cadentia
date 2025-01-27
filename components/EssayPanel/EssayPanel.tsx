@@ -6,6 +6,7 @@ import {
   useEssayStore,
   useFeedbackStore,
   useSharedConfigStore,
+  useRevisionListStore,
 } from "@/lib/store";
 import { Sentence } from "@/lib/type";
 import { stat } from "fs";
@@ -15,10 +16,18 @@ interface EssayPanelProps {
 }
 
 const EssayPanel = (props: EssayPanelProps) => {
-  const [hoveredItem, currentSelectedItems] = useSharedConfigStore((state) => [
-    state.hoveredItem,
-    state.currentSelectedItems,
-  ]);
+  const [hoveredItem, currentSelectedItems, currentRevisionItem] =
+    useSharedConfigStore((state) => [
+      state.hoveredItem,
+      state.currentSelectedItems,
+      state.currentRevisionItem,
+    ]);
+
+  const revisionList = useRevisionListStore((state) => state.revisionList);
+  const revisionObject = revisionList.find(
+    (item) => item.id === currentRevisionItem,
+  );
+
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const hoveredFeedback = useMemo(
     () => allFeedback.find((item) => item.id === hoveredItem),
@@ -92,9 +101,18 @@ const EssayPanel = (props: EssayPanelProps) => {
                       highlightSentences.has(section.content)
                         ? "bg-zinc-200"
                         : "",
+                      revisionObject?.revision.find(
+                        (item) => item.original === section.content,
+                      ) && "bg-green-100",
                     )}
                   >
-                    {section.content + " "}
+                    {/* {section.content + " "} */}
+                    {
+                      // if senction.content exit in revisionObject's revision's orginal, then show the revision content
+                      (revisionObject?.revision.find(
+                        (item) => item.original === section.content,
+                      )?.revised || section.content) + " "
+                    }
                   </span>
                 </React.Fragment>
               ))}

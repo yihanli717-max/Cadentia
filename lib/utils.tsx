@@ -1,8 +1,11 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import OpenAI from "openai";
-import { useOpenAIAPI } from "@/lib/store";
+import { zodResponseFormat } from "openai/helpers/zod";
+import { z } from "zod";
 import * as d3 from "d3";
+import { useOpenAIAPI } from "@/lib/store";
+import { Sentence } from "@/lib/type";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -96,4 +99,71 @@ export async function getEmbedding(
   });
 
   return response.data[0].embedding;
+}
+
+export async function generateRevision(
+  essay: Sentence[],
+  feedbackList: string[],
+  sentenceList: string[],
+) {
+  const API = useOpenAIAPI.getState().API;
+  const openai = new OpenAI({
+    apiKey: API,
+    dangerouslyAllowBrowser: true,
+  });
+
+  // Contactanate the feedbacks
+  const connectedFeedback = feedbackList.join(" ");
+
+  // Contactanate the essay by paragraphs
+  const connectedEssay = Object.values(
+    essay.reduce(
+      (result, sentence) => {
+        // Get the paragraph number of the current sentence
+        const paragraph = sentence.paragraph;
+
+        // If the paragraph is not in the result object, initialize it as an empty string
+        if (!result[paragraph]) {
+          result[paragraph] = "";
+        }
+
+        // Concatenate the sentence content to the paragraph
+        result[paragraph] += (result[paragraph] ? " " : "") + sentence.content;
+
+        return result;
+      },
+      {} as Record<number, string>,
+    ),
+  ).join("\n");
+
+  const Revision = z.object({
+    revision: z.array(
+      z.object({
+        original: z.string(),
+        revised: z.string(),
+      }),
+    ),
+  });
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [
+      {
+        role: "system",
+        content:
+          "As a professional writer, you have received feedback on your essay and have been asked to revise specific sentences that need improvement. Your task is to carefully revise the given sentences based on the feedback received, ensuring that the original meaning is maintained and considering the context of the sentences in the essay.\n" +
+          `Essay: '${connectedEssay}`,
+      },
+      {
+        role: "user",
+        content:
+          `The feedback you received: '${connectedFeedback}'\n\n` +
+          `The sentences you need to revise: '${sentenceList.join("\n")}'`,
+      },
+    ],
+    temperature: 0.7,
+    response_format: zodResponseFormat(Revision, "revision"),
+  });
+
+  return response.choices[0].message.content;
 }
