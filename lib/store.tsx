@@ -50,16 +50,18 @@ export type FeedbackState = {
 
 export type FeedbackActions = {
   setFeedback: (feedback: FeedbackItem[]) => void;
-  getFeedbackById: (id: number) => FeedbackItem | undefined;
 };
 
 export const useFeedbackStore = create<FeedbackState & FeedbackActions>()(
   persist(
     (set, get) => ({
       feedback: [],
-      setFeedback: (feedback: FeedbackItem[]) => set({ feedback }),
-      getFeedbackById: (id: number) =>
-        get().feedback.find((item) => item.id === id),
+      setFeedback: (feedback: FeedbackItem[]) =>
+        set(
+          produce((state) => {
+            state.feedback = feedback;
+          }),
+        ),
     }),
     { name: "feedback", skipHydration: false },
   ),
@@ -84,7 +86,6 @@ export type SharedConfigState = {
 };
 
 export type SharedConfigActions = {
-  resetSharedConfig: () => void;
   setLoading: (loading: boolean) => void;
   setCategoricalDimension: (dimension: string) => void;
   setNumericalDimension: (dimension: string) => void;
@@ -102,7 +103,7 @@ export const useSharedConfigStore = create<
   persist(
     (set) => ({
       isLoading: false,
-      categoricalDimension: "type",
+      categoricalDimension: "provider",
       numericalDimension: "actionability",
       hoveredItem: null,
       searchedEmeddings: undefined,
@@ -110,19 +111,6 @@ export const useSharedConfigStore = create<
       currentSelectedItems: [],
       currentRevisionItem: 0,
       comparisonMode: false,
-      resetSharedConfig: () =>
-        set(
-          produce((state) => {
-            state.categoricalDimension = "type";
-            state.numericalDimension = "actionability";
-            state.hoveredItem = null;
-            state.searchedEmeddings = undefined;
-            state.similarityThreshold = 0.6;
-            state.currentSelectedItems = [];
-            state.currentRevisionItem = 0;
-            state.comparisonMode = false;
-          }),
-        ),
       setLoading: (loading: boolean) =>
         set(
           produce((state) => {

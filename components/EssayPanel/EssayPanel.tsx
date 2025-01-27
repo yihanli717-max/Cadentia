@@ -114,7 +114,7 @@ const EssayPanel = (props: EssayPanelProps) => {
                     id={section.id.toString()}
                     className={cn(
                       currentSelectedSentences.has(section.content)
-                        ? "bg-blue-100"
+                        ? "bg-yellow-100"
                         : "",
                       revisionObject?.revision.find(
                         (item) => item.original === section.content,

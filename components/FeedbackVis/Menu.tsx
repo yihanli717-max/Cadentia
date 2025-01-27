@@ -186,8 +186,10 @@ const Menu = (props: MenuProps) => {
             );
             const currentSelectedItems =
               useSharedConfigStore.getState().currentSelectedItems;
-            const toAddressItems =
-              currentRevision?.feedback.concat(currentSelectedItems);
+            const toAddressItems = currentSelectedItems.concat(
+              currentRevision?.feedback || [],
+            );
+            // console.log("currentSelectedItems: ", currentSelectedItems);
             console.log("Feedback IDs input to GPT: ", toAddressItems);
 
             if (!toAddressItems) {

@@ -14,7 +14,12 @@ type MenuProps = {
 };
 
 const Menu = ({ classes }: MenuProps) => {
-  const setLoading = useSharedConfigStore((state) => state.setLoading);
+  const [setLoading, setCategoricalDimension, setNumericalDimension] =
+    useSharedConfigStore((state) => [
+      state.setLoading,
+      state.setCategoricalDimension,
+      state.setNumericalDimension,
+    ]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -52,6 +57,8 @@ const Menu = ({ classes }: MenuProps) => {
       })),
     ).then((result) => {
       setLoading(false);
+      setCategoricalDimension("type");
+      setNumericalDimension("length");
       return result;
     });
 

@@ -162,12 +162,16 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     // Handle click event
     const handleClick = (event: MouseEvent, d: any) => {
+      console.log("Clicked on feedback", d.data.id);
+      const { currentRevisionItem } = useSharedConfigStore.getState();
       const { revisionList, updateRevision } = useRevisionListStore.getState();
       const currentRevision = revisionList?.find(
         (item) => item.id === currentRevisionItem,
       );
+      // console.log(currentRevision);
 
       if (currentRevision?.feedback?.includes(d.data.id)) {
+        console.log("Remove feedback from revision");
         const newRevisionFeedback = currentRevision.feedback.filter(
           (id) => id !== d.data.id,
         );
@@ -177,12 +181,15 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           revision: currentRevision?.revision || [],
         });
       } else {
+        console.log("Add feedback to selected feedback");
         const { currentSelectedItems, setCurrentSelectedItems } =
           useSharedConfigStore.getState();
         const newSelectedFeedbacks = currentSelectedItems.includes(d.data.id)
           ? currentSelectedItems.filter((id) => id !== d.data.id)
           : [...currentSelectedItems, d.data.id];
+
         setCurrentSelectedItems(newSelectedFeedbacks);
+        // console.log(newSelectedFeedbacks);
       }
     };
 
@@ -301,7 +308,13 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     return () => {
       simulation.stop();
     };
-  }, [dimensions, allFeedback, categoricalDimension, numericalDimension]);
+  }, [
+    dimensions,
+    allFeedback,
+    categoricalDimension,
+    numericalDimension,
+    allFeedback.length,
+  ]);
 
   useEffect(() => {
     if (!svgRef.current) return;
