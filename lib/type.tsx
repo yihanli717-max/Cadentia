@@ -50,6 +50,10 @@ export type FeedbackSourceItem = {
 };
 
 export type RevisionItem = {
-  original: string;
-  revised: string;
+  id: number;
+  feedback: number[];
+  revision: {
+    original: string;
+    revised: string;
+  }[];
 };

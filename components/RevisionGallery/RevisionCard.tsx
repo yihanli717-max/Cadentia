@@ -7,6 +7,7 @@ import {
 import { cn, getColor } from "@/lib/utils";
 
 interface RevisionCardProps {
+  classes?: string;
   id: number;
 }
 
@@ -35,7 +36,8 @@ const RevisionCard = (props: RevisionCardProps) => {
   return (
     <div
       className={cn(
-        "w-52 p-3 border-2 rounded-lg bg-white flex flex-col justify-between hover:ring-success hover:ring-3 hover:scale-[1.01] transition-all duration-150 ease-in-out cursor-pointer",
+        props.classes,
+        "p-3 border-2 rounded-lg bg-white flex flex-col justify-between hover:ring-success hover:ring-3 hover:scale-[1.01] transition-all duration-150 ease-in-out cursor-pointer",
         currentRevisionItem === props.id ? "ring-success ring-3" : "",
       )}
       onClick={() => {
@@ -51,16 +53,18 @@ const RevisionCard = (props: RevisionCardProps) => {
         <hr />
       </div>
 
-      <div className="flex gap-1 overflow-auto">
+      <div className="flex gap-1 overflow-x-auto no-scrollbar p-1">
         {thisFeedbacks.map((feedback) => (
           <div
             key={feedback.id}
-            className="rounded-full w-[18px] h-[18px] flex-shrink-0"
+            className="rounded-full w-[18px] h-[18px] flex-shrink-0 hover:border-2 hover:border-info hover:scale-125 transition-all duration-150 ease-in-out cursor-pointer"
             style={{
               backgroundColor: getColor(categoricalDimension)(
                 feedback[categoricalDimension],
               ),
             }}
+            onMouseEnter={() => setHoveredItem(feedback.id)}
+            onMouseLeave={() => setHoveredItem(null)}
           ></div>
         ))}
       </div>

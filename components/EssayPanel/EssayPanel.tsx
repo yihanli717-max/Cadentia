@@ -116,13 +116,13 @@ const EssayPanel = (props: EssayPanelProps) => {
                       currentSelectedSentences.has(section.content)
                         ? "bg-blue-100"
                         : "",
-                      highlightSentences.has(section.content)
-                        ? "bg-zinc-200"
-                        : "",
                       revisionObject?.revision.find(
                         (item) => item.original === section.content,
                       ) && "bg-green-100",
                       "transition-all duration-150 ease-in-out",
+                      highlightSentences.has(section.content)
+                        ? "bg-base-300"
+                        : "",
                     )}
                   >
                     {comparisonMode ? (

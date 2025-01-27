@@ -1,5 +1,9 @@
 import React, { useRef, useEffect, useState } from "react";
-import { useFeedbackStore, useSharedConfigStore } from "@/lib/store";
+import {
+  useFeedbackStore,
+  useSharedConfigStore,
+  useRevisionListStore,
+} from "@/lib/store";
 import Menu from "@/components/FeedbackVis/Menu";
 import {
   cn,
@@ -25,6 +29,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     searchedEmeddings,
     similarityThreshold,
     currentSelectedItems,
+    currentRevisionItem,
   ] = useSharedConfigStore((state) => [
     state.categoricalDimension,
     state.numericalDimension,
@@ -33,7 +38,12 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     state.searchedEmeddings,
     state.similarityThreshold,
     state.currentSelectedItems,
+    state.currentRevisionItem,
   ]);
+  const revisionList = useRevisionListStore((state) => state.revisionList);
+  const currentRevision = revisionList.find(
+    (item) => item.id === currentRevisionItem,
+  );
 
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -62,9 +72,18 @@ const FeedbackVis = (props: FeedbackVisProps) => {
   }, []);
 
   useEffect(() => {
-    if (!svgRef.current || !dimensions) return;
+    if (!svgRef.current || !dimensions || allFeedback.length === 0) return;
 
     const { width, height } = dimensions;
+    const svg = d3.select(svgRef.current);
+    let hoverTimer: NodeJS.Timeout | null = null;
+
+    type NodeType = d3.HierarchyCircularNode<{
+      id: string;
+      group: string;
+      value: number;
+      embeddings: number[];
+    }>;
 
     // Calculate nodes
     const calculateNodes = () => {
@@ -97,93 +116,142 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       return pack(d3.hierarchy(data).sum((d) => (d as any).value)).leaves();
     };
 
-    // Create or update nodes
-    let nodes = calculateNodes();
+    // Create node groups
+    const createNodeGroups = (
+      enter: d3.Selection<d3.EnterElement, NodeType, SVGSVGElement, unknown>,
+    ) => {
+      const group = enter.append<SVGGElement>("g");
 
-    const svg = d3.select(svgRef.current);
+      // Create filled circle
+      const fillCircle = group
+        .append<SVGCircleElement>("circle")
+        .attr("class", "fill-circle")
+        .attr("cx", (d) => d.x!)
+        .attr("cy", (d) => d.y!)
+        .attr("r", 0)
+        .attr("fill", (d) => getColor(categoricalDimension)(d.data.group))
+        .attr("stroke", getStrokeColor)
+        .attr("stroke-width", 5)
+        .attr("opacity", getCircleOpacity);
 
-    let hoverTimer: NodeJS.Timeout | null = null;
+      // Animate circle radius
+      fillCircle
+        .transition()
+        .duration(600)
+        .attr("r", (d) => d.r);
 
+      // Attach event listeners
+      fillCircle
+        .on("click", handleClick)
+        .on("mouseover", handleMouseOver)
+        .on("mouseout", handleMouseOut);
+
+      // Create bar circle
+      group
+        .append<SVGCircleElement>("circle")
+        .attr("class", "bar-circle")
+        .attr("cx", (d) => d.x!)
+        .attr("cy", (d) => d.y!)
+        .attr("r", (d) => d.r - 6)
+        .attr("fill", "none")
+        .attr("stroke-dasharray", (d) => `0 ${2 * Math.PI * d.r}`)
+        .attr("stroke-linecap", "round");
+
+      return group;
+    };
+
+    // Handle click event
+    const handleClick = (event: MouseEvent, d: any) => {
+      const { revisionList, updateRevision } = useRevisionListStore.getState();
+      const currentRevision = revisionList?.find(
+        (item) => item.id === currentRevisionItem,
+      );
+
+      if (currentRevision?.feedback?.includes(d.data.id)) {
+        const newRevisionFeedback = currentRevision.feedback.filter(
+          (id) => id !== d.data.id,
+        );
+        updateRevision({
+          id: currentRevisionItem,
+          feedback: newRevisionFeedback || [],
+          revision: currentRevision?.revision || [],
+        });
+      } else {
+        const { currentSelectedItems, setCurrentSelectedItems } =
+          useSharedConfigStore.getState();
+        const newSelectedFeedbacks = currentSelectedItems.includes(d.data.id)
+          ? currentSelectedItems.filter((id) => id !== d.data.id)
+          : [...currentSelectedItems, d.data.id];
+        setCurrentSelectedItems(newSelectedFeedbacks);
+      }
+    };
+
+    // Handle mouse over event
+    const handleMouseOver = (event: MouseEvent, d: any) => {
+      hoverTimer = setTimeout(() => setHoveredItem(d.data.id), 150);
+    };
+
+    // Handle mouse out event
+    const handleMouseOut = () => {
+      hoverTimer && clearTimeout(hoverTimer);
+      setHoveredItem(null);
+    };
+
+    // Get stroke color based on selection state
+    const getStrokeColor = (d: any) =>
+      currentSelectedItems.includes(d.data.id)
+        ? "#ffbe00"
+        : currentRevision?.feedback?.includes(d.data.id)
+          ? "#00a96e"
+          : null;
+
+    // Get circle opacity based on selection state
+    const getCircleOpacity = (d: any) =>
+      currentSelectedItems.includes(d.data.id) ||
+      currentRevision?.feedback?.includes(d.data.id)
+        ? 1
+        : 0.6;
+
+    // Setup simulation
+    const setupSimulation = (nodes: any[]) => {
+      const simulation = d3
+        .forceSimulation(nodes)
+        .force("x", d3.forceX(width / 2).strength(0.01))
+        .force("y", d3.forceY(height / 2).strength(0.01))
+        .force("cluster", forceCluster())
+        .force("collide", forceCollide())
+        .on("tick", () => {
+          node.each(function (d) {
+            const group = d3.select(this);
+
+            d.x = Math.max(d.r, Math.min(width - d.r, d.x!));
+            d.y = Math.max(d.r, Math.min(height - d.r, d.y!));
+
+            group
+              .select<SVGCircleElement>(".fill-circle")
+              .attr("cx", d.x!)
+              .attr("cy", d.y!);
+
+            group
+              .select<SVGCircleElement>(".bar-circle")
+              .attr("cx", d.x!)
+              .attr("cy", d.y!);
+          });
+        });
+
+      return simulation;
+    };
+
+    // Main logic flow
+    const nodes = calculateNodes();
     const node = svg
-      .selectAll<SVGGElement, d3.HierarchyCircularNode<any>>("g")
-      .data(nodes, (d: any) => d.data.id) // Use id as key
+      .selectAll<SVGGElement, any>("g")
+      .data(nodes, (d: any) => d.data.id)
       .join(
-        (enter) => {
-          const group = enter.append("g"); // Create a group for each node
-
-          // Circle for the fill
-          group
-            .append("circle")
-            .attr("class", "fill-circle")
-            .attr("cx", (d) => d.x!)
-            .attr("cy", (d) => d.y!)
-            .attr("r", 0)
-            .attr("fill", (d) => getColor(categoricalDimension)(d.data.group))
-            .attr("stroke", (d) =>
-              currentSelectedItems.includes(d.data.id) ? "#ffbe00" : null,
-            )
-            .attr("stroke-width", 5)
-            .attr("opacity", (d) =>
-              currentSelectedItems.includes(d.data.id) ? 1 : 0.6,
-            )
-            .call((enter) =>
-              enter
-                .transition()
-                .duration(600)
-                .attr("r", (d) => d.r),
-            )
-            .call((enter) =>
-              enter
-                .transition()
-                .duration(600)
-                .attr("r", (d) => d.r),
-            )
-            .on("click", function (event, d) {
-              const { currentSelectedItems, setCurrentSelectedItems } =
-                useSharedConfigStore.getState();
-
-              const newSelectedFeedbacks = currentSelectedItems.includes(
-                d.data.id,
-              )
-                ? currentSelectedItems.filter((id) => id !== d.data.id)
-                : [...currentSelectedItems, d.data.id];
-
-              setCurrentSelectedItems(newSelectedFeedbacks);
-
-              console.log(newSelectedFeedbacks);
-            })
-            .on("mouseover", function (event, d) {
-              hoverTimer = setTimeout(() => {
-                // console.log(d.data.id);
-                setHoveredItem(d.data.id); // Set hovered item id
-              }, 150);
-            })
-            .on("mouseout", function () {
-              if (hoverTimer) {
-                clearTimeout(hoverTimer);
-                hoverTimer = null;
-              }
-              setHoveredItem(null); // Optionally, reset hoveredItem on mouseout
-            });
-
-          // Circle for the stroke
-          group
-            .append("circle")
-            .attr("class", "bar-circle")
-            .attr("cx", (d) => d.x!)
-            .attr("cy", (d) => d.y!)
-            .attr("r", (d) => d.r - 6)
-            .attr("fill", "none")
-            .attr("stroke-dasharray", (d) => `0 ${2 * Math.PI * d.r}`)
-            .attr("stroke-linecap", "round");
-
-          return group;
-        },
+        (enter) => createNodeGroups(enter),
         (update) =>
           update.each(function (d) {
             const group = d3.select(this);
-
-            // Update fill circle
             group
               .select(".fill-circle")
               .transition()
@@ -227,37 +295,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           }),
       );
 
-    // Create simulation
-    const simulation = d3
-      .forceSimulation(nodes)
-      .force("x", d3.forceX(width / 2).strength(0.01))
-      .force("y", d3.forceY(height / 2).strength(0.01))
-      .force("cluster", forceCluster())
-      .force("collide", forceCollide());
-
-    simulation.on("tick", () => {
-      node.each(function (d) {
-        const group = d3.select(this);
-
-        // Update fill-circle position
-        group
-          .select(".fill-circle")
-          .attr("cx", (d: any) => {
-            d.x = Math.max(d.r, Math.min(width - d.r, d.x));
-            return d.x;
-          })
-          .attr("cy", (d: any) => {
-            d.y = Math.max(d.r, Math.min(height - d.r, d.y));
-            return d.y;
-          });
-
-        // Update bar-circle position
-        group
-          .select(".bar-circle")
-          .attr("cx", (d: any) => d.x)
-          .attr("cy", (d: any) => d.y);
-      });
-    });
+    const simulation = setupSimulation(nodes);
 
     // Cleanup
     return () => {
@@ -290,33 +328,39 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
   useEffect(() => {
     if (!svgRef.current) return;
-
     const svg = d3.select(svgRef.current);
 
+    // Common cleanup operations
     svg.select("defs").remove();
 
-    // Reset all nodes to default
-    svg
-      .selectAll<SVGCircleElement, any>(".fill-circle")
-      .attr("filter", null)
-      .attr("opacity", (d) =>
-        currentSelectedItems.includes(d.data.id) ? 1 : 0.6,
-      );
+    // Get all node references
+    const fillCircles = svg.selectAll<SVGCircleElement, any>(".fill-circle");
+    const barCircles = svg.selectAll<SVGCircleElement, any>(".bar-circle");
 
-    svg
-      .selectAll<SVGCircleElement, any>(".fill-circle")
-      .filter((d) => !currentSelectedItems.includes(d.data.id))
-      .attr("stroke", null);
+    // Generic style reset for all elements
+    const resetStyles = () => {
+      fillCircles
+        .attr("filter", null)
+        .attr("opacity", (d) =>
+          currentSelectedItems.includes(d.data.id) ||
+          currentRevision?.feedback?.includes(d.data.id)
+            ? 1
+            : 0.6,
+        )
+        .attr("stroke", (d) =>
+          currentSelectedItems.includes(d.data.id)
+            ? "#ffbe00"
+            : currentRevision?.feedback?.includes(d.data.id)
+              ? "#00a96e"
+              : null,
+        );
 
-    svg
-      .selectAll<SVGCircleElement, any>(".fill-circle")
-      .filter((d) => currentSelectedItems.includes(d.data.id))
-      .attr("stroke", "#ffbe00");
+      barCircles.attr("filter", null);
+    };
 
-    svg.selectAll<SVGCircleElement, any>(".bar-circle").attr("filter", null);
-
-    // Highlight the hovered item if present
-    if (hoveredItem) {
+    // Handle hover state effects
+    const handleHover = () => {
+      // Create glow filter for hover effect
       const defs = svg.append("defs");
       defs
         .append("filter")
@@ -325,83 +369,76 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("stdDeviation", 3)
         .attr("result", "coloredBlur");
 
-      svg
-        .selectAll<SVGCircleElement, any>(".fill-circle")
+      // Highlight hovered item
+      fillCircles
         .filter((d) => d.data.id === hoveredItem)
         .transition()
         .duration(300)
-        // .attr("filter", "url(#glow)")
-        .attr("stroke", "#00b6ff")
+        .attr("stroke", "#e5e6e6")
         .attr("stroke-width", 5)
         .attr("opacity", 1);
 
-      svg
-        .selectAll<SVGCircleElement, any>(".fill-circle")
+      // Cache embeddings data for performance
+      const hoveredEmbeddings = allFeedback.find(
+        (item) => item.id === hoveredItem,
+      )?.embeddings as number[];
+
+      // Reusable similarity effect applicator
+      const applySimilarityEffects = (selection: any) => {
+        selection
+          .attr("opacity", (d: any) =>
+            cosineSimilarity(hoveredEmbeddings, d.data.embeddings) >
+              similarityThreshold || currentSelectedItems.includes(d.data.id)
+              ? 1
+              : 0.6,
+          )
+          .attr("filter", (d: any) =>
+            cosineSimilarity(hoveredEmbeddings, d.data.embeddings) <
+            similarityThreshold
+              ? "url(#glow)"
+              : null,
+          );
+      };
+
+      // Apply effects to non-hovered items
+      fillCircles
         .filter((d) => d.data.id !== hoveredItem)
         .transition()
         .duration(300)
-        .attr("opacity", (d) =>
-          cosineSimilarity(
-            allFeedback.find((item) => item.id === hoveredItem)!
-              .embeddings as number[],
-            d.data.embeddings,
-          ) > similarityThreshold || currentSelectedItems.includes(d.data.id)
-            ? 1
-            : 0.6,
-        )
-        .attr("filter", (d) =>
-          cosineSimilarity(
-            allFeedback.find((item) => item.id === hoveredItem)!
-              .embeddings as number[],
-            d.data.embeddings,
-          ) < similarityThreshold
-            ? "url(#glow)"
-            : null,
-        );
+        .call(applySimilarityEffects);
 
-      svg
-        .selectAll<SVGCircleElement, any>(".bar-circle")
+      barCircles
         .filter((d) => d.data.id !== hoveredItem)
         .transition()
         .duration(300)
-        .attr("filter", (d) =>
-          cosineSimilarity(
-            allFeedback.find((item) => item.id === hoveredItem)!
-              .embeddings as number[],
-            d.data.embeddings,
-          ) < similarityThreshold
-            ? "url(#glow)"
-            : null,
-        );
-    }
-  }, [hoveredItem, similarityThreshold, allFeedback, currentSelectedItems]);
+        .call(applySimilarityEffects);
+    };
 
-  useEffect(() => {
-    if (!svgRef.current) return;
-
-    const svg = d3.select(svgRef.current);
-
-    // Reset all nodes to remove stroke
-    svg
-      .selectAll<SVGCircleElement, any>(".fill-circle")
-      .attr("stroke", null)
-      .attr("opacity", 0.6);
-
-    // Highlight selected feedbacks
-    if (currentSelectedItems.length > 0) {
-      svg
-        .selectAll<SVGCircleElement, any>(".fill-circle")
+    // Handle selection state when no hovering
+    const handleSelection = () => {
+      fillCircles
         .transition()
         .duration(300)
         .attr("stroke", (d) =>
-          currentSelectedItems.includes(d.data.id) ? "#ffbe00" : null,
+          currentSelectedItems.includes(d.data.id)
+            ? "#ffbe00"
+            : currentRevision?.feedback?.includes(d.data.id)
+              ? "#00a96e"
+              : null,
         )
-        .attr("stroke-width", 5)
-        .attr("opacity", (d) =>
-          currentSelectedItems.includes(d.data.id) ? 1 : 0.6,
-        );
-    }
-  }, [currentSelectedItems]);
+        .attr("stroke-width", 5);
+    };
+
+    // Execute main logic flow
+    resetStyles();
+    hoveredItem ? handleHover() : handleSelection();
+  }, [
+    hoveredItem,
+    similarityThreshold,
+    allFeedback,
+    currentSelectedItems,
+    currentRevision?.feedback,
+  ]);
 
   return (
     <div ref={containerRef} className={cn(props.classes, "relative")}>

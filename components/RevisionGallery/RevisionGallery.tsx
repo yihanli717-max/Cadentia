@@ -24,11 +24,11 @@ const RevisionGallery = (props: RevisionGalleryProps) => {
     <div
       className={cn(
         props.classes,
-        "bg-white border-b border-gray-100 inline-flex gap-2 p-2",
+        "bg-white border-b border-gray-100 flex overflow-x-auto gap-2 p-2 no-scrollbar",
       )}
     >
       <div
-        className="w-52 p-3 border rounded-lg bg-neutral-50 flex flex-col justify-between border-dashed cursor-pointer relative hover:border-2 hover:border-solid transition-all duration-150 ease-in-out group"
+        className="flex-shrink-0 w-52 p-3 border rounded-lg bg-neutral-50 flex flex-col justify-between border-dashed cursor-pointer relative hover:border-2 hover:border-solid transition-all duration-150 ease-in-out group"
         onClick={() => {
           createRevision();
           setCurrentSelectedItems([]);
@@ -51,7 +51,11 @@ const RevisionGallery = (props: RevisionGalleryProps) => {
         .slice()
         .reverse()
         .map((item) => (
-          <RevisionCard key={item.id} id={item.id} />
+          <RevisionCard
+            key={item.id}
+            id={item.id}
+            classes="flex-shrink-0 w-52"
+          />
         ))}
     </div>
   );

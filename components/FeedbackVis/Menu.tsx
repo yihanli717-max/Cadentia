@@ -27,6 +27,7 @@ const Menu = (props: MenuProps) => {
     currentSelectedItems,
     currentRevisionItem,
     setLoading,
+    setCurrentSelectedItems,
   ] = useSharedConfigStore((state) => [
     state.categoricalDimension,
     state.setCategoricalDimension,
@@ -39,6 +40,7 @@ const Menu = (props: MenuProps) => {
     state.currentSelectedItems,
     state.currentRevisionItem,
     state.setLoading,
+    state.setCurrentSelectedItems,
   ]);
 
   return (
@@ -177,14 +179,30 @@ const Menu = (props: MenuProps) => {
         <button
           className="btn btn-neutral text-xs mr-4"
           onClick={() => {
+            // concatenate currentSelectedItems and feedback list in currentRevisionItem
+            const reivisonList = useRevisionListStore.getState().revisionList;
+            const currentRevision = reivisonList.find(
+              (item) => item.id === currentRevisionItem,
+            );
+            const currentSelectedItems =
+              useSharedConfigStore.getState().currentSelectedItems;
+            const toAddressItems =
+              currentRevision?.feedback.concat(currentSelectedItems);
+            console.log("Feedback IDs input to GPT: ", toAddressItems);
+
+            if (!toAddressItems) {
+              console.log("No feedback selected");
+              return;
+            }
+
             // Find the feedback content of the selected items from the feedback
-            const selectedFeedbacks = currentSelectedItems.map(
+            const selectedFeedbacks = toAddressItems.map(
               (id) => allFeedback.find((item) => item.id === id)?.content,
             ) as string[];
 
             // Find the target sentences from the selected feedback items
             const sentences = new Set<string>();
-            currentSelectedItems
+            toAddressItems
               .map((id) => allFeedback.find((item) => item.id === id))
               .forEach((feedback) => {
                 feedback?.plan.forEach((item) => {
@@ -206,7 +224,9 @@ const Menu = (props: MenuProps) => {
             ).then((revision) => {
               setLoading(false);
               if (revision) {
+                setCurrentSelectedItems([]);
                 console.log(JSON.parse(revision));
+
                 // add the revision to the revision list
                 const { revisionList, setRevisionList } =
                   useRevisionListStore.getState();
@@ -221,7 +241,7 @@ const Menu = (props: MenuProps) => {
                       item.id === currentRevisionItem
                         ? {
                             ...item,
-                            feedback: currentSelectedItems,
+                            feedback: toAddressItems,
                             revision: JSON.parse(revision).revision,
                           }
                         : item,
@@ -232,7 +252,7 @@ const Menu = (props: MenuProps) => {
                     ...revisionList,
                     {
                       id: currentRevisionItem,
-                      feedback: currentSelectedItems,
+                      feedback: toAddressItems,
                       revision: JSON.parse(revision).revision,
                     },
                   ]);

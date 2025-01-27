@@ -184,22 +184,13 @@ export const useSharedConfigStore = create<
 );
 
 export type RevisionListState = {
-  revisionList: {
-    id: number;
-    feedback: number[];
-    revision: RevisionItem[];
-  }[];
+  revisionList: RevisionItem[];
 };
 
 export type RevisionListActions = {
-  setRevisionList: (
-    revisionList: {
-      id: number;
-      feedback: number[];
-      revision: RevisionItem[];
-    }[],
-  ) => void;
+  setRevisionList: (revisionList: RevisionItem[]) => void;
   createRevision: () => void;
+  updateRevision: (target: RevisionItem) => void;
 };
 
 export const useRevisionListStore = create<
@@ -219,6 +210,33 @@ export const useRevisionListStore = create<
             });
           }),
         ),
+      updateRevision: (target) => {
+        set(
+          produce((state) => {
+            const existingRevision = state.revisionList.find(
+              (item: RevisionItem) => item.id === target.id,
+            );
+            if (existingRevision) {
+              state.revisionList = state.revisionList.map(
+                (item: RevisionItem) =>
+                  item.id === target.id
+                    ? {
+                        ...item,
+                        feedback: target.feedback,
+                        revision: target.revision,
+                      }
+                    : item,
+              );
+            } else {
+              state.revisionList.push({
+                id: target.id,
+                feedback: target.feedback,
+                revision: target.revision,
+              });
+            }
+          }),
+        );
+      },
     }),
     { name: "revision-list", skipHydration: false },
   ),
