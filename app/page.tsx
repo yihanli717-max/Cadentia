@@ -20,7 +20,7 @@ const Page = () => {
           <div className="flex flex-row justify-between">
             <FeedbackGallery classes="flex-none h-screen overflow-auto pt-16 w-80" />
             <div className="grow flex flex-col">
-              <RevisionGallery classes="w-full h-64 flex-none" />
+              <RevisionGallery classes="w-full h-40 flex-none mt-16" />
               <FeedbackVis classes="w-full grow" />
             </div>
             <EssayPanel classes="flex-none max-w-lg" />

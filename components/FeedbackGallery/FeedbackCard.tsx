@@ -99,7 +99,7 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
     <div
       className={cn(
         props.classes,
-        "bg-gray-50 overflow-auto text-gray-800 h-full m-2 my-[10px] cursor-pointer",
+        "relative rounded-lg bg-gray-50 overflow-auto text-gray-800 h-full m-2 my-[10px] cursor-pointer",
       )}
       draggable={props.draggable}
       onDragStart={props.onDragStart}

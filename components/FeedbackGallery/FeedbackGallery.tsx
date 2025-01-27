@@ -76,7 +76,7 @@ const FeedbackGallery = (props: FeedbackGalleryProps) => {
                 <FeedbackCard
                   feedbackItem={item}
                   classes={cn(
-                    "relative rounded-lg ring-offset-1 ring-offset-gray-50",
+                    "ring-offset-1 ring-offset-gray-50",
                     currentSelectedItems?.find((id) => id === item.id)
                       ? "ring-warning ring-3"
                       : "",
