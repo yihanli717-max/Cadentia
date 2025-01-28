@@ -81,11 +81,17 @@ const Menu = ({ classes }: MenuProps) => {
           className="btn text-xs"
           onClick={() => fileInputRef.current?.click()}
         >
-          Upload Data
+          Upload Feedback
         </button>
-        <button className="btn text-xs" onClick={loadDefaultData}>
+        <button
+          className="btn text-xs"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          Upload Essay
+        </button>
+        {/* <button className="btn text-xs" onClick={loadDefaultData}>
           Load Default Data
-        </button>
+        </button> */}
         {/* <div className="divider divider-horizontal my-2"></div> */}
         {/* <button onClick={handleExport} className="btn text-xs">
           Export Data

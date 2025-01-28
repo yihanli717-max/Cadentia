@@ -57,7 +57,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     const updateDimensions = () => {
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
-        setDimensions({ width, height: height - 64 });
+        setDimensions({ width, height: height - 80 });
       }
     };
 
@@ -313,7 +313,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     allFeedback,
     categoricalDimension,
     numericalDimension,
-    allFeedback.length,
+    // allFeedback.length,
   ]);
 
   useEffect(() => {

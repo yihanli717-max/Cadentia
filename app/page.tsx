@@ -6,16 +6,21 @@ import FeedbackGallery from "@/components/FeedbackGallery/FeedbackGallery";
 import EssayPanel from "@/components/EssayPanel/EssayPanel";
 import FeedbackVis from "@/components/FeedbackVis/FeedbackVis";
 import RevisionGallery from "@/components/RevisionGallery/RevisionGallery";
-import { useOpenAIAPI, useSharedConfigStore } from "@/lib/store";
+import {
+  useOpenAIAPI,
+  useFeedbackStore,
+  useSharedConfigStore,
+} from "@/lib/store";
 
 const Page = () => {
   const API = useOpenAIAPI((state) => state.API);
+  const allFeedback = useFeedbackStore((state) => state.feedback);
   const isLoading = useSharedConfigStore((state) => state.isLoading);
 
   return (
     <div>
       {API === "" && <APIInput />}
-      {API !== "" && (
+      {API !== "" && allFeedback.length > 0 && (
         <div>
           <Header />
           <div className="flex flex-row justify-between min-h-screen overflow-hidden">

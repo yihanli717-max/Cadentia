@@ -1,11 +1,42 @@
 "use client";
 import React, { useState } from "react";
-import { useOpenAIAPI } from "@/lib/store";
+import { essay } from "@/data/essay";
+import { feedback } from "@/data/feedback";
+import {
+  useOpenAIAPI,
+  useEssayStore,
+  useFeedbackStore,
+  useSharedConfigStore,
+} from "@/lib/store";
+import { cn, countWords, getEmbedding } from "@/lib/utils";
 
 const APIInput = () => {
   const [input, setIupt] = useState("");
-  const API = useOpenAIAPI((state) => state.API);
+
   const setAPI = useOpenAIAPI((state) => state.setAPI);
+  const setLoading = useSharedConfigStore((state) => state.setLoading);
+
+  const loadDefaultData = async () => {
+    useEssayStore.setState({ essay: essay });
+    // useFeedbackStore.setState({ feedback: feedback })
+
+    setLoading(true);
+
+    // iterate over the feedback and calculate the sentence lengths of each feedback content
+    const feedbackWithLengthAndEmbeddings = await Promise.all(
+      feedback.map(async (item) => ({
+        ...item,
+        length: countWords(item.content),
+        embeddings: await getEmbedding(item.content),
+      })),
+    ).then((result) => {
+      setLoading(false);
+      return result;
+    });
+
+    console.log(feedbackWithLengthAndEmbeddings);
+    useFeedbackStore.setState({ feedback: feedbackWithLengthAndEmbeddings });
+  };
 
   return (
     <div className="h-screen w-full flex items-center justify-center">
@@ -20,12 +51,13 @@ const APIInput = () => {
             onChange={(event) => {
               setIupt(event.target.value);
             }}
-            className="input input-bordered w-full"
+            className="input input-bordered w-full text-sm"
           />
           <button
             className="btn"
             onClick={() => {
               setAPI(input);
+              loadDefaultData();
             }}
           >
             Confirm
