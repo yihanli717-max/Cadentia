@@ -81,7 +81,7 @@ const FeedbackGallery = (props: FeedbackGalleryProps) => {
                       ? "ring-warning ring-3"
                       : "",
                     hoveredItem === item.id
-                      ? "ring-base-300 ring-3 scale-[1.01] transition-all duration-150 ease-in-out"
+                      ? "ring-info ring-3 scale-[1.01] transition-all duration-150 ease-in-out"
                       : "",
                   )}
                   close={true}

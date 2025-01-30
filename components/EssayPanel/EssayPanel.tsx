@@ -121,7 +121,7 @@ const EssayPanel = (props: EssayPanelProps) => {
                       ) && "bg-green-100",
                       "transition-all duration-150 ease-in-out",
                       highlightSentences.has(section.content)
-                        ? "bg-base-300"
+                        ? "bg-sky-100"
                         : "",
                     )}
                   >

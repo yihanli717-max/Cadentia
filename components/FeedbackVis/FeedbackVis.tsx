@@ -157,6 +157,24 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("stroke-dasharray", (d) => `0 ${2 * Math.PI * d.r}`)
         .attr("stroke-linecap", "round");
 
+      // Create progress circle
+      group
+        .append<SVGCircleElement>("circle")
+        .attr("class", "progress-circle")
+        .attr("cx", (d) => d.x!)
+        .attr("cy", (d) => d.y!)
+        .attr("r", (d) => d.r + 2)
+        .attr("fill", "none")
+        .attr("stroke", "transparent")
+        .attr("stroke-width", 3)
+        .attr("stroke-linecap", "round")
+        .each(function (d) {
+          const circumference = 2 * Math.PI * (d.r + 2);
+          d3.select(this)
+            .attr("stroke-dasharray", circumference)
+            .attr("stroke-dashoffset", circumference);
+        });
+
       return group;
     };
 
@@ -195,12 +213,44 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     // Handle mouse over event
     const handleMouseOver = (event: MouseEvent, d: any) => {
-      hoverTimer = setTimeout(() => setHoveredItem(d.data.id), 150);
+      hoverTimer = setTimeout(() => setHoveredItem(d.data.id), 1500);
+      const group = d3.select(
+        (event.currentTarget as Element).parentNode as SVGGElement,
+      );
+      const progressCircle = group.select<SVGCircleElement>(".progress-circle");
+      const circumference = 2 * Math.PI * (d.r + 2);
+
+      // Reset progress circle
+      progressCircle
+        .interrupt()
+        .attr("stroke-dashoffset", circumference)
+        .attr("stroke", "#00b5ff")
+        .attr("stroke-opacity", 0);
+
+      // Animate progress circle
+      progressCircle
+        .transition()
+        .duration(2000)
+        .attr("stroke-opacity", 1)
+        .attr("stroke-dashoffset", 0)
+        .on("end", () => setHoveredItem(d.data.id));
     };
 
     // Handle mouse out event
-    const handleMouseOut = () => {
+    const handleMouseOut = (event: MouseEvent, d: any) => {
       hoverTimer && clearTimeout(hoverTimer);
+      const group = d3.select(
+        (event.currentTarget as Element).parentNode as SVGGElement,
+      );
+      const progressCircle = group.select<SVGCircleElement>(".progress-circle");
+      const circumference = 2 * Math.PI * (d.r + 2);
+
+      // Stop animation and reset progress circle
+      progressCircle
+        .interrupt()
+        .attr("stroke", "transparent")
+        .attr("stroke-dashoffset", circumference);
+
       setHoveredItem(null);
     };
 
@@ -241,6 +291,11 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
             group
               .select<SVGCircleElement>(".bar-circle")
+              .attr("cx", d.x!)
+              .attr("cy", d.y!);
+
+            group
+              .select<SVGCircleElement>(".progress-circle")
               .attr("cx", d.x!)
               .attr("cy", d.y!);
           });
@@ -387,8 +442,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .filter((d) => d.data.id === hoveredItem)
         .transition()
         .duration(300)
-        .attr("stroke", "#e5e6e6")
-        .attr("stroke-width", 5)
+        // .attr("stroke", "#e5e6e6")
+        // .attr("stroke-width", 5)
         .attr("opacity", 1);
 
       // Cache embeddings data for performance
