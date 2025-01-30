@@ -43,6 +43,10 @@ const Menu = (props: MenuProps) => {
     state.setCurrentSelectedItems,
   ]);
 
+  useEffect(() => {
+    setSearchedEmbeddings(undefined);
+  }, []);
+
   return (
     <>
       <div

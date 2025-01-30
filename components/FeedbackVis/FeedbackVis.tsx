@@ -181,6 +181,38 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     // Handle click event
     const handleClick = (event: MouseEvent, d: any) => {
       console.log("Clicked on feedback", d.data.id);
+
+      if (event.shiftKey) {
+        console.log("Shift key pressed");
+        event.preventDefault();
+
+        const { similarityThreshold } = useSharedConfigStore.getState();
+        const clickedEmbeddings = allFeedback.find(
+          (item) => item.id === d.data.id,
+        )?.embeddings as number[];
+
+        if (!clickedEmbeddings) return;
+
+        const matchedIds = allFeedback
+          .filter((item) => {
+            if (!item.embeddings) return false;
+            const similarity = cosineSimilarity(
+              clickedEmbeddings,
+              item.embeddings,
+            );
+            return similarity > similarityThreshold;
+          })
+          .map((item) => item.id);
+
+        const { currentSelectedItems, setCurrentSelectedItems } =
+          useSharedConfigStore.getState();
+        const combinedIds = Array.from(
+          new Set([...currentSelectedItems, ...matchedIds]),
+        );
+        setCurrentSelectedItems(combinedIds);
+        return;
+      }
+
       const { currentRevisionItem } = useSharedConfigStore.getState();
       const { revisionList, updateRevision } = useRevisionListStore.getState();
       const currentRevision = revisionList?.find(
