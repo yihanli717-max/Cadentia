@@ -49,7 +49,7 @@ const RevisionCard = (props: RevisionCardProps) => {
       onClick={() => {
         setCurrentRevisionItem(props.id);
         setHoveredItem(null);
-        setCurrentSelectedItems(thisRevision?.feedback || []);
+        setCurrentSelectedItems([]);
       }}
     >
       <div className="space-y-2">

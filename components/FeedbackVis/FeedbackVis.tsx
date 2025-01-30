@@ -460,10 +460,10 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             : 0.6,
         )
         .attr("stroke", (d) =>
-          currentSelectedItems.includes(d.data.id)
-            ? "#ffbe00"
-            : currentRevision?.feedback?.includes(d.data.id)
-              ? "#00a96e"
+          currentRevision?.feedback?.includes(d.data.id)
+            ? "#00a96e"
+            : currentSelectedItems.includes(d.data.id)
+              ? "#ffbe00"
               : null,
         );
 
@@ -472,6 +472,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     // Handle hover state effects
     const handleHover = () => {
+      console.log("Hovered on feedback", hoveredItem);
       // Create glow filter for hover effect
       const defs = svg.append("defs");
       defs
@@ -528,14 +529,15 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     // Handle selection state when no hovering
     const handleSelection = () => {
+      console.log("Selected feedbacks", currentSelectedItems);
       fillCircles
         .transition()
         .duration(300)
         .attr("stroke", (d) =>
-          currentSelectedItems.includes(d.data.id)
-            ? "#ffbe00"
-            : currentRevision?.feedback?.includes(d.data.id)
-              ? "#00a96e"
+          currentRevision?.feedback?.includes(d.data.id)
+            ? "#00a96e"
+            : currentSelectedItems.includes(d.data.id)
+              ? "#ffbe00"
               : null,
         )
         .attr("stroke-width", 5);
