@@ -4,7 +4,13 @@ import {
   useSharedConfigStore,
   useRevisionListStore,
 } from "@/lib/store";
-import { cn, getColor } from "@/lib/utils";
+import {
+  cn,
+  getColor,
+  getInterpolateColor,
+  countWordChanges,
+  collectStats,
+} from "@/lib/utils";
 
 interface RevisionCardProps {
   classes?: string;
@@ -47,9 +53,44 @@ const RevisionCard = (props: RevisionCardProps) => {
       }}
     >
       <div className="space-y-2">
-        <p className="text-sm font-semibold">
-          Version {thisRevision?.id !== undefined && thisRevision.id + 1}{" "}
-        </p>
+        <div className="flex flex-row justify-between items-center">
+          <p className="text-sm font-semibold">
+            Version {thisRevision?.id !== undefined && thisRevision.id + 1}{" "}
+          </p>
+          <div className="flex gap-1">
+            {thisRevision && (
+              <div
+                className="w-[18px] h-[18px] rounded hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
+                style={{
+                  backgroundColor: getInterpolateColor(
+                    "green",
+                    // collectStats(revisionList).maxAdded,
+                    500,
+                  )(countWordChanges(thisRevision).added),
+                }}
+                title={`Added: ${countWordChanges(thisRevision).added} words`}
+              >
+                {/* {thisRevision && countWordChanges(thisRevision).added} */}
+              </div>
+            )}
+            {thisRevision && (
+              <div
+                className="w-[18px] h-[18px] rounded hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
+                style={{
+                  backgroundColor: getInterpolateColor(
+                    "red",
+                    // collectStats(revisionList).maxDeleted,
+                    500,
+                  )(countWordChanges(thisRevision).deleted),
+                }}
+                title={`Deleted: ${countWordChanges(thisRevision).deleted} words`}
+              >
+                {/* {thisRevision && countWordChanges(thisRevision).deleted} */}
+              </div>
+            )}
+          </div>
+        </div>
+
         <hr />
       </div>
 

@@ -4,8 +4,9 @@ import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import * as d3 from "d3";
+import { diffWords } from "diff";
 import { useOpenAIAPI } from "@/lib/store";
-import { Sentence } from "@/lib/type";
+import { Sentence, RevisionItem } from "@/lib/type";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -166,4 +167,68 @@ export async function generateRevision(
   });
 
   return response.choices[0].message.content;
+}
+
+export function getInterpolateColor(
+  color: "red" | "green" | "blue" = "green",
+  max: number,
+) {
+  if (color === "red") {
+    return d3
+      .scaleSequential()
+      .domain([0, max])
+      .interpolator(d3.interpolateReds);
+  } else if (color === "blue") {
+    return d3
+      .scaleSequential()
+      .domain([0, max])
+      .interpolator(d3.interpolateBlues);
+  }
+  return d3
+    .scaleSequential()
+    .domain([0, max])
+    .interpolator(d3.interpolateGreens);
+}
+
+export function collectStats(revisionItems: RevisionItem[]): {
+  maxAdded: number;
+  maxDeleted: number;
+  maxTotal: number;
+} {
+  let maxAdded = 0;
+  let maxDeleted = 0;
+  let maxTotal = 0;
+
+  for (const item of revisionItems) {
+    const { added, deleted } = countWordChanges(item);
+    maxAdded = Math.max(maxAdded, added);
+    maxDeleted = Math.max(maxDeleted, deleted);
+    maxTotal = Math.max(maxTotal, added + deleted);
+  }
+
+  return { maxAdded, maxDeleted, maxTotal };
+}
+
+export function countWordChanges(revisionItem: RevisionItem): {
+  added: number;
+  deleted: number;
+} {
+  let addedWords = 0;
+  let deletedWords = 0;
+
+  for (const { original, revised } of revisionItem.revision) {
+    const diffs = diffWords(original, revised);
+
+    for (const diff of diffs) {
+      if (diff.added) {
+        const words = diff.value.trim().split(/\s+/);
+        addedWords += words.filter((word) => word.length > 0).length;
+      } else if (diff.removed) {
+        const words = diff.value.trim().split(/\s+/);
+        deletedWords += words.filter((word) => word.length > 0).length;
+      }
+    }
+  }
+
+  return { added: addedWords, deleted: deletedWords };
 }
