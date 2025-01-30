@@ -60,12 +60,12 @@ const RevisionCard = (props: RevisionCardProps) => {
           <div className="flex gap-1">
             {thisRevision && (
               <div
-                className="w-[18px] h-[18px] rounded hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
+                className="w-4 h-4 rounded hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
                 style={{
                   backgroundColor: getInterpolateColor(
                     "green",
                     // collectStats(revisionList).maxAdded,
-                    500,
+                    400,
                   )(countWordChanges(thisRevision).added),
                 }}
                 title={`Added: ${countWordChanges(thisRevision).added} words`}
@@ -75,12 +75,12 @@ const RevisionCard = (props: RevisionCardProps) => {
             )}
             {thisRevision && (
               <div
-                className="w-[18px] h-[18px] rounded hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
+                className="w-4 h-4 rounded hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
                 style={{
                   backgroundColor: getInterpolateColor(
                     "red",
                     // collectStats(revisionList).maxDeleted,
-                    500,
+                    400,
                   )(countWordChanges(thisRevision).deleted),
                 }}
                 title={`Deleted: ${countWordChanges(thisRevision).deleted} words`}
