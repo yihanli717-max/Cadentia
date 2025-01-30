@@ -434,7 +434,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .append("filter")
         .attr("id", "glow")
         .append("feGaussianBlur")
-        .attr("stdDeviation", 3)
+        .attr("stdDeviation", "1.5")
         .attr("result", "coloredBlur");
 
       // Highlight hovered item
