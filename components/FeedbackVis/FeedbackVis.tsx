@@ -250,12 +250,11 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         (event.currentTarget as Element).parentNode as SVGGElement,
       );
       const progressCircle = group.select<SVGCircleElement>(".progress-circle");
-      const circumference = 2 * Math.PI * (d.r + 2);
 
       // Reset progress circle
       progressCircle
         .interrupt()
-        .attr("stroke-dashoffset", circumference)
+        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 2))
         .attr("stroke", "#00b5ff")
         .attr("stroke-opacity", 0);
 
@@ -274,14 +273,15 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       const group = d3.select(
         (event.currentTarget as Element).parentNode as SVGGElement,
       );
-      const progressCircle = group.select<SVGCircleElement>(".progress-circle");
-      const circumference = 2 * Math.PI * (d.r + 2);
+      const progressCircle = group
+        .select<SVGCircleElement>(".progress-circle")
+        .attr("r", (d: any) => d.r + 2);
 
       // Stop animation and reset progress circle
       progressCircle
         .interrupt()
         .attr("stroke", "transparent")
-        .attr("stroke-dashoffset", circumference);
+        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 2));
 
       setHoveredItem(null);
     };
@@ -402,6 +402,18 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     numericalDimension,
     // allFeedback.length,
   ]);
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    const svg = d3.select(svgRef.current);
+
+    svg
+      .selectAll<SVGGElement, d3.HierarchyCircularNode<any>>("g")
+      .select(".progress-circle")
+      .attr("r", (d) => d.r + 2)
+      .attr("stroke-dasharray", (d: any) => 2 * Math.PI * (d.r + 2));
+  }, [numericalDimension]);
 
   useEffect(() => {
     if (!svgRef.current) return;
