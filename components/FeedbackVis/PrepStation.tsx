@@ -247,6 +247,7 @@ const PrepStation = () => {
       <LayoutGroup>
         <AnimatePresence>
           {selectedFeedbacks.map((fb) => {
+            if (!fb) return null;
             // const radius = bubbleRadii[fb.id] || 0;
             const radius = 12;
             const color = getColor(categoricalDimension)(
