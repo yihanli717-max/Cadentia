@@ -98,7 +98,7 @@ const RevisionCard = (props: RevisionCardProps) => {
         {thisFeedbacks.map((feedback) => (
           <div
             key={feedback.id}
-            className="rounded-full w-[18px] h-[18px] flex-shrink-0 hover:border-2 hover:border-info hover:scale-125 transition-all duration-150 ease-in-out cursor-pointer"
+            className="rounded-full w-[18px] h-[18px] flex-shrink-0 hover:ring-2 hover:ring-info hover:ring-offset-[0.5px] hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
             style={{
               backgroundColor: getColor(categoricalDimension)(
                 feedback[categoricalDimension],

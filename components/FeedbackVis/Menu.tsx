@@ -181,7 +181,7 @@ const Menu = (props: MenuProps) => {
           />
         </div>
         <button
-          className="btn btn-neutral text-xs mr-4"
+          className="btn btn-neutral text-xs mr-2"
           onClick={() => {
             // concatenate currentSelectedItems and feedback list in currentRevisionItem
             const reivisonList = useRevisionListStore.getState().revisionList;

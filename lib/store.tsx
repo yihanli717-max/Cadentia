@@ -83,6 +83,7 @@ export type SharedConfigState = {
   currentSelectedItems: number[];
   currentRevisionItem: number;
   comparisonMode: boolean;
+  bubbleRadii: Record<string, number>;
 };
 
 export type SharedConfigActions = {
@@ -95,6 +96,7 @@ export type SharedConfigActions = {
   setCurrentSelectedItems: (feedbacks: number[]) => void;
   setCurrentRevisionItem: (id: number) => void;
   setComparisonMode: (mode: boolean) => void;
+  setBubbleRadii: (radii: Record<string, number>) => void;
 };
 
 export const useSharedConfigStore = create<
@@ -111,6 +113,7 @@ export const useSharedConfigStore = create<
       currentSelectedItems: [],
       currentRevisionItem: 0,
       comparisonMode: false,
+      bubbleRadii: {},
       setLoading: (loading: boolean) =>
         set(
           produce((state) => {
@@ -164,6 +167,12 @@ export const useSharedConfigStore = create<
         set(
           produce((state) => {
             state.comparisonMode = mode;
+          }),
+        ),
+      setBubbleRadii: (radii: Record<string, number>) =>
+        set(
+          produce((state) => {
+            state.bubbleRadii = radii;
           }),
         ),
     }),

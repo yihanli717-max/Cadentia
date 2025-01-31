@@ -49,32 +49,35 @@ export const normalizeAndTransform = (
   });
 };
 
+// @ts-expect-error
+const categoryColor = d3.schemeObservable10;
+
 export const categoryColorMap: {
   [key: string]: string;
 } = {
-  Claim: d3.schemeTableau10[1],
-  Reasoning: d3.schemeTableau10[2],
-  Evidence: d3.schemeTableau10[7],
-  Rebuttal: d3.schemeTableau10[5],
-  Others: d3.schemeTableau10[9],
-  Organization: d3.schemeTableau10[0],
-  "Word-usage": d3.schemeTableau10[3],
-  Orthography: d3.schemeTableau10[6],
+  Claim: categoryColor[1],
+  Reasoning: categoryColor[2],
+  Evidence: categoryColor[8],
+  Rebuttal: categoryColor[5],
+  Others: categoryColor[9],
+  Organization: categoryColor[0],
+  "Word-usage": categoryColor[3],
+  Orthography: categoryColor[6],
 };
 
 const colorScales: { [key: string]: d3.ScaleOrdinal<string, string> } = {
-  provider: d3.scaleOrdinal(d3.schemeTableau10),
-  type: d3.scaleOrdinal(d3.schemeTableau10),
+  provider: d3.scaleOrdinal(categoryColor),
+  type: d3.scaleOrdinal(categoryColor),
 };
 
 export const getColor = (categoricalDimension: string) => {
   if (categoricalDimension === "type") {
-    return (group: string) => categoryColorMap[group] || d3.schemeTableau10[8];
+    return (group: string) => categoryColorMap[group] || categoryColor[8];
   } else if (categoricalDimension === "provider") {
     const colorScale = colorScales.provider;
     return (group: string) => colorScale(group);
   } else {
-    return (group: string) => d3.schemeTableau10[0];
+    return (group: string) => categoryColor[0];
   }
 };
 

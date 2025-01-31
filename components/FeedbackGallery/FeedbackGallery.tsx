@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import FeedbackCard from "@/components/FeedbackGallery/FeedbackCard";
-import { useFeedbackStore, useSharedConfigStore } from "@/lib/store";
+import {
+  useFeedbackStore,
+  useSharedConfigStore,
+  useRevisionListStore,
+} from "@/lib/store";
 import { FeedbackItem } from "@/lib/type";
 import { cn } from "@/lib/utils";
 
@@ -14,12 +18,19 @@ const FeedbackGallery = (props: FeedbackGalleryProps) => {
     setHoveredItem,
     currentSelectedItems,
     numericalDimension,
+    currentRevisionItem,
   ] = useSharedConfigStore((state) => [
     state.hoveredItem,
     state.setHoveredItem,
     state.currentSelectedItems,
     state.numericalDimension,
+    state.currentRevisionItem,
   ]);
+
+  const revisionList = useRevisionListStore((state) => state.revisionList);
+  const currentRevision = revisionList.find(
+    (item) => item.id === currentRevisionItem,
+  );
 
   const allFeedback = useFeedbackStore((state) => state.feedback).sort(
     (a, b) => {
@@ -78,10 +89,13 @@ const FeedbackGallery = (props: FeedbackGalleryProps) => {
                   classes={cn(
                     "ring-offset-1 ring-offset-gray-50",
                     currentSelectedItems?.find((id) => id === item.id)
-                      ? "ring-warning ring-3"
+                      ? "ring-info ring-3"
                       : "",
                     hoveredItem === item.id
                       ? "ring-info ring-3 scale-[1.01] transition-all duration-150 ease-in-out"
+                      : "",
+                    currentRevision?.feedback.includes(item.id)
+                      ? "ring-success ring-3"
                       : "",
                   )}
                   close={true}

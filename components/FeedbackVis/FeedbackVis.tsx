@@ -5,6 +5,7 @@ import {
   useRevisionListStore,
 } from "@/lib/store";
 import Menu from "@/components/FeedbackVis/Menu";
+import PrepStation from "@/components/FeedbackVis/PrepStation";
 import {
   cn,
   getColor,
@@ -30,6 +31,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     similarityThreshold,
     currentSelectedItems,
     currentRevisionItem,
+    bubbleRadii,
+    setBubbleRadii,
   ] = useSharedConfigStore((state) => [
     state.categoricalDimension,
     state.numericalDimension,
@@ -39,6 +42,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     state.similarityThreshold,
     state.currentSelectedItems,
     state.currentRevisionItem,
+    state.bubbleRadii,
+    state.setBubbleRadii,
   ]);
   const revisionList = useRevisionListStore((state) => state.revisionList);
   const currentRevision = revisionList.find(
@@ -57,7 +62,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     const updateDimensions = () => {
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
-        setDimensions({ width, height: height - 80 });
+        setDimensions({ width: width - 40, height: height - 80 });
       }
     };
 
@@ -129,15 +134,16 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("cx", (d) => d.x!)
         .attr("cy", (d) => d.y!)
         .attr("r", 0)
-        .attr("fill", (d) => getColor(categoricalDimension)(d.data.group))
-        .attr("stroke", getStrokeColor)
-        .attr("stroke-width", 5)
+        .attr("fill", getFillColor)
+        // .attr("stroke", getStrokeColor)
+        .attr("stroke", null)
+        .attr("stroke-width", 3)
         .attr("opacity", getCircleOpacity);
 
       // Animate circle radius
       fillCircle
         .transition()
-        .duration(600)
+        .duration(300)
         .attr("r", (d) => d.r);
 
       // Attach event listeners
@@ -163,13 +169,13 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("class", "progress-circle")
         .attr("cx", (d) => d.x!)
         .attr("cy", (d) => d.y!)
-        .attr("r", (d) => d.r + 2)
+        .attr("r", (d) => d.r + 3)
         .attr("fill", "none")
         .attr("stroke", "transparent")
         .attr("stroke-width", 3)
         .attr("stroke-linecap", "round")
         .each(function (d) {
-          const circumference = 2 * Math.PI * (d.r + 2);
+          const circumference = 2 * Math.PI * (d.r + 3);
           d3.select(this)
             .attr("stroke-dasharray", circumference)
             .attr("stroke-dashoffset", circumference);
@@ -254,7 +260,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       // Reset progress circle
       progressCircle
         .interrupt()
-        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 2))
+        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 3))
         .attr("stroke", "#00b5ff")
         .attr("stroke-opacity", 0);
 
@@ -275,31 +281,34 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       );
       const progressCircle = group
         .select<SVGCircleElement>(".progress-circle")
-        .attr("r", (d: any) => d.r + 2);
+        .attr("r", (d: any) => d.r + 3);
 
       // Stop animation and reset progress circle
       progressCircle
         .interrupt()
         .attr("stroke", "transparent")
-        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 2));
+        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 3));
 
       setHoveredItem(null);
     };
 
     // Get stroke color based on selection state
-    const getStrokeColor = (d: any) =>
-      currentSelectedItems.includes(d.data.id)
-        ? "#ffbe00"
-        : currentRevision?.feedback?.includes(d.data.id)
-          ? "#00a96e"
-          : null;
+    // const getStrokeColor = (d: any) =>
+    //   currentRevision?.feedback?.includes(d.data.id) ? "#34d399" : null;
 
     // Get circle opacity based on selection state
     const getCircleOpacity = (d: any) =>
       currentSelectedItems.includes(d.data.id) ||
       currentRevision?.feedback?.includes(d.data.id)
         ? 1
-        : 0.6;
+        : 0.8;
+
+    // Get cilcle fill color based on categorical dimension
+    const getFillColor = (d: any) =>
+      currentSelectedItems.includes(d.data.id) ||
+      currentRevision?.feedback?.includes(d.data.id)
+        ? "#f3f4f6"
+        : getColor(categoricalDimension)(d.data.group);
 
     // Setup simulation
     const setupSimulation = (nodes: any[]) => {
@@ -338,6 +347,14 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     // Main logic flow
     const nodes = calculateNodes();
+
+    // Store bubble radii for future reference
+    const radiiMap: Record<string, number> = {};
+    nodes.forEach((node) => {
+      radiiMap[node.data.id] = node.r;
+    });
+    useSharedConfigStore.getState().setBubbleRadii(radiiMap);
+
     const node = svg
       .selectAll<SVGGElement, any>("g")
       .data(nodes, (d: any) => d.data.id)
@@ -349,8 +366,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             group
               .select(".fill-circle")
               .transition()
-              .duration(600)
-              .attr("fill", getColor(categoricalDimension)(d.data.group))
+              .duration(300)
+              .attr("fill", getFillColor)
               .attr("r", d.r);
           }),
         (exit) =>
@@ -411,8 +428,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     svg
       .selectAll<SVGGElement, d3.HierarchyCircularNode<any>>("g")
       .select(".progress-circle")
-      .attr("r", (d) => d.r + 2)
-      .attr("stroke-dasharray", (d: any) => 2 * Math.PI * (d.r + 2));
+      .attr("r", (d) => d.r + 3)
+      .attr("stroke-dasharray", (d: any) => 2 * Math.PI * (d.r + 3));
   }, [numericalDimension]);
 
   useEffect(() => {
@@ -424,9 +441,9 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       .selectAll<SVGGElement, d3.HierarchyCircularNode<any>>("g")
       .select(".bar-circle")
       .transition()
-      .duration(600)
+      .duration(300)
       .attr("opacity", 0.8)
-      .attr("stroke-width", 5)
+      .attr("stroke-width", 3)
       .attr("stroke", (d) => (searchedEmeddings ? "#ffffff" : null))
       .attr("stroke-dasharray", (d) =>
         searchedEmeddings
@@ -448,6 +465,9 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     // Get all node references
     const fillCircles = svg.selectAll<SVGCircleElement, any>(".fill-circle");
     const barCircles = svg.selectAll<SVGCircleElement, any>(".bar-circle");
+    const progressCircle = svg.selectAll<SVGCircleElement, any>(
+      ".progress-circle",
+    );
 
     // Generic style reset for all elements
     const resetStyles = () => {
@@ -457,17 +477,24 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           currentSelectedItems.includes(d.data.id) ||
           currentRevision?.feedback?.includes(d.data.id)
             ? 1
-            : 0.6,
+            : 0.8,
         )
-        .attr("stroke", (d) =>
+        // .attr("stroke", (d) =>
+        //   currentRevision?.feedback?.includes(d.data.id) ? "#34d399" : null,
+        // )
+        .attr("fill", (d) =>
+          currentSelectedItems.includes(d.data.id) ||
           currentRevision?.feedback?.includes(d.data.id)
-            ? "#00a96e"
-            : currentSelectedItems.includes(d.data.id)
-              ? "#ffbe00"
-              : null,
+            ? "#f3f4f6"
+            : getColor(categoricalDimension)(d.data.group),
         );
 
       barCircles.attr("filter", null);
+
+      progressCircle
+        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 3))
+        .attr("stroke", "#00b5ff")
+        .attr("stroke-opacity", 0);
     };
 
     // Handle hover state effects
@@ -485,11 +512,15 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       // Highlight hovered item
       fillCircles
         .filter((d) => d.data.id === hoveredItem)
-        .transition()
-        .duration(300)
         // .attr("stroke", "#e5e6e6")
-        // .attr("stroke-width", 5)
+        // .attr("stroke-width", 3)
         .attr("opacity", 1);
+
+      // Animate progress circle
+      progressCircle
+        .filter((d) => d.data.id === hoveredItem)
+        .attr("stroke-opacity", 1)
+        .attr("stroke-dashoffset", 0);
 
       // Cache embeddings data for performance
       const hoveredEmbeddings = allFeedback.find(
@@ -501,9 +532,11 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         selection
           .attr("opacity", (d: any) =>
             cosineSimilarity(hoveredEmbeddings, d.data.embeddings) >
-              similarityThreshold || currentSelectedItems.includes(d.data.id)
+              similarityThreshold ||
+            currentSelectedItems.includes(d.data.id) ||
+            currentRevision?.feedback?.includes(d.data.id)
               ? 1
-              : 0.6,
+              : 0.8,
           )
           .attr("filter", (d: any) =>
             cosineSimilarity(hoveredEmbeddings, d.data.embeddings) <
@@ -533,14 +566,16 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       fillCircles
         .transition()
         .duration(300)
-        .attr("stroke", (d) =>
+        // .attr("stroke", (d) =>
+        //   currentRevision?.feedback?.includes(d.data.id) ? "#34d399" : null,
+        // )
+        .attr("stroke-width", 3)
+        .attr("fill", (d) =>
+          currentSelectedItems.includes(d.data.id) ||
           currentRevision?.feedback?.includes(d.data.id)
-            ? "#00a96e"
-            : currentSelectedItems.includes(d.data.id)
-              ? "#ffbe00"
-              : null,
-        )
-        .attr("stroke-width", 5);
+            ? "#f3f4f6"
+            : getColor(categoricalDimension)(d.data.group),
+        );
     };
 
     // Execute main logic flow
@@ -566,6 +601,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           className="cursor-pointer absolute bottom-8"
         ></svg>
       )}
+      <PrepStation />
     </div>
   );
 };
