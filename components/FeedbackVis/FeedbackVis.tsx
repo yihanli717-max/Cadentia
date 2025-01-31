@@ -307,7 +307,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     const getFillColor = (d: any) =>
       currentSelectedItems.includes(d.data.id) ||
       currentRevision?.feedback?.includes(d.data.id)
-        ? "#f3f4f6"
+        ? "#e5e7eb"
         : getColor(categoricalDimension)(d.data.group);
 
     // Setup simulation
@@ -485,7 +485,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("fill", (d) =>
           currentSelectedItems.includes(d.data.id) ||
           currentRevision?.feedback?.includes(d.data.id)
-            ? "#f3f4f6"
+            ? "#e5e7eb"
             : getColor(categoricalDimension)(d.data.group),
         );
 
@@ -573,7 +573,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("fill", (d) =>
           currentSelectedItems.includes(d.data.id) ||
           currentRevision?.feedback?.includes(d.data.id)
-            ? "#f3f4f6"
+            ? "#e5e7eb"
             : getColor(categoricalDimension)(d.data.group),
         );
     };
