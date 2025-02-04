@@ -71,7 +71,6 @@ export type SharedConfigState = {
   isLoading: boolean;
   categoricalDimension: "type" | "provider";
   numericalDimension:
-    | "helpfulness"
     | "actionability"
     | "justification"
     | "sentiment"
