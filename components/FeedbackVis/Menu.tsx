@@ -12,6 +12,7 @@ interface MenuProps {
 }
 
 const Menu = (props: MenuProps) => {
+  const essay = useEssayStore((state) => state.essay);
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const [searchedText, setSearchedText] = useState("");
 
@@ -211,11 +212,12 @@ const Menu = (props: MenuProps) => {
             toAddressItems
               .map((id) => allFeedback.find((item) => item.id === id))
               .forEach((feedback) => {
-                feedback?.plan.forEach((item) => {
-                  sentences.add(item.sentence);
+                feedback?.detection.map((id) => {
+                  sentences.add(
+                    essay.find((item) => item.id === id)?.content || "",
+                  );
                 });
               });
-            console.log(sentences);
 
             // Find the essay
             const essay = useEssayStore.getState().essay;

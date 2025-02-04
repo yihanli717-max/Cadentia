@@ -14,32 +14,20 @@ export type Sentence = {
   paragraph: number;
 };
 
-export type HowItem = {
-  title: string;
-  strategy: string;
-};
-
-export type GPTPlan = {
-  sentence: string;
-  what: number[];
-  why: string;
-  how: HowItem[];
-};
-
 export type FeedbackItem = {
-  id: number;
+  source: number;
+  provider: string;
   content: string;
-  length?: number;
+  type: string;
   actionability: number;
+  specificity: number;
   justification: number;
   sentiment: number;
-  specificity: number;
-  helpfulness: number;
-  source: number;
-  type: string;
-  provider: string;
-  plan: GPTPlan[];
-  addressed: boolean;
+  id: number;
+  detection: number[];
+  sentence_count: number;
+  word_count: number;
+  length?: number;
   embeddings?: number[];
 };
 

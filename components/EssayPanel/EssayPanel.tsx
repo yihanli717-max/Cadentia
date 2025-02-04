@@ -14,6 +14,7 @@ interface EssayPanelProps {
 }
 
 const EssayPanel = (props: EssayPanelProps) => {
+  const essay = useEssayStore((state) => state.essay);
   const [
     hoveredItem,
     currentSelectedItems,
@@ -41,12 +42,11 @@ const EssayPanel = (props: EssayPanelProps) => {
   const highlightSentences = useMemo(() => {
     // iterate through hoveredFeedback's plan and get all sentences
     const sentences = new Set<string>();
-    hoveredFeedback?.plan.forEach((item) => {
-      sentences.add(item.sentence);
+    hoveredFeedback?.detection.map((id) => {
+      sentences.add(essay.find((item) => item.id === id)?.content || "");
     });
-    // console.log(sentences);
     return sentences;
-  }, [hoveredFeedback]);
+  }, [hoveredFeedback, essay]);
   const currentSelectedFeedbacks = useMemo(
     () =>
       currentSelectedItems.map((id) =>
@@ -57,14 +57,13 @@ const EssayPanel = (props: EssayPanelProps) => {
   const currentSelectedSentences = useMemo(() => {
     const sentences = new Set<string>();
     currentSelectedFeedbacks.forEach((feedback) => {
-      feedback?.plan.forEach((item) => {
-        sentences.add(item.sentence);
+      feedback?.detection.map((id) => {
+        sentences.add(essay.find((item) => item.id === id)?.content || "");
       });
     });
     return sentences;
-  }, [currentSelectedFeedbacks]);
+  }, [currentSelectedFeedbacks, essay]);
 
-  const essay = useEssayStore((state) => state.essay);
   const paragraphs = useMemo(() => {
     return essay.reduce(
       (acc, curr) => {

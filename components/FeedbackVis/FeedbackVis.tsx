@@ -640,9 +640,9 @@ const forceCluster = () => {
 };
 
 const forceCollide = () => {
-  const alpha = 0.4; // Fixed for greater rigidity
-  const padding1 = 4; // Separation between same-color nodes
-  const padding2 = 6; // Separation between different-color nodes
+  const alpha = 0.3; // Fixed for greater rigidity
+  const padding1 = 3; // Separation between same-color nodes
+  const padding2 = 60; // Separation between different-color nodes
   let localNodes: d3.HierarchyCircularNode<unknown>[]; // Use generic unknown
   let maxRadius: number;
 
