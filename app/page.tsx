@@ -27,7 +27,7 @@ const Page = () => {
             <ProviderGallery classes="flex-none h-screen overflow-auto pt-16 w-80 sticky top-0" />
             <div className="flex-1 min-w-0">
               <div className="flex flex-col h-full">
-                <RevisionGallery classes="w-full h-48 flex-none mt-16 overflow-x-auto" />
+                <RevisionGallery classes="flex-none mt-16 overflow-x-auto" />
                 <FeedbackVis classes="w-full flex-1 min-h-0" />
               </div>
             </div>

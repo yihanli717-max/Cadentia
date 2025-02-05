@@ -98,7 +98,7 @@ const EssayPanel = (props: EssayPanelProps) => {
           </label>
         </div>
       </div>
-      <div className="text-sm leading-relaxed p-8 pt-32 overflow-y-auto relative grow">
+      <div className="text-xs leading-relaxed p-8 pt-32 overflow-y-auto relative grow">
         {Object.entries(paragraphs).map(
           ([paragraph, sections], index, array) => (
             <div

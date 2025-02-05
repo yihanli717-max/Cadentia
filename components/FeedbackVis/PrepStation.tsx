@@ -166,7 +166,7 @@ const PrepStation = () => {
 
   const cluseredFeedbacks = selectedFeedbacks.reduce(
     (acc, fb) => {
-      const key = fb[clusterDimension] as string;
+      const key = (fb[clusterDimension] as string).toLowerCase();
 
       if (!acc[key]) {
         acc[key] = [];
@@ -258,11 +258,22 @@ const PrepStation = () => {
   };
 
   return (
-    <div className="absolute top-20 right-0 flex flex-col p-1 max-h-96 overflow-y-auto bg-slate-50/50">
-      {Object.entries(cluseredFeedbacks).map(([key, feedbacks]) => (
-        <div className="flex flex-col w-12 gap-2 items-center">
-          <p className="text-2xs">
-            {typeMap[key.toLowerCase() as keyof typeof typeMap]}
+    <div className="absolute top-[68px] right-0 flex flex-col p-1 max-h-[450px] overflow-y-auto bg-slate-50/50">
+      {Object.entries(
+        Object.keys(typeMap).reduce(
+          (acc, typeKey) => {
+            console.log("typeKey", typeKey);
+            if (cluseredFeedbacks[typeKey]) {
+              acc[typeKey] = cluseredFeedbacks[typeKey];
+            }
+            return acc;
+          },
+          {} as { [key: string]: FeedbackItem[] },
+        ),
+      ).map(([key, feedbacks]) => (
+        <div className="flex flex-col w-12 gap-1 items-center">
+          <p className="text-2xs bg-gray-50 p-1 w-full text-center rounded-lg">
+            {typeMap[key as keyof typeof typeMap]}
           </p>
           <div
             ref={containerRef}

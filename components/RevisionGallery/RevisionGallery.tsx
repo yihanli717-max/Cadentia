@@ -24,7 +24,7 @@ const RevisionGallery = (props: RevisionGalleryProps) => {
     <div
       className={cn(
         props.classes,
-        "bg-white border-b border-gray-100 flex overflow-x-auto gap-2 p-2 no-scrollbar",
+        "w-full h-[170px] bg-white border-b border-gray-100 flex overflow-x-auto gap-2 p-2 no-scrollbar",
       )}
     >
       <div

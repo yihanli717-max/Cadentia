@@ -19,7 +19,15 @@ const getGroupsFromData = (data: FeedbackItem[], colorDimension: string) => {
 
 const ClusterLegend = ({ colorDimension }: ClusterLegendProps) => {
   const allFeedback = useFeedbackStore((state) => state.feedback);
-  const groups = getGroupsFromData(allFeedback, colorDimension);
+  const keyOrder = Object.keys(typeMap);
+  const groups = getGroupsFromData(allFeedback, colorDimension)
+    .slice()
+    .sort((a, b) => {
+      return (
+        keyOrder.indexOf(a.toLowerCase()) - keyOrder.indexOf(b.toLowerCase())
+      );
+    });
+
   const getColorFn = getClusterColor(colorDimension);
 
   return (

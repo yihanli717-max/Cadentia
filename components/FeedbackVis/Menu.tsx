@@ -64,14 +64,14 @@ const Menu = (props: MenuProps) => {
           <div
             tabIndex={0}
             role="button"
-            className="btn text-2xs m-1 flex flex-col gap-0.5 2xl:flex-row bg-gray-50 shadow-none"
+            className="btn rounded-md text-2xs m-1 flex flex-col gap-0.5 2xl:flex-row bg-gray-50 shadow-none"
           >
             <span className="text-gray-400">Cluster by</span>
             <span className="capitalize">{clusterDimension}</span>
           </div>
           <ul
             tabIndex={0}
-            className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow text-xs w-32"
+            className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow text-2xs w-28"
           >
             <li>
               <a
@@ -95,14 +95,14 @@ const Menu = (props: MenuProps) => {
           <div
             tabIndex={0}
             role="button"
-            className="btn text-2xs m-1 flex flex-col gap-0.5 2xl:flex-row bg-gray-50 shadow-none"
+            className="btn rounded-md text-2xs m-1 flex flex-col gap-0.5 2xl:flex-row bg-gray-50 shadow-none"
           >
             <span className="text-gray-400">Color by</span>
             <span className="capitalize">{colorDimension}</span>
           </div>
           <ul
             tabIndex={0}
-            className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow text-xs w-32"
+            className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow text-2xs w-28"
           >
             <li>
               <a
@@ -142,14 +142,14 @@ const Menu = (props: MenuProps) => {
           <div
             tabIndex={0}
             role="button"
-            className="btn text-2xs m-1 flex flex-col gap-0.5 2xl:flex-row bg-gray-50 shadow-none"
+            className="btn rounded-md text-2xs m-1 flex flex-col gap-0.5 2xl:flex-row bg-gray-50 shadow-none"
           >
             <span className="text-gray-400">Size by</span>
             <span className="capitalize">{numericalDimension}</span>
           </div>
           <ul
             tabIndex={0}
-            className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow text-xs w-32"
+            className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow text-2xs w-28"
           >
             <li title="Length is the number of words in the feedback.">
               <a
@@ -179,7 +179,7 @@ const Menu = (props: MenuProps) => {
             </li>
           </ul>
         </div>
-        <label className="input input-bordered flex items-center gap-2 text-xs h-10 ml-2">
+        <label className="input input-bordered flex items-center gap-2 text-2xs font-medium h-10 ml-2 p-3 rounded-md">
           <input
             type="text"
             value={searchedText}
@@ -201,9 +201,11 @@ const Menu = (props: MenuProps) => {
           <kbd className="kbd kbd-sm">↵</kbd>
         </label>
       </div>
-      <div className="absolute left-0 p-2 bottom-2 z-50 w-full flex flex-row justify-between items-end select-none">
+      <div className="absolute left-0 p-2 bottom-0 z-50 w-full flex flex-row justify-between items-end select-none">
         <div className="ml-2 flex flex-col gap-1 w-48">
-          <p className="text-xs">Similarity Threshold: {similarityThreshold}</p>
+          <p className="text-2xs">
+            Similarity Threshold: {similarityThreshold}
+          </p>
           <input
             type="range"
             min={0}
@@ -215,7 +217,7 @@ const Menu = (props: MenuProps) => {
           />
         </div>
         <button
-          className="btn btn-neutral text-xs mr-2"
+          className="btn rounded-md btn-neutral text-2xs mr-2 btn-sm"
           onClick={() => {
             // concatenate currentSelectedItems and feedback list in currentRevisionItem
             const reivisonList = useRevisionListStore.getState().revisionList;

@@ -9,8 +9,18 @@ import {
   getColor,
   getInterpolateColor,
   countWordChanges,
-  typeMap,
 } from "@/lib/utils";
+
+const typeMap = {
+  claim: "Claims/Ideas",
+  reasoning: "Warrent/Reasoning/Backing",
+  evidence: "Evidence",
+  rebuttal: "Rebuttal/Reservation",
+  orthography: "Convention/Grammar/Spelling",
+  organization: "Organization",
+  "word-usage": "Word Usage/Clarity",
+  others: "General Content",
+};
 
 interface RevisionCardProps {
   classes?: string;
@@ -47,7 +57,7 @@ const RevisionCard = (props: RevisionCardProps) => {
     <div
       className={cn(
         props.classes,
-        "p-3 border-2 rounded-lg bg-white flex flex-col justify-between hover:ring-success hover:ring-3 hover:scale-[1.01] transition-all duration-150 ease-in-out cursor-pointer w-60",
+        "p-3 border-2 rounded-lg bg-white flex flex-col justify-between hover:ring-success hover:ring-3 hover:scale-[1.01] transition-all duration-150 ease-in-out cursor-pointer w-[310px]",
         currentRevisionItem === props.id ? "ring-success ring-3" : "",
       )}
       onClick={() => {
@@ -61,7 +71,7 @@ const RevisionCard = (props: RevisionCardProps) => {
           <p className="text-sm font-semibold">
             Version {thisRevision?.id !== undefined && thisRevision.id + 1}{" "}
           </p>
-          <div className="flex gap-1">
+          <div>
             {thisRevision && (
               <div className="flex flex-row gap-1 items-center justify-center">
                 <div className="text-xs font-medium text-green-700">
@@ -134,41 +144,47 @@ const RevisionCard = (props: RevisionCardProps) => {
             )}
           </div>
         </div>
-
-        <hr />
       </div>
 
-      <div className="flex gap-1 overflow-x-auto no-scrollbar p-1">
-        {thisFeedbacks.map((feedback) => (
-          <div
-            className="flex flex-row gap-2 group items-center"
-            key={feedback.id}
-            onMouseEnter={() => setHoveredItem(feedback.id)}
-            onMouseLeave={() => setHoveredItem(null)}
-          >
+      <div className="flex flex-col gap-1">
+        <hr />
+        <div className="flex gap-1 overflow-x-auto no-scrollbar p-1">
+          {thisFeedbacks.map((feedback) => (
             <div
-              className={cn(
-                "rounded-full w-[18px] h-[18px] flex-shrink-0 hover:ring-2 hover:ring-info hover:ring-offset-[1px] hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer",
-                hoveredItem === feedback.id
-                  ? "ring-info ring-2 ring-offset-[1px]"
-                  : "",
-              )}
-              style={{
-                backgroundColor: getColor(colorDimension)(
-                  feedback[colorDimension] as never,
-                ),
-              }}
-            ></div>
-            <p
-              className={cn(
-                "hidden group-hover:block transition-all duration-150 ease-in-out text-xs font-medium",
-                hoveredItem === feedback.id ? "block" : "",
-              )}
+              className="flex flex-row gap-2 group items-center"
+              key={feedback.id}
+              onMouseEnter={() => setHoveredItem(feedback.id)}
+              onMouseLeave={() => setHoveredItem(null)}
             >
-              {typeMap[feedback["type"].toLowerCase() as keyof typeof typeMap]}
-            </p>
-          </div>
-        ))}
+              <div
+                className={cn(
+                  "rounded-full w-[18px] h-[18px] flex-shrink-0 hover:ring-2 hover:ring-info hover:ring-offset-[1px] hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer",
+                  hoveredItem === feedback.id
+                    ? "ring-info ring-2 ring-offset-[1px]"
+                    : "",
+                )}
+                style={{
+                  backgroundColor: getColor(colorDimension)(
+                    feedback[colorDimension] as never,
+                  ),
+                }}
+              ></div>
+              <p
+                className={cn(
+                  "hidden group-hover:block transition-all duration-150 ease-in-out text-2xs font-medium",
+                  hoveredItem === feedback.id ? "block" : "",
+                )}
+              >
+                {
+                  typeMap[
+                    feedback["type"].toLowerCase() as keyof typeof typeMap
+                  ]
+                }
+              </p>
+            </div>
+          ))}
+        </div>
+        <hr />
       </div>
 
       <div className="card-actions justify-start flex">

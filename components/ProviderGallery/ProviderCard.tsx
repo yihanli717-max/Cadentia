@@ -103,55 +103,64 @@ export const ProviderCard = (props: ProviderCardProps) => {
           </div>
         </div>
 
-        <hr
-          className="opacity-20"
-          style={{
-            borderColor: getColor("provider")(
-              props.feedbackSourceItem["provider"] as never,
-            ),
-          }}
-        />
-
-        <div className="flex gap-1 overflow-x-auto no-scrollbar p-1">
-          {relatedFeedbacks.map((feedback) => (
-            <div
-              className="flex flex-row gap-2 group items-center"
-              key={feedback.id}
-              onMouseEnter={() => setHoveredItem(feedback.id)}
-              onMouseLeave={() => setHoveredItem(null)}
-            >
+        <div className="flex flex-col gap-1">
+          <hr
+            className="opacity-20"
+            style={{
+              borderColor: getColor("provider")(
+                props.feedbackSourceItem["provider"] as never,
+              ),
+            }}
+          />
+          <div className="flex gap-1 overflow-x-auto no-scrollbar p-1">
+            {relatedFeedbacks.map((feedback) => (
               <div
-                className={cn(
-                  "rounded-full w-[18px] h-[18px] flex-shrink-0 hover:ring-2 hover:ring-info hover:ring-offset-[1px] hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer",
-                  hoveredItem === feedback.id
-                    ? "ring-info ring-2 ring-offset-[1px]"
-                    : "",
-                )}
-                style={{
-                  backgroundColor: getColor(colorDimension)(
-                    feedback[colorDimension] as never,
-                  ),
-                }}
-              ></div>
-              <p
-                className={cn(
-                  "hidden group-hover:block transition-all duration-150 ease-in-out text-xs font-medium",
-                  hoveredItem === feedback.id ? "block" : "",
-                )}
+                className="flex flex-row gap-2 group items-center"
+                key={feedback.id}
+                onMouseEnter={() => setHoveredItem(feedback.id)}
+                onMouseLeave={() => setHoveredItem(null)}
               >
-                {
-                  typeMap[
-                    feedback["type"].toLowerCase() as keyof typeof typeMap
-                  ]
-                }
-              </p>
-            </div>
-          ))}
+                <div
+                  className={cn(
+                    "rounded-full w-[18px] h-[18px] flex-shrink-0 hover:ring-2 hover:ring-info hover:ring-offset-[1px] hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer",
+                    hoveredItem === feedback.id
+                      ? "ring-info ring-2 ring-offset-[1px]"
+                      : "",
+                  )}
+                  style={{
+                    backgroundColor: getColor(colorDimension)(
+                      feedback[colorDimension] as never,
+                    ),
+                  }}
+                ></div>
+                <p
+                  className={cn(
+                    "hidden group-hover:block transition-all duration-150 ease-in-out text-2xs font-medium",
+                    hoveredItem === feedback.id ? "block" : "",
+                  )}
+                >
+                  {
+                    typeMap[
+                      feedback["type"].toLowerCase() as keyof typeof typeMap
+                    ]
+                  }
+                </p>
+              </div>
+            ))}
+          </div>
+          <hr
+            className="opacity-20"
+            style={{
+              borderColor: getColor("provider")(
+                props.feedbackSourceItem["provider"] as never,
+              ),
+            }}
+          />
         </div>
 
         <div
           className={cn(
-            "text-xs leading-relaxed overflow-y-auto transition-all duration-500",
+            "text-2xs leading-relaxed overflow-y-auto transition-all duration-500",
             {
               "line-clamp-3 max-h-[60px]": !shouldExpand,
               "max-h-[1000px]": shouldExpand,

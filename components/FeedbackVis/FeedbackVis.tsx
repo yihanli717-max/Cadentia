@@ -598,7 +598,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           ref={svgRef}
           width={dimensions.width}
           height={dimensions.height}
-          className="cursor-pointer absolute bottom-4"
+          className="cursor-pointer absolute bottom-6"
         ></svg>
       )}
       <PrepStation />
@@ -642,8 +642,8 @@ const forceCluster = () => {
 
 const forceCollide = () => {
   const alpha = 0.3; // Fixed for greater rigidity
-  const padding1 = 3; // Separation between same-color nodes
-  const padding2 = 40; // Separation between different-color nodes
+  const padding1 = 1; // Separation between same-color nodes
+  const padding2 = 30; // Separation between different-color nodes
   let localNodes: d3.HierarchyCircularNode<unknown>[]; // Use generic unknown
   let maxRadius: number;
 
