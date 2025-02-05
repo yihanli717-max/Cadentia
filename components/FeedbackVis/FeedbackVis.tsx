@@ -598,7 +598,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           ref={svgRef}
           width={dimensions.width}
           height={dimensions.height}
-          className="cursor-pointer absolute bottom-8"
+          className="cursor-pointer absolute bottom-4"
         ></svg>
       )}
       <PrepStation />

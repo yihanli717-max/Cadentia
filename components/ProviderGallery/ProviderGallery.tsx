@@ -1,62 +1,91 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { ProviderCard } from "@/components/ProviderGallery/ProviderCard";
+import {
+  useFeedbackStore,
+  useSharedConfigStore,
+  useRevisionListStore,
+} from "@/lib/store";
+import { feedbackSource } from "@/data/source";
 import { cn } from "@/lib/utils";
-import { useRevisionListStore, useSharedConfigStore } from "@/lib/store";
-import ProviderCard from "@/components/ProviderGallery/ProviderCard";
-import { TbPlus } from "react-icons/tb";
 
-interface ProviderGalleryProps {
+type ProviderGalleryProps = {
   classes?: string;
-}
+};
 
 const ProviderGallery = (props: ProviderGalleryProps) => {
-  const [setCurrentSelectedItems, setHoveredItem, setCurrentRevisionItem] =
-    useSharedConfigStore((state) => [
-      state.setCurrentSelectedItems,
-      state.setHoveredItem,
-      state.setCurrentRevisionItem,
-    ]);
-  const [revisionList, createRevision] = useRevisionListStore((state) => [
-    state.revisionList,
-    state.createRevision,
+  const [
+    hoveredItem,
+    setHoveredItem,
+    currentSelectedItems,
+    numericalDimension,
+    currentRevisionItem,
+  ] = useSharedConfigStore((state) => [
+    state.hoveredItem,
+    state.setHoveredItem,
+    state.currentSelectedItems,
+    state.numericalDimension,
+    state.currentRevisionItem,
   ]);
 
-  return (
-    <div
-      className={cn(
-        props.classes,
-        "bg-white border-b border-gray-100 flex overflow-x-auto gap-2 p-2 no-scrollbar",
-      )}
-    >
-      <div
-        className="flex-shrink-0 w-52 p-3 border rounded-lg bg-neutral-50 flex flex-col justify-between border-dashed cursor-pointer relative hover:border-2 hover:border-solid transition-all duration-150 ease-in-out group"
-        onClick={() => {
-          createRevision();
-          setCurrentSelectedItems([]);
-          setHoveredItem(null);
-          setCurrentRevisionItem(revisionList.length);
-        }}
-      >
-        <div className="w-full flex justify-center items-center h-full">
-          <TbPlus
-            size={36}
-            className="text-gray-300 group-hover:text-gray-600"
-          />
-        </div>
+  const allFeedbackItems = useFeedbackStore((state) => state.feedback);
+  const revisionList = useRevisionListStore((state) => state.revisionList);
+  const currentRevision = revisionList.find(
+    (item) => item.id === currentRevisionItem,
+  );
 
-        {/* <p className="w-full flex justify-center items-center text-xs text-gray-400 absolute bottom-2 left-0">
-          Click to Create a New Revision
-        </p> */}
+  const feedbackRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const [isUserHovering, setIsUserHovering] = useState(false);
+  const targetFeedback = allFeedbackItems.find(
+    (item) => item.id === hoveredItem,
+  );
+
+  useEffect(() => {
+    if (!isUserHovering && hoveredItem) {
+      // Find the target feedback item
+
+      if (targetFeedback) {
+        // Find the source feedback item
+        const sourceId = targetFeedback.source;
+        const targetElement = feedbackRefs.current.get(sourceId);
+
+        // Scroll to the source feedback item
+        if (targetElement) {
+          targetElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+            inline: "nearest",
+          });
+        }
+      }
+    }
+  }, [hoveredItem, allFeedbackItems, isUserHovering]);
+
+  return (
+    <div className={cn(props.classes, "bg-gray-50 border-r border-gray-100")}>
+      <div>
+        {feedbackSource && feedbackSource.length > 0 ? (
+          feedbackSource.map((item) => (
+            <div
+              key={item.id}
+              ref={(el) => {
+                if (el) {
+                  feedbackRefs.current.set(item.id, el);
+                } else {
+                  feedbackRefs.current.delete(item.id);
+                }
+              }}
+              onMouseEnter={() => setIsUserHovering(true)}
+              onMouseLeave={() => setIsUserHovering(false)}
+            >
+              <ProviderCard feedbackSourceItem={item} />
+            </div>
+          ))
+        ) : (
+          <p className="mx-6 text-sm text-gray-400 select-none">
+            No feedback available.
+          </p>
+        )}
       </div>
-      {revisionList
-        .slice()
-        .reverse()
-        .map((item) => (
-          <ProviderCard
-            key={item.id}
-            id={item.id}
-            classes="flex-shrink-0 w-52"
-          />
-        ))}
     </div>
   );
 };

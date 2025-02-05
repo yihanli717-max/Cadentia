@@ -32,7 +32,7 @@ const FeedbackGallery = (props: FeedbackGalleryProps) => {
     (item) => item.id === currentRevisionItem,
   );
 
-  const allFeedback = useFeedbackStore((state) => state.feedback).sort(
+  const allFeedbackItems = useFeedbackStore((state) => state.feedback).sort(
     (a, b) => {
       if (!numericalDimension) {
         return 0;
@@ -63,9 +63,9 @@ const FeedbackGallery = (props: FeedbackGalleryProps) => {
   return (
     <div className={cn(props.classes, "bg-gray-50 border-r border-gray-100")}>
       <div>
-        {allFeedback &&
-          (allFeedback.length > 0 ? (
-            allFeedback.map((item) => (
+        {allFeedbackItems &&
+          (allFeedbackItems.length > 0 ? (
+            allFeedbackItems.map((item) => (
               <div
                 key={item.id}
                 ref={(el) => {

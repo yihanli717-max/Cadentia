@@ -43,7 +43,7 @@ const RevisionCard = (props: RevisionCardProps) => {
     <div
       className={cn(
         props.classes,
-        "p-3 border-2 rounded-lg bg-white flex flex-col justify-between hover:ring-success hover:ring-3 hover:scale-[1.01] transition-all duration-150 ease-in-out cursor-pointer",
+        "p-3 border-2 rounded-lg bg-white flex flex-col justify-between hover:ring-success hover:ring-3 hover:scale-[1.01] transition-all duration-150 ease-in-out cursor-pointer w-60",
         currentRevisionItem === props.id ? "ring-success ring-3" : "",
       )}
       onClick={() => {
@@ -59,33 +59,73 @@ const RevisionCard = (props: RevisionCardProps) => {
           </p>
           <div className="flex gap-1">
             {thisRevision && (
-              <div
-                className="w-4 h-4 rounded hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
-                style={{
-                  backgroundColor: getInterpolateColor(
-                    "green",
-                    // collectStats(revisionList).maxAdded,
-                    400,
-                  )(countWordChanges(thisRevision).added),
-                }}
-                title={`Added: ${countWordChanges(thisRevision).added} words`}
-              >
-                {/* {thisRevision && countWordChanges(thisRevision).added} */}
-              </div>
-            )}
-            {thisRevision && (
-              <div
-                className="w-4 h-4 rounded hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
-                style={{
-                  backgroundColor: getInterpolateColor(
-                    "red",
-                    // collectStats(revisionList).maxDeleted,
-                    400,
-                  )(countWordChanges(thisRevision).deleted),
-                }}
-                title={`Deleted: ${countWordChanges(thisRevision).deleted} words`}
-              >
-                {/* {thisRevision && countWordChanges(thisRevision).deleted} */}
+              <div className="flex flex-row gap-1 items-center justify-center">
+                <div className="text-xs font-medium text-green-700">
+                  +{thisRevision && countWordChanges(thisRevision).added}
+                </div>
+                <div className="text-xs font-medium text-red-700">
+                  -{thisRevision && countWordChanges(thisRevision).deleted}
+                </div>
+                <div className="flex flex-row gap-0.5">
+                  {Array.from({
+                    length: Math.floor(
+                      countWordChanges(thisRevision).added /
+                        ((countWordChanges(thisRevision).added +
+                          countWordChanges(thisRevision).deleted) /
+                          5),
+                    ),
+                  }).map((_, index) => (
+                    <div
+                      className="w-3 h-3 rounded-sm hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
+                      style={{
+                        backgroundColor: getInterpolateColor(
+                          "green",
+                          // collectStats(revisionList).maxAdded,
+                          400,
+                        )(countWordChanges(thisRevision).added),
+                      }}
+                      title={`Added: ${countWordChanges(thisRevision).added} words`}
+                    />
+                  ))}
+                  {Array.from({
+                    length: Math.floor(
+                      countWordChanges(thisRevision).added /
+                        ((countWordChanges(thisRevision).added +
+                          countWordChanges(thisRevision).deleted) /
+                          5),
+                    ),
+                  }).map((_, index) => (
+                    <div
+                      className="w-3 h-3 rounded-sm hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
+                      style={{
+                        backgroundColor: getInterpolateColor(
+                          "red",
+                          // collectStats(revisionList).maxAdded,
+                          400,
+                        )(countWordChanges(thisRevision).deleted),
+                      }}
+                      title={`Deleted: ${countWordChanges(thisRevision).deleted} words`}
+                    />
+                  ))}
+                  {Array.from({
+                    length:
+                      5 -
+                      (Math.floor(
+                        countWordChanges(thisRevision).added /
+                          ((countWordChanges(thisRevision).added +
+                            countWordChanges(thisRevision).deleted) /
+                            5),
+                      ) +
+                        Math.floor(
+                          countWordChanges(thisRevision).deleted /
+                            ((countWordChanges(thisRevision).added +
+                              countWordChanges(thisRevision).deleted) /
+                              5),
+                        )),
+                  }).map((_, index) => (
+                    <div className="w-3 h-3 rounded-sm hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer bg-gray-300 border" />
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -109,12 +149,17 @@ const RevisionCard = (props: RevisionCardProps) => {
           ></div>
         ))}
       </div>
-      <div className="card-actions justify-start flex mt-1">
-        <span className="bg-pink-100 text-pink-800 text-xs px-2.5 py-0.5 rounded">
+
+      <div className="card-actions justify-start flex">
+        <span className="bg-amber-100 text-amber-800 text-2xs px-2.5 py-0.5 rounded">
           # Addressed Feedback: {thisRevision?.feedback.length}
         </span>
-        <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded">
+        <span className="bg-blue-100 text-blue-800 text-2xs px-2.5 py-0.5 rounded">
           # Revised Sentences: {thisRevision?.revision.length}
+        </span>
+        <span className="bg-purple-100 text-purple-800 text-2xs px-2.5 py-0.5 rounded">
+          # Covered Providers:{" "}
+          {new Set(thisFeedbacks.map((item) => item.provider)).size}
         </span>
       </div>
     </div>

@@ -207,6 +207,9 @@ const Menu = (props: MenuProps) => {
               (id) => allFeedback.find((item) => item.id === id)?.content,
             ) as string[];
 
+            // Find the essay
+            const essay = useEssayStore.getState().essay;
+
             // Find the target sentences from the selected feedback items
             const sentences = new Set<string>();
             toAddressItems
@@ -218,9 +221,6 @@ const Menu = (props: MenuProps) => {
                   );
                 });
               });
-
-            // Find the essay
-            const essay = useEssayStore.getState().essay;
 
             setLoading(true);
 

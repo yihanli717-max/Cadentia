@@ -2,10 +2,10 @@
 import React from "react";
 import Header from "@/components/Header";
 import APIInput from "@/components/APIInput";
-import FeedbackGallery from "@/components/FeedbackGallery/FeedbackGallery";
+import ProviderGallery from "@/components/ProviderGallery/ProviderGallery";
 import EssayPanel from "@/components/EssayPanel/EssayPanel";
 import FeedbackVis from "@/components/FeedbackVis/FeedbackVis";
-import ProviderGallery from "@/components/ProviderGallery/ProviderGallery";
+import RevisionGallery from "@/components/RevisionGallery/RevisionGallery";
 import {
   useOpenAIAPI,
   useFeedbackStore,
@@ -24,10 +24,10 @@ const Page = () => {
         <div>
           <Header />
           <div className="flex flex-row justify-between min-h-screen overflow-hidden">
-            <FeedbackGallery classes="flex-none h-screen overflow-auto pt-16 w-80 sticky top-0" />
+            <ProviderGallery classes="flex-none h-screen overflow-auto pt-16 w-80 sticky top-0" />
             <div className="flex-1 min-w-0">
               <div className="flex flex-col h-full">
-                <ProviderGallery classes="w-full h-40 flex-none mt-16 overflow-x-auto" />
+                <RevisionGallery classes="w-full h-48 flex-none mt-16 overflow-x-auto" />
                 <FeedbackVis classes="w-full flex-1 min-h-0" />
               </div>
             </div>

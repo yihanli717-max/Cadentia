@@ -51,11 +51,7 @@ const RevisionGallery = (props: RevisionGalleryProps) => {
         .slice()
         .reverse()
         .map((item) => (
-          <RevisionCard
-            key={item.id}
-            id={item.id}
-            classes="flex-shrink-0 w-52"
-          />
+          <RevisionCard key={item.id} id={item.id} classes="flex-shrink-0" />
         ))}
     </div>
   );

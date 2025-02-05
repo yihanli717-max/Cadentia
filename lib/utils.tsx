@@ -235,3 +235,14 @@ export function countWordChanges(revisionItem: RevisionItem): {
 
   return { added: addedWords, deleted: deletedWords };
 }
+
+export const typeMap = {
+  claim: "Claims/Ideas",
+  reasoning: "Warrent/Reasoning/Backing",
+  evidence: "Evidence",
+  rebuttal: "Rebuttal/Reservation",
+  others: "General Content",
+  orthography: "Convention/Grammar/Spelling",
+  organization: "Organization",
+  "word-usage": "Word Usage/Clarity",
+};

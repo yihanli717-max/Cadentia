@@ -1,121 +1,155 @@
-import React from "react";
-import {
-  useFeedbackStore,
-  useSharedConfigStore,
-  useRevisionListStore,
-} from "@/lib/store";
-import {
-  cn,
-  getColor,
-  getInterpolateColor,
-  countWordChanges,
-  collectStats,
-} from "@/lib/utils";
+"use client";
+import React, { useState, useEffect } from "react";
+import { FeedbackSourceItem, FeedbackItem } from "@/lib/type";
+import { cn, getColor, typeMap, isSimilarSentence } from "@/lib/utils";
+import { useSharedConfigStore, useFeedbackStore } from "@/lib/store";
+import { noto_serif } from "@/app/fonts";
 
-interface ProviderCardProps {
-  classes?: string;
-  id: number;
-}
+type ProviderCardProps = {
+  feedbackSourceItem: FeedbackSourceItem;
+  draggable?: boolean;
+  onDragStart?: (event: React.DragEvent<HTMLDivElement>) => void;
+  hideContent?: boolean;
+};
 
-const ProviderCard = (props: ProviderCardProps) => {
-  const allFeedback = useFeedbackStore((state) => state.feedback);
-  const [
-    categoricalDimension,
-    currentRevisionItem,
-    setCurrentSelectedItems,
-    setHoveredItem,
-    setCurrentRevisionItem,
-  ] = useSharedConfigStore((state) => [
-    state.categoricalDimension,
-    state.currentRevisionItem,
-    state.setCurrentSelectedItems,
-    state.setHoveredItem,
-    state.setCurrentRevisionItem,
-  ]);
+export const ProviderCard = (props: ProviderCardProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const allFeedbackItems = useFeedbackStore((state) => state.feedback);
+  const [hoveredItem, setHoveredItem, categoricalDimension] =
+    useSharedConfigStore((state) => [
+      state.hoveredItem,
+      state.setHoveredItem,
+      state.categoricalDimension,
+    ]);
 
-  const revisionList = useRevisionListStore((state) => state.revisionList);
-  const thisRevision = revisionList.find((item) => item.id === props.id);
-  const thisFeedbacks = allFeedback.filter(
-    (item) => thisRevision?.feedback.includes(item.id) || false,
+  // Find the related feedback items
+  const relatedFeedbacks = allFeedbackItems.filter(
+    (item) => item.source === props.feedbackSourceItem.id,
   );
+
+  // Find the hovered feedback item
+  const hoveredFeedback = allFeedbackItems.find(
+    (item) => item.id === hoveredItem,
+  );
+
+  // Check if the feedback item is hovered
+  const shouldExpand =
+    isExpanded || hoveredFeedback?.source === props.feedbackSourceItem.id;
+
+  const renderContentWithHighlights = (
+    newContent: string,
+    originalContent: string,
+  ): JSX.Element[] => {
+    const newContentSentences = newContent.split(/(?<=[.?!])\s+/);
+    const originalContentSentences = originalContent.split(/(?<=[.?!])\s+/);
+
+    return newContentSentences.map((sentence, index) => {
+      if (isSimilarSentence(sentence, originalContentSentences)) {
+        return (
+          <span key={index} className="font-medium">
+            {sentence}{" "}
+          </span>
+        );
+      } else {
+        return (
+          <span key={index} className="opacity-60">
+            {sentence}{" "}
+          </span>
+        );
+      }
+    });
+  };
 
   return (
     <div
       className={cn(
-        props.classes,
-        "p-3 border-2 rounded-lg bg-white flex flex-col justify-between hover:ring-success hover:ring-3 hover:scale-[1.01] transition-all duration-150 ease-in-out cursor-pointer",
-        currentRevisionItem === props.id ? "ring-success ring-3" : "",
+        "relative rounded-lg bg-gray-50 overflow-auto text-gray-800 h-full m-2 my-[10px] cursor-pointer",
+        "ring-offset-1 ring-offset-gray-50",
+        shouldExpand
+          ? "ring-info ring-3 scale-[1.01] transition-all duration-150 ease-in-out"
+          : "",
       )}
-      onClick={() => {
-        setCurrentRevisionItem(props.id);
-        setHoveredItem(null);
-        setCurrentSelectedItems([]);
-      }}
+      draggable={props.draggable}
+      onDragStart={props.onDragStart}
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => setIsExpanded(false)}
     >
-      <div className="space-y-2">
-        <div className="flex flex-row justify-between items-center">
-          <p className="text-sm font-semibold">
-            Version {thisRevision?.id !== undefined && thisRevision.id + 1}{" "}
-          </p>
-          <div className="flex gap-1">
-            {thisRevision && (
-              <div
-                className="w-4 h-4 rounded hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
-                style={{
-                  backgroundColor: getInterpolateColor(
-                    "green",
-                    // collectStats(revisionList).maxAdded,
-                    400,
-                  )(countWordChanges(thisRevision).added),
-                }}
-                title={`Added: ${countWordChanges(thisRevision).added} words`}
-              >
-                {/* {thisRevision && countWordChanges(thisRevision).added} */}
-              </div>
-            )}
-            {thisRevision && (
-              <div
-                className="w-4 h-4 rounded hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
-                style={{
-                  backgroundColor: getInterpolateColor(
-                    "red",
-                    // collectStats(revisionList).maxDeleted,
-                    400,
-                  )(countWordChanges(thisRevision).deleted),
-                }}
-                title={`Deleted: ${countWordChanges(thisRevision).deleted} words`}
-              >
-                {/* {thisRevision && countWordChanges(thisRevision).deleted} */}
-              </div>
-            )}
+      <div
+        className="px-3 pb-2 bg-white border-2 rounded-lg select-none space-y-2"
+        style={{
+          borderColor: getColor("provider")(
+            props.feedbackSourceItem["provider"],
+          ),
+        }}
+      >
+        <div className="flex flex-col gap-2 items-start select-none font-medium">
+          <div className="flex flex-row justify-between items-center w-full">
+            <div className="flex flex-row gap-1 items-center pt-3">
+              <h1 className={cn("text-sm font-semibold")}>
+                <span className="opacity-60">
+                  Provider {props.feedbackSourceItem["id"]}:{" "}
+                </span>
+                {props.feedbackSourceItem["provider"]}
+              </h1>
+            </div>
           </div>
         </div>
 
-        <hr />
-      </div>
+        <hr
+          className="opacity-20"
+          style={{
+            borderColor: getColor("provider")(
+              props.feedbackSourceItem["provider"],
+            ),
+          }}
+        />
 
-      <div className="flex gap-1 overflow-x-auto no-scrollbar p-1">
-        {thisFeedbacks.map((feedback) => (
-          <div
-            key={feedback.id}
-            className="rounded-full w-[18px] h-[18px] flex-shrink-0 hover:ring-2 hover:ring-info hover:ring-offset-[0.5px] hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
-            style={{
-              backgroundColor: getColor(categoricalDimension)(
-                feedback[categoricalDimension],
-              ),
-            }}
-            onMouseEnter={() => setHoveredItem(feedback.id)}
-            onMouseLeave={() => setHoveredItem(null)}
-          ></div>
-        ))}
-      </div>
-      <div className="card-actions justify-start flex mt-1">
-        <span className="bg-pink-100 text-pink-800 text-xs px-2.5 py-0.5 rounded">
-          # Addressed Feedback: {thisRevision?.feedback.length}
-        </span>
-        <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded">
-          # Revised Sentences: {thisRevision?.revision.length}
-        </span>
+        <div className="flex gap-1 overflow-x-auto no-scrollbar p-1">
+          {relatedFeedbacks.map((feedback) => (
+            <div key={feedback.id} className="relative group">
+              <div
+                className={cn(
+                  "rounded-full w-[18px] h-[18px] flex-shrink-0 hover:ring-2 hover:ring-info hover:ring-offset-[0.5px] hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer",
+                  hoveredItem === feedback.id ? "ring-info ring-2" : "",
+                )}
+                style={{
+                  backgroundColor: getColor(categoricalDimension)(
+                    feedback[categoricalDimension],
+                  ),
+                }}
+                onMouseEnter={() => setHoveredItem(feedback.id)}
+                onMouseLeave={() => setHoveredItem(null)}
+              ></div>
+            </div>
+          ))}
+        </div>
+
+        <div
+          className={cn(
+            "text-xs leading-relaxed overflow-y-auto transition-all duration-500",
+            {
+              "line-clamp-3 max-h-[60px]": !shouldExpand,
+              "max-h-[1000px]": shouldExpand,
+            },
+          )}
+        >
+          {shouldExpand && hoveredFeedback ? (
+            <span>
+              <span className={noto_serif.className}>&quot;</span>
+              {renderContentWithHighlights(
+                props.feedbackSourceItem.content,
+                hoveredFeedback.content,
+              )}
+              <span className={noto_serif.className}>&quot;</span>
+            </span>
+          ) : props.hideContent ? null : (
+            <span className="font-medium">
+              <span className={noto_serif.className}>&quot;</span>
+              {props.feedbackSourceItem.content}
+              <span className={noto_serif.className}>&quot;</span>
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
