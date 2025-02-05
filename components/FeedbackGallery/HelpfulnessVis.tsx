@@ -44,7 +44,7 @@ const HelpfulnessVis = (props: HelpfulnessVisProps) => {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <div
+        {/* <div
           className={cn(
             numericalDimension === "sentiment" ? "bg-sky-500" : "bg-gray-300",
             "w-2 transition-all duration-150 ease-in-out hover:scale-125 hover:-translate-y-[1px]",
@@ -53,7 +53,7 @@ const HelpfulnessVis = (props: HelpfulnessVisProps) => {
           onMouseEnter={() => {
             setHoveredDimension("sentiment");
           }}
-        ></div>
+        ></div> */}
         <div
           className={cn(
             numericalDimension === "actionability"
@@ -66,7 +66,7 @@ const HelpfulnessVis = (props: HelpfulnessVisProps) => {
             setHoveredDimension("actionability");
           }}
         ></div>
-        <div
+        {/* <div
           className={cn(
             numericalDimension === "justification"
               ? "bg-emerald-500"
@@ -77,7 +77,7 @@ const HelpfulnessVis = (props: HelpfulnessVisProps) => {
           onMouseEnter={() => {
             setHoveredDimension("justification");
           }}
-        ></div>
+        ></div> */}
         <div
           className={cn(
             numericalDimension === "specificity"
