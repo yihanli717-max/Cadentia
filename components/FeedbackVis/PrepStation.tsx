@@ -10,7 +10,7 @@ import {
   useSharedConfigStore,
   useRevisionListStore,
 } from "@/lib/store";
-import { getColor, typeMap } from "@/lib/utils";
+import { getColor, typeMap, cn } from "@/lib/utils";
 import { FeedbackItem } from "@/lib/type";
 
 const D3_EASE = [0.645, 0.045, 0.355, 1];
@@ -34,7 +34,8 @@ const ProgressRing = ({
   thisId: number;
 }) => {
   const controls = useAnimationControls();
-  const { setHoveredItem, currentRevisionItem } = useSharedConfigStore();
+  const { hoveredItem, setHoveredItem, currentRevisionItem } =
+    useSharedConfigStore();
   const revisionList = useRevisionListStore((state) => state.revisionList);
   const currentRevision = revisionList.find(
     (item) => item.id === currentRevisionItem,
@@ -260,7 +261,7 @@ const PrepStation = () => {
   };
 
   return (
-    <div className="absolute top-[68px] right-0 flex flex-col p-1 max-h-[450px] overflow-y-auto bg-slate-50/50">
+    <div className="absolute top-[68px] right-0 flex flex-col p-2 max-h-[450px] overflow-y-auto bg-slate-50/30 select-none no-scrollbar">
       {Object.entries(
         Object.keys(typeMap).reduce(
           (acc, typeKey) => {
@@ -273,13 +274,19 @@ const PrepStation = () => {
           {} as { [key: string]: FeedbackItem[] },
         ),
       ).map(([key, feedbacks]) => (
-        <div key={key} className="flex flex-col w-12 gap-1 items-center">
-          <p className="text-2xs bg-gray-50 p-1 w-full text-center rounded-lg">
-            {typeMap[key as keyof typeof typeMap]}
+        <div
+          key={key}
+          className={cn(
+            "flex flex-col w-12 gap-1 items-center transition-all duration-500 max-h-[67px] hover:max-h-60",
+            feedbacks.find((fb) => fb?.id === hoveredItem) ? "max-h-60" : "",
+          )}
+        >
+          <p className="text-2xs w-full text-center">
+            {typeMap[key as keyof typeof typeMap]} ({feedbacks.length})
           </p>
           <div
             ref={containerRef}
-            className="flex flex-col items-center gap-3 bg-white/40 backdrop-blur-lg overflow-y-auto w-10 py-2 no-scrollbar border-x border-gray-100 max-h-24"
+            className="flex flex-col items-center gap-2 bg-white/40 backdrop-blur-lg overflow-y-auto w-10 py-2 no-scrollbar border-x border-gray-100 max-h-24"
             key={`prepstation-${key}`}
           >
             <LayoutGroup>

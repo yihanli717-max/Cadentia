@@ -160,7 +160,7 @@ export const ProviderCard = (props: ProviderCardProps) => {
 
         <div
           className={cn(
-            "text-2xs leading-relaxed overflow-y-auto transition-all duration-500",
+            "text-2xs leading-relaxed overflow-y-auto transition-all duration-1000",
             {
               "line-clamp-3 max-h-[60px]": !shouldExpand,
               "max-h-[1000px]": shouldExpand,

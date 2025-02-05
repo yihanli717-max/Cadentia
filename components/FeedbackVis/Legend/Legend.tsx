@@ -19,7 +19,7 @@ const Legend = (props: LegendProps) => {
   const isSequential = colorDimension === "sentiment";
 
   return (
-    <div className={cn(props.classes, "flex flex-col space-y-2")}>
+    <div className={cn(props.classes, "flex flex-col space-y-2 select-none")}>
       {isSequential ? (
         <SequentialLegend colorDimension={colorDimension} />
       ) : (
