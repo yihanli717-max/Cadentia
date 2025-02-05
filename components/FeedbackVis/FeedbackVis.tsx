@@ -18,6 +18,9 @@ interface FeedbackVisProps {
 const FeedbackVis = (props: FeedbackVisProps) => {
   const allFeedback = useFeedbackStore((state) => state.feedback);
 
+  const [maxR, setMaxR] = useState(0);
+  const [minR, setMinR] = useState(0);
+
   const [
     clusterDimension,
     numericalDimension,
@@ -346,6 +349,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     // Main logic flow
     const nodes = calculateNodes();
+    setMinR(d3.min(nodes, (d) => d.r)!);
+    setMaxR(d3.max(nodes, (d) => d.r)!);
 
     // Store bubble radii for future reference
     const radiiMap: Record<string, number> = {};
@@ -602,7 +607,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         ></svg>
       )}
       <PrepStation />
-      <Legend classes="absolute top-[68px] left-4" />
+      <Legend classes="absolute bottom-12 left-4" minR={minR} maxR={maxR} />
     </div>
   );
 };

@@ -41,10 +41,10 @@ const SequentialLegend = ({
       </svg>
 
       <div className="flex justify-between text-2xs mt-1 ">
-        <span className="text-2xs bg-gray-50 p-1 text-center rounded-lg">
+        <span className="text-2xs bg-gray-50 p-1 text-center rounded">
           Negative
         </span>
-        <span className="text-2xs bg-gray-50 p-1 text-center rounded-lg">
+        <span className="text-2xs bg-gray-50 p-1 text-center rounded">
           Positive
         </span>
       </div>
