@@ -90,6 +90,7 @@ const RevisionCard = (props: RevisionCardProps) => {
                     ),
                   }).map((_, index) => (
                     <div
+                      key={index}
                       className="w-3 h-3 rounded-sm hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
                       style={{
                         backgroundColor: getInterpolateColor(
@@ -110,6 +111,7 @@ const RevisionCard = (props: RevisionCardProps) => {
                     ),
                   }).map((_, index) => (
                     <div
+                      key={index}
                       className="w-3 h-3 rounded-sm hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
                       style={{
                         backgroundColor: getInterpolateColor(
@@ -137,7 +139,10 @@ const RevisionCard = (props: RevisionCardProps) => {
                               5),
                         )),
                   }).map((_, index) => (
-                    <div className="w-3 h-3 rounded-sm hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer bg-gray-300 border" />
+                    <div
+                      key={index}
+                      className="w-3 h-3 rounded-sm hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer bg-gray-300 border"
+                    />
                   ))}
                 </div>
               </div>
