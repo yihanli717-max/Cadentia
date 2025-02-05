@@ -9,6 +9,7 @@ import {
   getColor,
   getInterpolateColor,
   countWordChanges,
+  typeMap,
 } from "@/lib/utils";
 
 interface RevisionCardProps {
@@ -23,6 +24,7 @@ const RevisionCard = (props: RevisionCardProps) => {
     categoricalDimension,
     currentRevisionItem,
     setCurrentSelectedItems,
+    hoveredItem,
     setHoveredItem,
     setCurrentRevisionItem,
   ] = useSharedConfigStore((state) => [
@@ -30,6 +32,7 @@ const RevisionCard = (props: RevisionCardProps) => {
     state.categoricalDimension,
     state.currentRevisionItem,
     state.setCurrentSelectedItems,
+    state.hoveredItem,
     state.setHoveredItem,
     state.setCurrentRevisionItem,
   ]);
@@ -138,16 +141,33 @@ const RevisionCard = (props: RevisionCardProps) => {
       <div className="flex gap-1 overflow-x-auto no-scrollbar p-1">
         {thisFeedbacks.map((feedback) => (
           <div
+            className="flex flex-row gap-2 group items-center"
             key={feedback.id}
-            className="rounded-full w-[18px] h-[18px] flex-shrink-0 hover:ring-2 hover:ring-info hover:ring-offset-[0.5px] hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
-            style={{
-              backgroundColor: getColor(colorDimension)(
-                feedback[colorDimension] as never,
-              ),
-            }}
             onMouseEnter={() => setHoveredItem(feedback.id)}
             onMouseLeave={() => setHoveredItem(null)}
-          ></div>
+          >
+            <div
+              className={cn(
+                "rounded-full w-[18px] h-[18px] flex-shrink-0 hover:ring-2 hover:ring-info hover:ring-offset-[1px] hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer",
+                hoveredItem === feedback.id
+                  ? "ring-info ring-2 ring-offset-[1px]"
+                  : "",
+              )}
+              style={{
+                backgroundColor: getColor(colorDimension)(
+                  feedback[colorDimension] as never,
+                ),
+              }}
+            ></div>
+            <p
+              className={cn(
+                "hidden group-hover:block transition-all duration-150 ease-in-out text-xs font-medium",
+                hoveredItem === feedback.id ? "block" : "",
+              )}
+            >
+              {typeMap[feedback["type"].toLowerCase() as keyof typeof typeMap]}
+            </p>
+          </div>
         ))}
       </div>
 

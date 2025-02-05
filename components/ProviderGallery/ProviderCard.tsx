@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { FeedbackSourceItem, FeedbackItem } from "@/lib/type";
-import { cn, getColor, isSimilarSentence } from "@/lib/utils";
+import React, { useState } from "react";
+import { FeedbackSourceItem } from "@/lib/type";
+import { cn, getColor, isSimilarSentence, typeMap } from "@/lib/utils";
 import { useSharedConfigStore, useFeedbackStore } from "@/lib/store";
 import { noto_serif } from "@/app/fonts";
 
@@ -103,20 +103,37 @@ export const ProviderCard = (props: ProviderCardProps) => {
 
         <div className="flex gap-1 overflow-x-auto no-scrollbar p-1">
           {relatedFeedbacks.map((feedback) => (
-            <div key={feedback.id} className="relative group">
+            <div
+              className="flex flex-row gap-2 group items-center"
+              key={feedback.id}
+              onMouseEnter={() => setHoveredItem(feedback.id)}
+              onMouseLeave={() => setHoveredItem(null)}
+            >
               <div
                 className={cn(
-                  "rounded-full w-[18px] h-[18px] flex-shrink-0 hover:ring-2 hover:ring-info hover:ring-offset-[0.5px] hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer",
-                  hoveredItem === feedback.id ? "ring-info ring-2" : "",
+                  "rounded-full w-[18px] h-[18px] flex-shrink-0 hover:ring-2 hover:ring-info hover:ring-offset-[1px] hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer",
+                  hoveredItem === feedback.id
+                    ? "ring-info ring-2 ring-offset-[1px]"
+                    : "",
                 )}
                 style={{
                   backgroundColor: getColor(colorDimension)(
                     feedback[colorDimension] as never,
                   ),
                 }}
-                onMouseEnter={() => setHoveredItem(feedback.id)}
-                onMouseLeave={() => setHoveredItem(null)}
               ></div>
+              <p
+                className={cn(
+                  "hidden group-hover:block transition-all duration-150 ease-in-out text-xs font-medium",
+                  hoveredItem === feedback.id ? "block" : "",
+                )}
+              >
+                {
+                  typeMap[
+                    feedback["type"].toLowerCase() as keyof typeof typeMap
+                  ]
+                }
+              </p>
             </div>
           ))}
         </div>
