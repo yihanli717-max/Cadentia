@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import HelpfulnessVis from "@/components/FeedbackGallery/HelpfulnessVis";
 import { FeedbackSourceItem, FeedbackItem } from "@/lib/type";
-import { cn, isSimilarSentence, categoryColorMap, getColor } from "@/lib/utils";
+import { cn, isSimilarSentence, getColor } from "@/lib/utils";
 import { feedbackSource } from "@/data/source";
 import { useSharedConfigStore } from "@/lib/store";
 import { TbX, TbClipboardText } from "react-icons/tb";
@@ -36,8 +36,8 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
   const [showSource, setShowSource] = useState(false);
   const [newFeedbackContent, setNewFeedbackContent] = useState("");
 
-  const [categoricalDimension, numericalDimension] = useSharedConfigStore(
-    (state) => [state.categoricalDimension, state.numericalDimension],
+  const [categoricalDimension, colorDimension] = useSharedConfigStore(
+    (state) => [state.categoricalDimension, state.colorDimension],
   );
 
   const handleMouseEnterCheckSource = () => {
@@ -119,8 +119,8 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
       <div
         className="px-3 pb-2 bg-white border-2 rounded-lg select-none space-y-2"
         style={{
-          borderColor: getColor(categoricalDimension)(
-            props.feedbackItem[categoricalDimension],
+          borderColor: getColor(colorDimension)(
+            props.feedbackItem[colorDimension] as never,
           ),
         }}
       >
@@ -174,8 +174,8 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
         <hr
           className="opacity-20"
           style={{
-            borderColor: getColor(categoricalDimension)(
-              props.feedbackItem[categoricalDimension],
+            borderColor: getColor(colorDimension)(
+              props.feedbackItem[colorDimension] as never,
             ),
           }}
         />

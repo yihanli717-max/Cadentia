@@ -70,12 +70,8 @@ export const useFeedbackStore = create<FeedbackState & FeedbackActions>()(
 export type SharedConfigState = {
   isLoading: boolean;
   categoricalDimension: "type" | "provider";
-  numericalDimension:
-    | "actionability"
-    | "justification"
-    | "sentiment"
-    | "specificity"
-    | "length";
+  numericalDimension: "actionability" | "specificity" | "length";
+  colorDimension: "type" | "provider" | "justification" | "sentiment";
   hoveredItem: number | null;
   searchedEmeddings: number[] | undefined;
   similarityThreshold: number;
@@ -89,6 +85,7 @@ export type SharedConfigActions = {
   setLoading: (loading: boolean) => void;
   setCategoricalDimension: (dimension: string) => void;
   setNumericalDimension: (dimension: string) => void;
+  setColorDimension: (dimension: string) => void;
   setHoveredItem: (id: number | null) => void;
   setSearchedEmbeddings: (embeddings: number[] | undefined) => void;
   setSimilarityThreshold: (threshold: number) => void;
@@ -106,6 +103,7 @@ export const useSharedConfigStore = create<
       isLoading: false,
       categoricalDimension: "provider",
       numericalDimension: "actionability",
+      colorDimension: "sentiment",
       hoveredItem: null,
       searchedEmeddings: undefined,
       similarityThreshold: 0.6,
@@ -129,6 +127,12 @@ export const useSharedConfigStore = create<
         set(
           produce((state) => {
             state.numericalDimension = dimension;
+          }),
+        ),
+      setColorDimension: (dimension: string) =>
+        set(
+          produce((state) => {
+            state.colorDimension = dimension;
           }),
         ),
       setHoveredItem: (id: number | null) =>

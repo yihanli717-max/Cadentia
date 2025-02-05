@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { FeedbackSourceItem, FeedbackItem } from "@/lib/type";
-import { cn, getColor, typeMap, isSimilarSentence } from "@/lib/utils";
+import { cn, getColor, isSimilarSentence } from "@/lib/utils";
 import { useSharedConfigStore, useFeedbackStore } from "@/lib/store";
 import { noto_serif } from "@/app/fonts";
 
@@ -15,12 +15,9 @@ type ProviderCardProps = {
 export const ProviderCard = (props: ProviderCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const allFeedbackItems = useFeedbackStore((state) => state.feedback);
-  const [hoveredItem, setHoveredItem, categoricalDimension] =
-    useSharedConfigStore((state) => [
-      state.hoveredItem,
-      state.setHoveredItem,
-      state.categoricalDimension,
-    ]);
+  const [hoveredItem, setHoveredItem, colorDimension] = useSharedConfigStore(
+    (state) => [state.hoveredItem, state.setHoveredItem, state.colorDimension],
+  );
 
   // Find the related feedback items
   const relatedFeedbacks = allFeedbackItems.filter(
@@ -78,7 +75,7 @@ export const ProviderCard = (props: ProviderCardProps) => {
         className="px-3 pb-2 bg-white border-2 rounded-lg select-none space-y-2"
         style={{
           borderColor: getColor("provider")(
-            props.feedbackSourceItem["provider"],
+            props.feedbackSourceItem["provider"] as never,
           ),
         }}
       >
@@ -99,7 +96,7 @@ export const ProviderCard = (props: ProviderCardProps) => {
           className="opacity-20"
           style={{
             borderColor: getColor("provider")(
-              props.feedbackSourceItem["provider"],
+              props.feedbackSourceItem["provider"] as never,
             ),
           }}
         />
@@ -113,8 +110,8 @@ export const ProviderCard = (props: ProviderCardProps) => {
                   hoveredItem === feedback.id ? "ring-info ring-2" : "",
                 )}
                 style={{
-                  backgroundColor: getColor(categoricalDimension)(
-                    feedback[categoricalDimension],
+                  backgroundColor: getColor(colorDimension)(
+                    feedback[colorDimension] as never,
                   ),
                 }}
                 onMouseEnter={() => setHoveredItem(feedback.id)}

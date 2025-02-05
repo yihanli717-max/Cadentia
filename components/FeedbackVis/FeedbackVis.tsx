@@ -25,6 +25,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
   const [
     categoricalDimension,
     numericalDimension,
+    colorDimension,
     hoveredItem,
     setHoveredItem,
     searchedEmeddings,
@@ -36,6 +37,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
   ] = useSharedConfigStore((state) => [
     state.categoricalDimension,
     state.numericalDimension,
+    state.colorDimension,
     state.hoveredItem,
     state.setHoveredItem,
     state.searchedEmeddings,
@@ -62,7 +64,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     const updateDimensions = () => {
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
-        setDimensions({ width: width - 40, height: height - 80 });
+        setDimensions({ width: width - 40, height: height - 100 });
       }
     };
 
@@ -112,6 +114,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             id: item.id,
             group,
             value: item.transformedValues,
+            color: item[colorDimension],
             embeddings: item.embeddings,
           })),
         })),
@@ -308,7 +311,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       currentSelectedItems.includes(d.data.id) ||
       currentRevision?.feedback?.includes(d.data.id)
         ? "#e5e7eb"
-        : getColor(categoricalDimension)(d.data.group);
+        : getColor(colorDimension)(d.data.color as never);
 
     // Setup simulation
     const setupSimulation = (nodes: any[]) => {
@@ -417,6 +420,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     allFeedback,
     categoricalDimension,
     numericalDimension,
+    colorDimension,
     // allFeedback.length,
   ]);
 
@@ -453,7 +457,12 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           : `0 ${2 * Math.PI * d.r}`,
       )
       .attr("r", (d) => d.r - 6);
-  }, [searchedEmeddings, categoricalDimension, numericalDimension]);
+  }, [
+    searchedEmeddings,
+    categoricalDimension,
+    numericalDimension,
+    colorDimension,
+  ]);
 
   useEffect(() => {
     if (!svgRef.current) return;
@@ -486,7 +495,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           currentSelectedItems.includes(d.data.id) ||
           currentRevision?.feedback?.includes(d.data.id)
             ? "#e5e7eb"
-            : getColor(categoricalDimension)(d.data.group),
+            : getColor(colorDimension)(d.data.color as never),
         );
 
       barCircles.attr("filter", null);
@@ -574,7 +583,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           currentSelectedItems.includes(d.data.id) ||
           currentRevision?.feedback?.includes(d.data.id)
             ? "#e5e7eb"
-            : getColor(categoricalDimension)(d.data.group),
+            : getColor(colorDimension)(d.data.color as never),
         );
     };
 
@@ -642,7 +651,7 @@ const forceCluster = () => {
 const forceCollide = () => {
   const alpha = 0.3; // Fixed for greater rigidity
   const padding1 = 3; // Separation between same-color nodes
-  const padding2 = 60; // Separation between different-color nodes
+  const padding2 = 40; // Separation between different-color nodes
   let localNodes: d3.HierarchyCircularNode<unknown>[]; // Use generic unknown
   let maxRadius: number;
 

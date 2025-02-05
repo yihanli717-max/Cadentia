@@ -116,7 +116,7 @@ const PrepStation = () => {
   const {
     currentSelectedItems,
     setCurrentSelectedItems,
-    categoricalDimension,
+    colorDimension,
     setHoveredItem,
     hoveredItem,
     bubbleRadii,
@@ -250,9 +250,7 @@ const PrepStation = () => {
             if (!fb) return null;
             // const radius = bubbleRadii[fb.id] || 0;
             const radius = 12;
-            const color = getColor(categoricalDimension)(
-              fb[categoricalDimension],
-            );
+            const color = getColor(colorDimension)(fb[colorDimension] as never);
             const { strokeWidth, center, circumference, viewBoxSize, offset } =
               getCircleProps(radius);
             const isHovered = hoveredItem === fb.id;

@@ -21,6 +21,8 @@ const Menu = (props: MenuProps) => {
     setCategoricalDimension,
     numericalDimension,
     setNumericalDimension,
+    colorDimension,
+    setColorDimension,
     searchedEmeddings,
     setSearchedEmbeddings,
     similarityThreshold,
@@ -34,6 +36,8 @@ const Menu = (props: MenuProps) => {
     state.setCategoricalDimension,
     state.numericalDimension,
     state.setNumericalDimension,
+    state.colorDimension,
+    state.setColorDimension,
     state.searchedEmeddings,
     state.setSearchedEmbeddings,
     state.similarityThreshold,
@@ -57,13 +61,17 @@ const Menu = (props: MenuProps) => {
         )}
       >
         <div className="dropdown">
-          <div tabIndex={0} role="button" className="btn text-xs m-1">
-            <span className="text-gray-400">Color by</span>
+          <div
+            tabIndex={0}
+            role="button"
+            className="btn text-xs m-1 flex flex-col gap-1 2xl:flex-row"
+          >
+            <span className="text-gray-400">Cluster by</span>
             <span className="capitalize">{categoricalDimension}</span>
           </div>
           <ul
             tabIndex={0}
-            className="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow"
+            className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow text-xs w-32"
           >
             <li>
               <a
@@ -84,13 +92,64 @@ const Menu = (props: MenuProps) => {
           </ul>
         </div>
         <div className="dropdown">
-          <div tabIndex={0} role="button" className="btn text-xs m-1 h-10">
+          <div
+            tabIndex={0}
+            role="button"
+            className="btn text-xs m-1 flex flex-col gap-1 2xl:flex-row"
+          >
+            <span className="text-gray-400">Color by</span>
+            <span className="capitalize">{colorDimension}</span>
+          </div>
+          <ul
+            tabIndex={0}
+            className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow text-xs w-32"
+          >
+            <li>
+              <a
+                onClick={() => setColorDimension("justification")}
+                className={colorDimension === "justification" ? "active" : ""}
+              >
+                Justification
+              </a>
+            </li>
+            <li>
+              <a
+                onClick={() => setColorDimension("sentiment")}
+                className={colorDimension === "sentiment" ? "active" : ""}
+              >
+                Sentiment
+              </a>
+            </li>
+            <li>
+              <a
+                onClick={() => setColorDimension("type")}
+                className={colorDimension === "type" ? "active" : ""}
+              >
+                Type
+              </a>
+            </li>
+            <li>
+              <a
+                onClick={() => setColorDimension("provider")}
+                className={colorDimension === "provider" ? "active" : ""}
+              >
+                Provider
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div className="dropdown">
+          <div
+            tabIndex={0}
+            role="button"
+            className="btn text-xs m-1 flex flex-col gap-1 2xl:flex-row"
+          >
             <span className="text-gray-400">Size by</span>
             <span className="capitalize">{numericalDimension}</span>
           </div>
           <ul
             tabIndex={0}
-            className="dropdown-content menu bg-base-100 rounded-box z-[1] w-full p-2 shadow"
+            className="dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow text-xs w-32"
           >
             <li title="Length is the number of words in the feedback.">
               <a
@@ -100,14 +159,6 @@ const Menu = (props: MenuProps) => {
                 Length
               </a>
             </li>
-            {/* <li title="Helpfulness is the sum of actionability, specificity, and justification.">
-            <a
-              onClick={() => setNumericalDimension("helpfulness")}
-              className={numericalDimension === "helpfulness" ? "active" : ""}
-            >
-              Helpfulness
-            </a>
-          </li> */}
             <li title="Actionability is the number of actionable suggestions in the feedback.">
               <a
                 onClick={() => setNumericalDimension("actionability")}
@@ -124,24 +175,6 @@ const Menu = (props: MenuProps) => {
                 className={numericalDimension === "specificity" ? "active" : ""}
               >
                 Specificity
-              </a>
-            </li>
-            <li title="Justification is the degree to which the feedback is justified with reasons or evidence.">
-              <a
-                onClick={() => setNumericalDimension("justification")}
-                className={
-                  numericalDimension === "justification" ? "active" : ""
-                }
-              >
-                Justification
-              </a>
-            </li>
-            <li title="Sentiment is the degree to which the feedback is positive (small) or negative (big).">
-              <a
-                onClick={() => setNumericalDimension("sentiment")}
-                className={numericalDimension === "sentiment" ? "active" : ""}
-              >
-                Sentiment
               </a>
             </li>
           </ul>
@@ -162,7 +195,7 @@ const Menu = (props: MenuProps) => {
                 setSearchedEmbeddings(embeddings);
               }
             }}
-            className="grow 2xl:w-96 xl:w-64"
+            className="grow w-60 2xl:w-96"
             placeholder="Relevance to ..."
           />
           <kbd className="kbd kbd-sm">↵</kbd>

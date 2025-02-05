@@ -52,7 +52,7 @@ export const normalizeAndTransform = (
 // @ts-expect-error
 const categoryColor = d3.schemeObservable10;
 
-export const categoryColorMap: {
+const categoryColorMap: {
   [key: string]: string;
 } = {
   Claim: categoryColor[1],
@@ -65,19 +65,44 @@ export const categoryColorMap: {
   Orthography: categoryColor[6],
 };
 
-const colorScales: { [key: string]: d3.ScaleOrdinal<string, string> } = {
+const clusterColorScales: { [key: string]: d3.ScaleOrdinal<string, string> } = {
   provider: d3.scaleOrdinal(categoryColor),
   type: d3.scaleOrdinal(categoryColor),
 };
 
-export const getColor = (categoricalDimension: string) => {
+export const getClusterColor = (categoricalDimension: string) => {
   if (categoricalDimension === "type") {
     return (group: string) => categoryColorMap[group] || categoryColor[8];
   } else if (categoricalDimension === "provider") {
-    const colorScale = colorScales.provider;
+    const colorScale = clusterColorScales.provider;
     return (group: string) => colorScale(group);
   } else {
     return (group: string) => categoryColor[0];
+  }
+};
+
+const sequentialColorScales: {
+  [key: string]: d3.ScaleSequential<string>;
+} = {
+  justification: d3.scaleSequential(d3.interpolateGnBu).domain([-2, 2]),
+  sentiment: d3.scaleSequential(d3.interpolateRdYlGn).domain([-0.6, 0.6]),
+};
+
+export const getSequentialColor = (colorDimension: string) => {
+  if (colorDimension === "justification" || colorDimension === "sentiment") {
+    const colorScale = sequentialColorScales[colorDimension];
+    return (value: number) => colorScale(value);
+  } else {
+    const colorScale = sequentialColorScales.justification;
+    return (value: number) => colorScale(value);
+  }
+};
+
+export const getColor = (colorDimension: string) => {
+  if (colorDimension === "justification" || colorDimension === "sentiment") {
+    return getSequentialColor(colorDimension);
+  } else {
+    return getClusterColor(colorDimension);
   }
 };
 

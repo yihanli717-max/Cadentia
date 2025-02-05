@@ -9,7 +9,6 @@ import {
   getColor,
   getInterpolateColor,
   countWordChanges,
-  collectStats,
 } from "@/lib/utils";
 
 interface RevisionCardProps {
@@ -20,12 +19,14 @@ interface RevisionCardProps {
 const RevisionCard = (props: RevisionCardProps) => {
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const [
+    colorDimension,
     categoricalDimension,
     currentRevisionItem,
     setCurrentSelectedItems,
     setHoveredItem,
     setCurrentRevisionItem,
   ] = useSharedConfigStore((state) => [
+    state.colorDimension,
     state.categoricalDimension,
     state.currentRevisionItem,
     state.setCurrentSelectedItems,
@@ -84,7 +85,7 @@ const RevisionCard = (props: RevisionCardProps) => {
                           400,
                         )(countWordChanges(thisRevision).added),
                       }}
-                      title={`Added: ${countWordChanges(thisRevision).added} words`}
+                      // title={`Added: ${countWordChanges(thisRevision).added} words`}
                     />
                   ))}
                   {Array.from({
@@ -104,7 +105,7 @@ const RevisionCard = (props: RevisionCardProps) => {
                           400,
                         )(countWordChanges(thisRevision).deleted),
                       }}
-                      title={`Deleted: ${countWordChanges(thisRevision).deleted} words`}
+                      // title={`Deleted: ${countWordChanges(thisRevision).deleted} words`}
                     />
                   ))}
                   {Array.from({
@@ -140,8 +141,8 @@ const RevisionCard = (props: RevisionCardProps) => {
             key={feedback.id}
             className="rounded-full w-[18px] h-[18px] flex-shrink-0 hover:ring-2 hover:ring-info hover:ring-offset-[0.5px] hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer"
             style={{
-              backgroundColor: getColor(categoricalDimension)(
-                feedback[categoricalDimension],
+              backgroundColor: getColor(colorDimension)(
+                feedback[colorDimension] as never,
               ),
             }}
             onMouseEnter={() => setHoveredItem(feedback.id)}
