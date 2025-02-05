@@ -17,8 +17,8 @@ const Menu = (props: MenuProps) => {
   const [searchedText, setSearchedText] = useState("");
 
   const [
-    categoricalDimension,
-    setCategoricalDimension,
+    clusterDimension,
+    setClusterDimension,
     numericalDimension,
     setNumericalDimension,
     colorDimension,
@@ -32,8 +32,8 @@ const Menu = (props: MenuProps) => {
     setLoading,
     setCurrentSelectedItems,
   ] = useSharedConfigStore((state) => [
-    state.categoricalDimension,
-    state.setCategoricalDimension,
+    state.clusterDimension,
+    state.setClusterDimension,
     state.numericalDimension,
     state.setNumericalDimension,
     state.colorDimension,
@@ -64,10 +64,10 @@ const Menu = (props: MenuProps) => {
           <div
             tabIndex={0}
             role="button"
-            className="btn text-xs m-1 flex flex-col gap-1 2xl:flex-row"
+            className="btn text-2xs m-1 flex flex-col gap-0.5 2xl:flex-row bg-gray-50 shadow-none"
           >
             <span className="text-gray-400">Cluster by</span>
-            <span className="capitalize">{categoricalDimension}</span>
+            <span className="capitalize">{clusterDimension}</span>
           </div>
           <ul
             tabIndex={0}
@@ -75,16 +75,16 @@ const Menu = (props: MenuProps) => {
           >
             <li>
               <a
-                onClick={() => setCategoricalDimension("type")}
-                className={categoricalDimension === "type" ? "active" : ""}
+                onClick={() => setClusterDimension("type")}
+                className={clusterDimension === "type" ? "active" : ""}
               >
                 Type
               </a>
             </li>
             <li>
               <a
-                onClick={() => setCategoricalDimension("provider")}
-                className={categoricalDimension === "provider" ? "active" : ""}
+                onClick={() => setClusterDimension("provider")}
+                className={clusterDimension === "provider" ? "active" : ""}
               >
                 Provider
               </a>
@@ -95,7 +95,7 @@ const Menu = (props: MenuProps) => {
           <div
             tabIndex={0}
             role="button"
-            className="btn text-xs m-1 flex flex-col gap-1 2xl:flex-row"
+            className="btn text-2xs m-1 flex flex-col gap-0.5 2xl:flex-row bg-gray-50 shadow-none"
           >
             <span className="text-gray-400">Color by</span>
             <span className="capitalize">{colorDimension}</span>
@@ -142,7 +142,7 @@ const Menu = (props: MenuProps) => {
           <div
             tabIndex={0}
             role="button"
-            className="btn text-xs m-1 flex flex-col gap-1 2xl:flex-row"
+            className="btn text-2xs m-1 flex flex-col gap-0.5 2xl:flex-row bg-gray-50 shadow-none"
           >
             <span className="text-gray-400">Size by</span>
             <span className="capitalize">{numericalDimension}</span>

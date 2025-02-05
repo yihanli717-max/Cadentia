@@ -10,7 +10,8 @@ import {
   useSharedConfigStore,
   useRevisionListStore,
 } from "@/lib/store";
-import { getColor } from "@/lib/utils";
+import { getColor, typeMap } from "@/lib/utils";
+import { FeedbackItem } from "@/lib/type";
 
 const D3_EASE = [0.645, 0.045, 0.355, 1];
 const D3_TRANSITION = {
@@ -114,6 +115,7 @@ const ProgressRing = ({
 const PrepStation = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const {
+    clusterDimension,
     currentSelectedItems,
     setCurrentSelectedItems,
     colorDimension,
@@ -161,6 +163,23 @@ const PrepStation = () => {
   const selectedFeedbacks = allItems
     .map((id) => allFeedback.find((fb) => fb.id === id))
     .filter((fb) => fb !== undefined);
+
+  const cluseredFeedbacks = selectedFeedbacks.reduce(
+    (acc, fb) => {
+      const key = fb[clusterDimension] as string;
+
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+
+      acc[key].push(fb);
+      return acc;
+    },
+    {} as { [key: string]: FeedbackItem[] },
+  );
+
+  console.log("cluseredFeedbacks", cluseredFeedbacks);
+
   const bubbleVariants = {
     hidden: {
       scale: 0.6,
@@ -239,87 +258,104 @@ const PrepStation = () => {
   };
 
   return (
-    <div
-      ref={containerRef}
-      className="absolute top-24 right-0 flex flex-col items-center gap-3 bg-white/30 backdrop-blur-lg h-96 overflow-y-auto w-10 py-2 no-scrollbar border-l border-gray-100"
-      key={`prepstation-${forceKey}`}
-    >
-      <LayoutGroup>
-        <AnimatePresence>
-          {selectedFeedbacks.map((fb) => {
-            if (!fb) return null;
-            // const radius = bubbleRadii[fb.id] || 0;
-            const radius = 9;
-            const color = getColor(colorDimension)(fb[colorDimension] as never);
-            const { strokeWidth, center, circumference, viewBoxSize, offset } =
-              getCircleProps(radius);
-            const isHovered = hoveredItem === fb.id;
+    <div className="absolute top-20 right-0 flex flex-col p-1 max-h-96 overflow-y-auto bg-slate-50/50">
+      {Object.entries(cluseredFeedbacks).map(([key, feedbacks]) => (
+        <div className="flex flex-col w-12 gap-2 items-center">
+          <p className="text-2xs">
+            {typeMap[key.toLowerCase() as keyof typeof typeMap]}
+          </p>
+          <div
+            ref={containerRef}
+            className="flex flex-col items-center gap-3 bg-white/40 backdrop-blur-lg overflow-y-auto w-10 py-2 no-scrollbar border-x border-gray-100 max-h-24"
+            key={`prepstation-${key}`}
+          >
+            <LayoutGroup>
+              <AnimatePresence>
+                {feedbacks.map((fb) => {
+                  if (!fb) return null;
+                  // const radius = bubbleRadii[fb.id] || 0;
+                  const radius = 9;
+                  const color = getColor(colorDimension)(
+                    fb[colorDimension] as never,
+                  );
+                  const {
+                    strokeWidth,
+                    center,
+                    circumference,
+                    viewBoxSize,
+                    offset,
+                  } = getCircleProps(radius);
+                  const isHovered = hoveredItem === fb.id;
 
-            return (
-              <motion.div
-                ref={(el) => {
-                  if (el) {
-                    circleRefs.current.set(fb.id, el);
-                  } else {
-                    circleRefs.current.delete(fb.id);
-                  }
-                }}
-                key={fb.id}
-                layout
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={bubbleVariants}
-                className="flex-shrink-0 relative"
-                drag
-                dragSnapToOrigin
-                dragElastic={0.2}
-                onDragEnd={(_, info) => handleDragEnd(fb.id, info)}
-                style={{
-                  width: radius * 2,
-                  height: radius * 2,
-                  borderRadius: "50%",
-                  backgroundColor: color,
-                  cursor: "grab",
-                  zIndex: 9999,
-                }}
-                whileDrag={{
-                  cursor: "grabbing",
-                  scale: 1.05,
-                }}
-                onHoverStart={() => {
-                  setActiveHoverId(fb.id);
-                  setIfHovered(true);
-                }}
-                onHoverEnd={() => {
-                  setActiveHoverId(null);
-                  setHoveredItem(null);
-                  setIfHovered(false);
-                }}
-              >
-                <motion.svg
-                  width={viewBoxSize}
-                  height={viewBoxSize}
-                  className="absolute"
-                  style={{
-                    top: -offset,
-                    left: -offset,
-                    rotate: 0,
-                  }}
-                >
-                  <ProgressRing
-                    strokeWidth={strokeWidth}
-                    circumference={circumference + 8}
-                    isHovered={isHovered}
-                    activeHoverId={activeHoverId}
-                    thisId={fb.id}
-                  />
-                </motion.svg>
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
-      </LayoutGroup>
+                  return (
+                    <motion.div
+                      ref={(el) => {
+                        if (el) {
+                          circleRefs.current.set(fb.id, el);
+                        } else {
+                          circleRefs.current.delete(fb.id);
+                        }
+                      }}
+                      key={fb.id}
+                      layout
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      variants={bubbleVariants}
+                      className="flex-shrink-0 relative"
+                      drag
+                      dragSnapToOrigin
+                      dragElastic={0.2}
+                      onDragEnd={(_, info) => handleDragEnd(fb.id, info)}
+                      style={{
+                        width: radius * 2,
+                        height: radius * 2,
+                        borderRadius: "50%",
+                        backgroundColor: color,
+                        cursor: "grab",
+                        zIndex: 9999,
+                      }}
+                      whileDrag={{
+                        cursor: "grabbing",
+                        scale: 1.05,
+                      }}
+                      onHoverStart={() => {
+                        setActiveHoverId(fb.id);
+                        setIfHovered(true);
+                      }}
+                      onHoverEnd={() => {
+                        setActiveHoverId(null);
+                        setHoveredItem(null);
+                        setIfHovered(false);
+                      }}
+                    >
+                      <motion.svg
+                        width={viewBoxSize}
+                        height={viewBoxSize}
+                        className="absolute"
+                        style={{
+                          top: -offset,
+                          left: -offset,
+                          rotate: 0,
+                        }}
+                      >
+                        <ProgressRing
+                          strokeWidth={strokeWidth}
+                          circumference={circumference + 8}
+                          isHovered={isHovered}
+                          activeHoverId={activeHoverId}
+                          thisId={fb.id}
+                        />
+                      </motion.svg>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </LayoutGroup>
+          </div>
+          <hr className="bg-black" />
+        </div>
+      ))}
     </div>
   );
 };

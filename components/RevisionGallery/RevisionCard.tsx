@@ -21,7 +21,7 @@ const RevisionCard = (props: RevisionCardProps) => {
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const [
     colorDimension,
-    categoricalDimension,
+    clusterDimension,
     currentRevisionItem,
     setCurrentSelectedItems,
     hoveredItem,
@@ -29,7 +29,7 @@ const RevisionCard = (props: RevisionCardProps) => {
     setCurrentRevisionItem,
   ] = useSharedConfigStore((state) => [
     state.colorDimension,
-    state.categoricalDimension,
+    state.clusterDimension,
     state.currentRevisionItem,
     state.setCurrentSelectedItems,
     state.hoveredItem,

@@ -14,10 +14,10 @@ type MenuProps = {
 };
 
 const Menu = ({ classes }: MenuProps) => {
-  const [setLoading, setCategoricalDimension, setNumericalDimension] =
+  const [setLoading, setClusterDimension, setNumericalDimension] =
     useSharedConfigStore((state) => [
       state.setLoading,
-      state.setCategoricalDimension,
+      state.setClusterDimension,
       state.setNumericalDimension,
     ]);
 
@@ -57,7 +57,7 @@ const Menu = ({ classes }: MenuProps) => {
       })),
     ).then((result) => {
       setLoading(false);
-      setCategoricalDimension("type");
+      setClusterDimension("type");
       setNumericalDimension("length");
       return result;
     });

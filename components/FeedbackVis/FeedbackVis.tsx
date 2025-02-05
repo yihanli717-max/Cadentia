@@ -6,12 +6,8 @@ import {
 } from "@/lib/store";
 import Menu from "@/components/FeedbackVis/Menu";
 import PrepStation from "@/components/FeedbackVis/PrepStation";
-import {
-  cn,
-  getColor,
-  normalizeAndTransform,
-  generateRevision,
-} from "@/lib/utils";
+import Legend from "@/components/FeedbackVis/Legend/Legend";
+import { cn, getColor, normalizeAndTransform } from "@/lib/utils";
 import { cosineSimilarity } from "fast-cosine-similarity";
 import * as d3 from "d3";
 
@@ -23,7 +19,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
   const allFeedback = useFeedbackStore((state) => state.feedback);
 
   const [
-    categoricalDimension,
+    clusterDimension,
     numericalDimension,
     colorDimension,
     hoveredItem,
@@ -35,7 +31,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     bubbleRadii,
     setBubbleRadii,
   ] = useSharedConfigStore((state) => [
-    state.categoricalDimension,
+    state.clusterDimension,
     state.numericalDimension,
     state.colorDimension,
     state.hoveredItem,
@@ -64,7 +60,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     const updateDimensions = () => {
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
-        setDimensions({ width: width - 40, height: height - 100 });
+        setDimensions({ width: width - 40, height: height - 120 });
       }
     };
 
@@ -104,7 +100,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
       const groupedFeedback = d3.group(
         feedbackWithTransformedValues,
-        (item: any) => item[categoricalDimension],
+        (item: any) => item[clusterDimension],
       );
 
       const data = {
@@ -418,7 +414,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
   }, [
     dimensions,
     allFeedback,
-    categoricalDimension,
+    clusterDimension,
     numericalDimension,
     colorDimension,
     // allFeedback.length,
@@ -457,12 +453,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           : `0 ${2 * Math.PI * d.r}`,
       )
       .attr("r", (d) => d.r - 6);
-  }, [
-    searchedEmeddings,
-    categoricalDimension,
-    numericalDimension,
-    colorDimension,
-  ]);
+  }, [searchedEmeddings, clusterDimension, numericalDimension, colorDimension]);
 
   useEffect(() => {
     if (!svgRef.current) return;
@@ -611,6 +602,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         ></svg>
       )}
       <PrepStation />
+      <Legend classes="absolute top-[68px] left-4" />
     </div>
   );
 };

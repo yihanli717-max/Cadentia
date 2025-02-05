@@ -36,9 +36,10 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
   const [showSource, setShowSource] = useState(false);
   const [newFeedbackContent, setNewFeedbackContent] = useState("");
 
-  const [categoricalDimension, colorDimension] = useSharedConfigStore(
-    (state) => [state.categoricalDimension, state.colorDimension],
-  );
+  const [clusterDimension, colorDimension] = useSharedConfigStore((state) => [
+    state.clusterDimension,
+    state.colorDimension,
+  ]);
 
   const handleMouseEnterCheckSource = () => {
     // find id = props.feedbackItem.source in feedbackSource
@@ -144,11 +145,11 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
                 </div>
               </div>
               <h1 className={cn("text-sm font-semibold")}>
-                {categoricalDimension === "type"
+                {clusterDimension === "type"
                   ? typeMap[
                       props.feedbackItem.type.toLowerCase() as keyof typeof typeMap
                     ]
-                  : props.feedbackItem[categoricalDimension]}
+                  : props.feedbackItem[clusterDimension]}
               </h1>
             </div>
 
@@ -199,7 +200,7 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
 
         <span className="card-actions justify-start flex mt-1">
           <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded">
-            {categoricalDimension === "type"
+            {clusterDimension === "type"
               ? props.feedbackItem["provider"]
               : typeMap[
                   props.feedbackItem.type.toLowerCase() as keyof typeof typeMap

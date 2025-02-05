@@ -1,9 +1,20 @@
 "use client";
 import React, { useState } from "react";
 import { FeedbackSourceItem } from "@/lib/type";
-import { cn, getColor, isSimilarSentence, typeMap } from "@/lib/utils";
+import { cn, getColor, isSimilarSentence } from "@/lib/utils";
 import { useSharedConfigStore, useFeedbackStore } from "@/lib/store";
 import { noto_serif } from "@/app/fonts";
+
+const typeMap = {
+  claim: "Claims/Ideas",
+  reasoning: "Warrent/Reasoning/Backing",
+  evidence: "Evidence",
+  rebuttal: "Rebuttal/Reservation",
+  orthography: "Convention/Grammar/Spelling",
+  organization: "Organization",
+  "word-usage": "Word Usage/Clarity",
+  others: "General Content",
+};
 
 type ProviderCardProps = {
   feedbackSourceItem: FeedbackSourceItem;

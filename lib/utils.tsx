@@ -52,7 +52,7 @@ export const normalizeAndTransform = (
 // @ts-expect-error
 const categoryColor = d3.schemeObservable10;
 
-const categoryColorMap: {
+export const categoryColorMap: {
   [key: string]: string;
 } = {
   Claim: categoryColor[1],
@@ -63,33 +63,38 @@ const categoryColorMap: {
   Organization: categoryColor[0],
   "Word-usage": categoryColor[3],
   Orthography: categoryColor[6],
+  1: categoryColor[2],
+  0: categoryColor[0],
 };
 
-const clusterColorScales: { [key: string]: d3.ScaleOrdinal<string, string> } = {
+export const clusterColorScales: {
+  [key: string]: d3.ScaleOrdinal<string, string>;
+} = {
   provider: d3.scaleOrdinal(categoryColor),
   type: d3.scaleOrdinal(categoryColor),
 };
 
-export const getClusterColor = (categoricalDimension: string) => {
-  if (categoricalDimension === "type") {
+export const getClusterColor = (clusterDimension: string) => {
+  if (clusterDimension === "type") {
     return (group: string) => categoryColorMap[group] || categoryColor[8];
-  } else if (categoricalDimension === "provider") {
+  } else if (clusterDimension === "provider") {
     const colorScale = clusterColorScales.provider;
     return (group: string) => colorScale(group);
+  } else if (clusterDimension === "justification") {
+    return (group: string) => categoryColorMap[group] || categoryColor[8];
   } else {
     return (group: string) => categoryColor[0];
   }
 };
 
-const sequentialColorScales: {
+export const sequentialColorScales: {
   [key: string]: d3.ScaleSequential<string>;
 } = {
-  justification: d3.scaleSequential(d3.interpolateGnBu).domain([-2, 2]),
   sentiment: d3.scaleSequential(d3.interpolateRdYlGn).domain([-0.6, 0.6]),
 };
 
 export const getSequentialColor = (colorDimension: string) => {
-  if (colorDimension === "justification" || colorDimension === "sentiment") {
+  if (colorDimension === "sentiment") {
     const colorScale = sequentialColorScales[colorDimension];
     return (value: number) => colorScale(value);
   } else {
@@ -99,7 +104,7 @@ export const getSequentialColor = (colorDimension: string) => {
 };
 
 export const getColor = (colorDimension: string) => {
-  if (colorDimension === "justification" || colorDimension === "sentiment") {
+  if (colorDimension === "sentiment") {
     return getSequentialColor(colorDimension);
   } else {
     return getClusterColor(colorDimension);
@@ -262,12 +267,24 @@ export function countWordChanges(revisionItem: RevisionItem): {
 }
 
 export const typeMap = {
-  claim: "Claims/Ideas",
-  reasoning: "Warrent/Reasoning/Backing",
-  evidence: "Evidence",
-  rebuttal: "Rebuttal/Reservation",
-  others: "General Content",
-  orthography: "Convention/Grammar/Spelling",
-  organization: "Organization",
-  "word-usage": "Word Usage/Clarity",
+  claim: "CL",
+  reasoning: "WA",
+  evidence: "EV",
+  rebuttal: "RE",
+  orthography: "GR",
+  organization: "OR",
+  "word-usage": "WO",
+  others: "OT",
+  alex: "P1",
+  instructor: "P2",
+  jun: "P3",
+  april: "P4",
+  "essayforum reviewer 1": "P5",
+  "essayforum reviewer 2": "P6",
+  "essayforum reviewer 3": "P7",
+  "essayforum reviewer 4": "P8",
+  "essayforum reviewer 5": "P9",
+  "essayforum reviewer 6": "P10",
+  "1": "Justified",
+  "0": "Not Justified",
 };

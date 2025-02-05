@@ -69,7 +69,7 @@ export const useFeedbackStore = create<FeedbackState & FeedbackActions>()(
 
 export type SharedConfigState = {
   isLoading: boolean;
-  categoricalDimension: "type" | "provider";
+  clusterDimension: "type" | "provider";
   numericalDimension: "actionability" | "specificity" | "length";
   colorDimension: "type" | "provider" | "justification" | "sentiment";
   hoveredItem: number | null;
@@ -83,7 +83,7 @@ export type SharedConfigState = {
 
 export type SharedConfigActions = {
   setLoading: (loading: boolean) => void;
-  setCategoricalDimension: (dimension: string) => void;
+  setClusterDimension: (dimension: string) => void;
   setNumericalDimension: (dimension: string) => void;
   setColorDimension: (dimension: string) => void;
   setHoveredItem: (id: number | null) => void;
@@ -101,7 +101,7 @@ export const useSharedConfigStore = create<
   persist(
     (set) => ({
       isLoading: false,
-      categoricalDimension: "provider",
+      clusterDimension: "provider",
       numericalDimension: "actionability",
       colorDimension: "sentiment",
       hoveredItem: null,
@@ -117,10 +117,10 @@ export const useSharedConfigStore = create<
             state.isLoading = loading;
           }),
         ),
-      setCategoricalDimension: (dimension: string) =>
+      setClusterDimension: (dimension: string) =>
         set(
           produce((state) => {
-            state.categoricalDimension = dimension;
+            state.clusterDimension = dimension;
           }),
         ),
       setNumericalDimension: (dimension: string) =>
