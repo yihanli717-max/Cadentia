@@ -166,6 +166,8 @@ const PrepStation = () => {
 
   const cluseredFeedbacks = selectedFeedbacks.reduce(
     (acc, fb) => {
+      if (!fb) return acc;
+
       const key = (fb[clusterDimension] as string).toLowerCase();
 
       if (!acc[key]) {
