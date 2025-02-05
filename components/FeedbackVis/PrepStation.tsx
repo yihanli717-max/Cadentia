@@ -225,8 +225,8 @@ const PrepStation = () => {
   };
 
   const getCircleProps = (radius: number) => {
-    const strokeWidth = 2.5;
-    const ringOffset = 3.5;
+    const strokeWidth = 2;
+    const ringOffset = 3;
     const effectiveRadius = radius + ringOffset;
     const circumference = 2 * Math.PI * (effectiveRadius - strokeWidth);
     return {
@@ -241,7 +241,7 @@ const PrepStation = () => {
   return (
     <div
       ref={containerRef}
-      className="absolute top-24 right-0 flex flex-col items-center gap-3 bg-white/30 backdrop-blur-lg h-96 overflow-y-auto w-12 py-2 no-scrollbar border-l border-gray-100"
+      className="absolute top-24 right-0 flex flex-col items-center gap-3 bg-white/30 backdrop-blur-lg h-96 overflow-y-auto w-10 py-2 no-scrollbar border-l border-gray-100"
       key={`prepstation-${forceKey}`}
     >
       <LayoutGroup>
@@ -249,7 +249,7 @@ const PrepStation = () => {
           {selectedFeedbacks.map((fb) => {
             if (!fb) return null;
             // const radius = bubbleRadii[fb.id] || 0;
-            const radius = 12;
+            const radius = 9;
             const color = getColor(colorDimension)(fb[colorDimension] as never);
             const { strokeWidth, center, circumference, viewBoxSize, offset } =
               getCircleProps(radius);

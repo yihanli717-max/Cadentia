@@ -179,7 +179,7 @@ const Menu = (props: MenuProps) => {
             </li>
           </ul>
         </div>
-        <label className="input input-bordered flex items-center gap-2 text-xs h-10">
+        <label className="input input-bordered flex items-center gap-2 text-xs h-10 ml-2">
           <input
             type="text"
             value={searchedText}
