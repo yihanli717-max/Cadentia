@@ -271,7 +271,7 @@ const PrepStation = () => {
           {} as { [key: string]: FeedbackItem[] },
         ),
       ).map(([key, feedbacks]) => (
-        <div className="flex flex-col w-12 gap-1 items-center">
+        <div key={key} className="flex flex-col w-12 gap-1 items-center">
           <p className="text-2xs bg-gray-50 p-1 w-full text-center rounded-lg">
             {typeMap[key as keyof typeof typeMap]}
           </p>
