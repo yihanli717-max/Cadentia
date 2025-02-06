@@ -156,6 +156,14 @@ export const ProviderCard = (props: ProviderCardProps) => {
               ),
             }}
           />
+          {/* <hr
+            className="h-px border-0 bg-gradient-to-r from-transparent to-transparent"
+            style={{
+              backgroundImage: `linear-gradient(to right, transparent, ${getColor(
+                "provider",
+              )(props.feedbackSourceItem["provider"] as never)}, transparent)`,
+            }}
+          /> */}
         </div>
 
         <div

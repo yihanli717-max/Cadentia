@@ -1,5 +1,5 @@
 import React from "react";
-import { useSharedConfigStore } from "@/lib/store";
+import { useSharedConfigStore, useFeedbackStore } from "@/lib/store";
 
 interface SizeLegendProps {
   minR: number;
@@ -7,10 +7,19 @@ interface SizeLegendProps {
 }
 
 const SizeLegend = ({ minR, maxR }: SizeLegendProps) => {
+  const allFeedback = useFeedbackStore((state) => state.feedback);
+
   const { numericalDimension } = useSharedConfigStore();
 
-  const numericalMin = 0;
-  const numericalMax = 100;
+  // find the max value of the numerical dimension in the feedback
+  const numericalMax = allFeedback.reduce(
+    (acc, item) => Math.max(acc, item[numericalDimension] as number),
+    0,
+  );
+  const numericalMin = allFeedback.reduce(
+    (acc, item) => Math.min(acc, item[numericalDimension] as number),
+    Infinity,
+  );
 
   return (
     <div className="flex flex-col items-start gap-1 relative p-2">
@@ -21,7 +30,7 @@ const SizeLegend = ({ minR, maxR }: SizeLegendProps) => {
       <div className="flex items-end justify-between w-full pb-0">
         <div className="flex flex-col items-center gap-1">
           <div
-            className="bg-gray-200 rounded-full"
+            className="bg-gray-200 rounded-full transition-all duration-300 ease-in-out"
             style={{
               width: `${minR * 2}px`,
               height: `${minR * 2}px`,
@@ -34,7 +43,7 @@ const SizeLegend = ({ minR, maxR }: SizeLegendProps) => {
 
         <div className="flex flex-col items-center gap-1">
           <div
-            className="bg-gray-200 rounded-full"
+            className="bg-gray-200 rounded-full transition-all duration-300 ease-in-out"
             style={{
               width: `${maxR * 2}px`,
               height: `${maxR * 2}px`,

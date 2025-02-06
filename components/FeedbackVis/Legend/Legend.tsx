@@ -17,13 +17,13 @@ const Legend = (props: LegendProps) => {
   const isSequential = colorDimension === "sentiment";
 
   return (
-    <div className={cn(props.classes, "flex flex-col space-y-5 select-none")}>
+    <div className={cn(props.classes, "flex flex-col space-y-4 select-none")}>
+      <SizeLegend minR={props.minR} maxR={props.maxR} />
       {isSequential ? (
         <SequentialLegend colorDimension={colorDimension} />
       ) : (
         <ClusterLegend colorDimension={colorDimension} />
       )}
-      <SizeLegend minR={props.minR} maxR={props.maxR} />
     </div>
   );
 };
