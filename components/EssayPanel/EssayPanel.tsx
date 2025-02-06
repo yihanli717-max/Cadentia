@@ -79,10 +79,10 @@ const EssayPanel = (props: EssayPanelProps) => {
     <div
       className={cn(
         props.classes +
-          " font-normal border-l border-gray-100 text-gray-800 flex flex-col select-none bg-white relative h-screen",
+          " font-normal border-l border-base-200 text-neutral flex flex-col select-none bg-white relative h-screen",
       )}
     >
-      <div className="h-16 px-8 bg-white text-gray-800 flex flex-row items-center gap-2 absolute top-16 z-50 w-full justify-between">
+      <div className="h-16 px-8 bg-white text-neutral flex flex-row items-center gap-2 absolute top-16 z-50 w-full justify-between">
         <p className="font-semibold text-xl">My Essay</p>
         <div className="form-control">
           <label className="label cursor-pointer space-x-2">
@@ -155,7 +155,9 @@ const EssayPanel = (props: EssayPanelProps) => {
                       revisionObject?.revision.find(
                         (item) => item.original === section.content,
                       )?.revised && (
-                        <span className="text-xs text-gray-400">[edited]</span>
+                        <span className="text-xs opacity-60 font-medium">
+                          [edited]
+                        </span>
                       )}{" "}
                   </span>
                 </React.Fragment>

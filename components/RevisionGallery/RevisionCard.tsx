@@ -141,7 +141,7 @@ const RevisionCard = (props: RevisionCardProps) => {
                   }).map((_, index) => (
                     <div
                       key={index}
-                      className="w-3 h-3 rounded-sm hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer bg-gray-300 border"
+                      className="w-3 h-3 rounded-sm hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer bg-base-300 border"
                     />
                   ))}
                 </div>
@@ -152,7 +152,7 @@ const RevisionCard = (props: RevisionCardProps) => {
       </div>
 
       <div className="flex flex-col gap-1">
-        <hr />
+        <hr className="border-dashed" />
         <div className="flex overflow-x-auto no-scrollbar p-1">
           {thisFeedbacks.map((feedback) => (
             <div
@@ -197,7 +197,7 @@ const RevisionCard = (props: RevisionCardProps) => {
             </div>
           ))}
         </div>
-        <hr />
+        <hr className="border-dashed" />
       </div>
 
       <div className="card-actions justify-start flex">

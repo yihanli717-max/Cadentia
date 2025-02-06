@@ -24,7 +24,7 @@ const RevisionGallery = (props: RevisionGalleryProps) => {
     <div
       className={cn(
         props.classes,
-        "w-full h-[170px] bg-white border-b border-gray-100 flex overflow-x-auto gap-2 p-2 no-scrollbar",
+        "w-full h-[170px] bg-white border-b border-base-200 flex overflow-x-auto gap-2 p-2 no-scrollbar",
       )}
     >
       <div
@@ -39,11 +39,11 @@ const RevisionGallery = (props: RevisionGalleryProps) => {
         <div className="w-full flex justify-center items-center h-full">
           <TbPlus
             size={36}
-            className="text-gray-300 group-hover:text-gray-600"
+            className="text-base-300 group-hover:opacity-60 font-medium"
           />
         </div>
 
-        {/* <p className="w-full flex justify-center items-center text-xs text-gray-400 absolute bottom-2 left-0">
+        {/* <p className="w-full flex justify-center items-center text-xs text-base-300 absolute bottom-2 left-0">
           Click to Create a New Revision
         </p> */}
       </div>

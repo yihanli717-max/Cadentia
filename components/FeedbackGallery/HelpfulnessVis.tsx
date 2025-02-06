@@ -38,7 +38,7 @@ const HelpfulnessVis = (props: HelpfulnessVisProps) => {
   };
 
   return (
-    <div className="relative text-gray-800">
+    <div className="relative text-neutral">
       <div
         className="flex items-end"
         onMouseEnter={handleMouseEnter}
@@ -46,7 +46,7 @@ const HelpfulnessVis = (props: HelpfulnessVisProps) => {
       >
         {/* <div
           className={cn(
-            numericalDimension === "sentiment" ? "bg-sky-500" : "bg-gray-300",
+            numericalDimension === "sentiment" ? "bg-sky-500" : "bg-base-300",
             "w-2 transition-all duration-150 ease-in-out hover:scale-125 hover:-translate-y-[1px]",
           )}
           style={{ height: `${2 + props.sentiment * 16}px` }}
@@ -58,7 +58,7 @@ const HelpfulnessVis = (props: HelpfulnessVisProps) => {
           className={cn(
             numericalDimension === "actionability"
               ? "bg-pink-500"
-              : "bg-gray-300",
+              : "bg-base-300",
             "w-2 transition-all duration-150 ease-in-out hover:scale-125 hover:-translate-y-[1px]",
           )}
           style={{ height: `${2 + props.actionability * 16}px` }}
@@ -70,7 +70,7 @@ const HelpfulnessVis = (props: HelpfulnessVisProps) => {
           className={cn(
             numericalDimension === "justification"
               ? "bg-emerald-500"
-              : "bg-gray-300",
+              : "bg-base-300",
             "w-2 transition-all duration-150 ease-in-out hover:scale-125 hover:-translate-y-[1px]",
           )}
           style={{ height: `${2 + props.justification * 16}px` }}
@@ -82,7 +82,7 @@ const HelpfulnessVis = (props: HelpfulnessVisProps) => {
           className={cn(
             numericalDimension === "specificity"
               ? "bg-purple-500"
-              : "bg-gray-300",
+              : "bg-base-300",
             "w-2 transition-all duration-150 ease-in-out hover:scale-125 hover:-translate-y-[1px]",
           )}
           style={{ height: `${2 + props.specificity * 16}px` }}

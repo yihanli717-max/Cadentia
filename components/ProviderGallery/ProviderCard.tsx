@@ -71,8 +71,8 @@ export const ProviderCard = (props: ProviderCardProps) => {
   return (
     <div
       className={cn(
-        "relative rounded-lg bg-gray-50 overflow-auto text-gray-800 h-full m-2 my-[10px] cursor-pointer",
-        "ring-offset-1 ring-offset-gray-50",
+        "relative rounded-lg bg-base-100 overflow-auto text-neutral h-full m-2 my-[10px] cursor-pointer",
+        "ring-offset-1 ring-offset-base-100",
         shouldExpand
           ? "ring-info ring-3 scale-[1.01] transition-all duration-150 ease-in-out"
           : "",
@@ -95,7 +95,7 @@ export const ProviderCard = (props: ProviderCardProps) => {
             <div className="flex flex-row gap-1 items-center pt-3">
               <h1 className={cn("text-sm font-semibold")}>
                 <span className="opacity-60">
-                  Provider {props.feedbackSourceItem["id"]}:{" "}
+                  Provider {props.feedbackSourceItem["id"]} /{" "}
                 </span>
                 {props.feedbackSourceItem["provider"]}
               </h1>
@@ -105,7 +105,7 @@ export const ProviderCard = (props: ProviderCardProps) => {
 
         <div className="flex flex-col gap-1">
           <hr
-            className="opacity-20"
+            className="opacity-20 border-dashed"
             style={{
               borderColor: getColor("provider")(
                 props.feedbackSourceItem["provider"] as never,
@@ -156,7 +156,7 @@ export const ProviderCard = (props: ProviderCardProps) => {
             ))}
           </div>
           <hr
-            className="opacity-20"
+            className="opacity-20 border-dashed"
             style={{
               borderColor: getColor("provider")(
                 props.feedbackSourceItem["provider"] as never,

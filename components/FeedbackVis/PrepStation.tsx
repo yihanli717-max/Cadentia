@@ -261,7 +261,7 @@ const PrepStation = () => {
   };
 
   return (
-    <div className="absolute top-[68px] right-0 flex flex-col p-2 max-h-[450px] overflow-y-auto bg-slate-50/30 select-none no-scrollbar">
+    <div className="absolute top-[68px] right-0 flex flex-col p-2 max-h-[450px] overflow-y-auto bg-base-100/50 select-none no-scrollbar">
       {Object.entries(
         Object.keys(typeMap).reduce(
           (acc, typeKey) => {
@@ -286,7 +286,7 @@ const PrepStation = () => {
           </p>
           <div
             ref={containerRef}
-            className="flex flex-col items-center gap-2 bg-white/40 backdrop-blur-lg overflow-y-auto w-10 py-2 no-scrollbar border-x border-gray-100 max-h-24"
+            className="flex flex-col items-center gap-2 bg-white/40 backdrop-blur-lg overflow-y-auto w-10 py-2 no-scrollbar border-x border-base-200 max-h-24"
             key={`prepstation-${key}`}
           >
             <LayoutGroup>

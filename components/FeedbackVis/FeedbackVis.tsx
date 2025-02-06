@@ -63,7 +63,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     const updateDimensions = () => {
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
-        setDimensions({ width: width - 40, height: height - 120 });
+        setDimensions({ width: width - 40, height: height - 80 });
       }
     };
 
@@ -309,7 +309,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     const getFillColor = (d: any) =>
       currentSelectedItems.includes(d.data.id) ||
       currentRevision?.feedback?.includes(d.data.id)
-        ? "#e5e7eb"
+        ? "#e5e6e6"
         : getColor(colorDimension)(d.data.color as never);
 
     // Setup simulation
@@ -490,7 +490,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("fill", (d) =>
           currentSelectedItems.includes(d.data.id) ||
           currentRevision?.feedback?.includes(d.data.id)
-            ? "#e5e7eb"
+            ? "#e5e6e6"
             : getColor(colorDimension)(d.data.color as never),
         );
 
@@ -578,7 +578,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("fill", (d) =>
           currentSelectedItems.includes(d.data.id) ||
           currentRevision?.feedback?.includes(d.data.id)
-            ? "#e5e7eb"
+            ? "#e5e6e6"
             : getColor(colorDimension)(d.data.color as never),
         );
     };
@@ -597,7 +597,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
   return (
     <div ref={containerRef} className={cn(props.classes, "relative")}>
       {/* <div className="absolute">{hoveredItem}</div> */}
-      <Menu classes="" />
+      <Menu classes="absolute top-0 left-28" />
       {dimensions && (
         <svg
           ref={svgRef}
@@ -607,7 +607,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         ></svg>
       )}
       <PrepStation />
-      <Legend classes="absolute bottom-12 left-4" minR={minR} maxR={maxR} />
+      <Legend classes="absolute bottom-2 left-3" minR={minR} maxR={maxR} />
     </div>
   );
 };

@@ -61,7 +61,7 @@ const ProviderGallery = (props: ProviderGalleryProps) => {
   }, [hoveredItem, allFeedbackItems, isUserHovering]);
 
   return (
-    <div className={cn(props.classes, "bg-gray-50 border-r border-gray-100")}>
+    <div className={cn(props.classes, "bg-base-100 border-r border-base-200")}>
       <div>
         {feedbackSource && feedbackSource.length > 0 ? (
           feedbackSource.map((item) => (
@@ -81,7 +81,7 @@ const ProviderGallery = (props: ProviderGalleryProps) => {
             </div>
           ))
         ) : (
-          <p className="mx-6 text-sm text-gray-400 select-none">
+          <p className="mx-6 text-sm text-base-300 select-none">
             No feedback available.
           </p>
         )}

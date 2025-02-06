@@ -100,7 +100,7 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
     <div
       className={cn(
         props.classes,
-        "relative rounded-lg bg-gray-50 overflow-auto text-gray-800 h-full m-2 my-[10px] cursor-pointer",
+        "relative rounded-lg bg-base-100 overflow-auto text-neutral h-full m-2 my-[10px] cursor-pointer",
       )}
       draggable={props.draggable}
       onDragStart={props.onDragStart}
@@ -130,7 +130,7 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
             <div className="flex flex-row gap-1 items-center pt-3">
               <div
                 className={cn(
-                  showSource ? "text-gray-800" : "text-gray-400",
+                  showSource ? "text-neutral" : "text-base-300",
                   "text-xs font-normal cursor-pointer",
                 )}
                 onClick={(e) => {

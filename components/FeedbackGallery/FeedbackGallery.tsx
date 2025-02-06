@@ -61,7 +61,7 @@ const FeedbackGallery = (props: FeedbackGalleryProps) => {
   }, [hoveredItem]);
 
   return (
-    <div className={cn(props.classes, "bg-gray-50 border-r border-gray-100")}>
+    <div className={cn(props.classes, "bg-base-100 border-r border-base-200")}>
       <div>
         {allFeedbackItems &&
           (allFeedbackItems.length > 0 ? (
@@ -87,7 +87,7 @@ const FeedbackGallery = (props: FeedbackGalleryProps) => {
                 <FeedbackCard
                   feedbackItem={item}
                   classes={cn(
-                    "ring-offset-1 ring-offset-gray-50",
+                    "ring-offset-1 ring-offset-base-100",
                     currentSelectedItems?.find((id) => id === item.id)
                       ? "ring-info ring-3"
                       : "",
@@ -100,11 +100,11 @@ const FeedbackGallery = (props: FeedbackGalleryProps) => {
                   )}
                   close={true}
                 />
-                {/* <div className="border-t border-dashed border-gray-200 w-full" /> */}
+                {/* <div className="border-t border-dashed border-base-200 w-full" /> */}
               </div>
             ))
           ) : (
-            <p className="mx-6 text-sm text-gray-400 select-none">
+            <p className="mx-6 text-sm text-base-300 select-none">
               No feedback available.
             </p>
           ))}
