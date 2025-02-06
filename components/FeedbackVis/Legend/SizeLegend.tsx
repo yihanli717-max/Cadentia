@@ -23,7 +23,7 @@ const SizeLegend = ({ minR, maxR }: SizeLegendProps) => {
 
   return (
     <div className="flex flex-col items-start gap-1 relative p-2">
-      <div className="text-2xs bg-gray-50 px-3 py-1 rounded absolute left-0 -top-2">
+      <div className="text-2xs bg-gray-50 px-3 py-1 rounded absolute left-0 -top-2 font-medium">
         {numericalDimension}
       </div>
 
@@ -57,7 +57,7 @@ const SizeLegend = ({ minR, maxR }: SizeLegendProps) => {
 
       <div className="relative w-full">
         <div className="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
-        <div className="flex justify-between text-2xs text-gray-500 mt-1">
+        <div className="flex justify-between text-2xs text-gray-500 mt-1 font-medium">
           <span>Smaller</span>
           <span>Larger</span>
         </div>

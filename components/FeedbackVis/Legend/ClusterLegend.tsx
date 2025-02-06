@@ -38,7 +38,7 @@ const ClusterLegend = ({ colorDimension }: ClusterLegendProps) => {
             className="w-4 h-4 rounded-full"
             style={{ backgroundColor: getColorFn(group) }}
           />
-          <span className="text-2xs bg-gray-50 p-1 min-w-6 text-center rounded">
+          <span className="text-2xs bg-gray-50 p-1 min-w-6 text-center rounded font-medium">
             {typeMap[group.toLowerCase() as keyof typeof typeMap]}
           </span>
         </div>

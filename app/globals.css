@@ -36,3 +36,7 @@ body {
 .no-shadow-menu {
   --contexify-menu-shadow: none;
 }
+
+.flex-row.group:hover ~ .flex-row.group {
+  transform: translateX(calc(100% - 1rem));
+}

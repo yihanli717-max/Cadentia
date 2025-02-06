@@ -112,17 +112,23 @@ export const ProviderCard = (props: ProviderCardProps) => {
               ),
             }}
           />
-          <div className="flex gap-1 overflow-x-auto no-scrollbar p-1">
-            {relatedFeedbacks.map((feedback) => (
+          <div className="flex overflow-x-auto no-scrollbar p-1">
+            {relatedFeedbacks.map((feedback, index) => (
               <div
-                className="flex flex-row gap-2 group items-center"
+                className={cn(
+                  "flex flex-row gap-1 hover:gap-2 group items-center",
+                  "transition-transform duration-500 ease-out",
+                )}
                 key={feedback.id}
                 onMouseEnter={() => setHoveredItem(feedback.id)}
                 onMouseLeave={() => setHoveredItem(null)}
               >
                 <div
                   className={cn(
-                    "rounded-full w-[18px] h-[18px] flex-shrink-0 hover:ring-2 hover:ring-info hover:ring-offset-[1px] hover:scale-105 transition-all duration-150 ease-in-out cursor-pointer",
+                    "rounded-full w-[18px] h-[18px] flex-shrink-0",
+                    "hover:ring-2 hover:ring-info hover:ring-offset-[1px]",
+                    "hover:scale-105 transition-all duration-150 ease-in-out",
+                    "cursor-pointer",
                     hoveredItem === feedback.id
                       ? "ring-info ring-2 ring-offset-[1px]"
                       : "",
@@ -135,15 +141,16 @@ export const ProviderCard = (props: ProviderCardProps) => {
                 ></div>
                 <p
                   className={cn(
-                    "hidden group-hover:block transition-all duration-150 ease-in-out text-2xs font-medium",
-                    hoveredItem === feedback.id ? "block" : "",
+                    "text-2xs font-medium",
+                    "whitespace-nowrap overflow-hidden transition-all duration-500",
+                    "max-w-0 opacity-0",
+                    {
+                      "max-w-[200px] opacity-100 mx-2":
+                        hoveredItem === feedback.id,
+                    },
                   )}
                 >
-                  {
-                    typeMap[
-                      feedback["type"].toLowerCase() as keyof typeof typeMap
-                    ]
-                  }
+                  {typeMap[feedback.type.toLowerCase() as keyof typeof typeMap]}
                 </p>
               </div>
             ))}

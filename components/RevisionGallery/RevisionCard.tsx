@@ -153,10 +153,13 @@ const RevisionCard = (props: RevisionCardProps) => {
 
       <div className="flex flex-col gap-1">
         <hr />
-        <div className="flex gap-1 overflow-x-auto no-scrollbar p-1">
+        <div className="flex overflow-x-auto no-scrollbar p-1">
           {thisFeedbacks.map((feedback) => (
             <div
-              className="flex flex-row gap-2 group items-center"
+              className={cn(
+                "flex flex-row gap-1 hover:gap-2 group items-center",
+                "transition-transform duration-500 ease-out",
+              )}
               key={feedback.id}
               onMouseEnter={() => setHoveredItem(feedback.id)}
               onMouseLeave={() => setHoveredItem(null)}
@@ -176,8 +179,13 @@ const RevisionCard = (props: RevisionCardProps) => {
               ></div>
               <p
                 className={cn(
-                  "hidden group-hover:block transition-all duration-150 ease-in-out text-2xs font-medium",
-                  hoveredItem === feedback.id ? "block" : "",
+                  "text-2xs font-medium",
+                  "whitespace-nowrap overflow-hidden transition-all duration-500",
+                  "max-w-0 opacity-0",
+                  {
+                    "max-w-[200px] opacity-100 mx-2":
+                      hoveredItem === feedback.id,
+                  },
                 )}
               >
                 {
