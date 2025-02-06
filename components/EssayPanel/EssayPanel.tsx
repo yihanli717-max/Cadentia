@@ -82,7 +82,7 @@ const EssayPanel = (props: EssayPanelProps) => {
           " font-normal border-l border-base-200 text-neutral flex flex-col select-none bg-white relative h-screen",
       )}
     >
-      <div className="h-16 px-8 bg-white text-neutral flex flex-row items-center gap-2 absolute top-16 z-50 w-full justify-between">
+      <div className="h-14 px-8 bg-white text-neutral flex flex-row items-center gap-2 absolute top-14 z-50 w-full justify-between">
         <p className="font-semibold text-xl">My Essay</p>
         <div className="form-control">
           <label className="label cursor-pointer space-x-2">
@@ -98,7 +98,7 @@ const EssayPanel = (props: EssayPanelProps) => {
           </label>
         </div>
       </div>
-      <div className="text-xs leading-relaxed p-8 pt-32 overflow-y-auto relative grow">
+      <div className="text-xs leading-relaxed p-8 pt-28 overflow-y-auto relative grow">
         {Object.entries(paragraphs).map(
           ([paragraph, sections], index, array) => (
             <div
@@ -155,9 +155,7 @@ const EssayPanel = (props: EssayPanelProps) => {
                       revisionObject?.revision.find(
                         (item) => item.original === section.content,
                       )?.revised && (
-                        <span className="text-xs opacity-60 font-medium">
-                          [edited]
-                        </span>
+                        <span className="text-xs opacity-60">[edited]</span>
                       )}{" "}
                   </span>
                 </React.Fragment>

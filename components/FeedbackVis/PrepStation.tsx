@@ -265,7 +265,7 @@ const PrepStation = () => {
       {Object.entries(
         Object.keys(typeMap).reduce(
           (acc, typeKey) => {
-            console.log("typeKey", typeKey);
+            // console.log("typeKey", typeKey);
             if (cluseredFeedbacks[typeKey]) {
               acc[typeKey] = cluseredFeedbacks[typeKey];
             }

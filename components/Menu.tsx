@@ -78,13 +78,13 @@ const Menu = ({ classes }: MenuProps) => {
           onChange={handleFileUpload}
         />
         <button
-          className="btn text-xs"
+          className="btn btn-sm text-2xs rounded-md"
           onClick={() => fileInputRef.current?.click()}
         >
           Upload Feedback
         </button>
         <button
-          className="btn text-xs"
+          className="btn btn-sm text-2xs rounded-md"
           onClick={() => fileInputRef.current?.click()}
         >
           Upload Essay

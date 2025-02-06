@@ -8,7 +8,7 @@ type HeaderProps = {};
 
 const Header = ({}: HeaderProps) => {
   return (
-    <div className="flex flex-row w-full justify-between items-center p-4 border-b border-base-200 h-16 bg-white z-50 absolute top-0">
+    <div className="flex flex-row w-full justify-between items-center p-4 border-b border-base-200 h-14 bg-white z-50 absolute top-0">
       <h1
         className={noto_serif.className + " font-semibold text-md text-neutral"}
       >
