@@ -20,6 +20,11 @@ const APIInput = () => {
     useEssayStore.setState({ essay: essay });
     // useFeedbackStore.setState({ feedback: feedback })
 
+    const allFeedback = useFeedbackStore.getState().feedback;
+    if (allFeedback.length > 0) {
+      return;
+    }
+
     setLoading(true);
 
     // iterate over the feedback and calculate the sentence lengths of each feedback content

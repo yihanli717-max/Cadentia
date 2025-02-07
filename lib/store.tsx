@@ -22,7 +22,7 @@ export const useOpenAIAPI = create<OpenAIAPIState & OpenAIAPIActions>()(
       API: "",
       setAPI: (API: string) => set({ API: API }),
     }),
-    { name: "openai-api", skipHydration: false },
+    { name: "openai-api", skipHydration: true },
   ),
 );
 
