@@ -72,7 +72,9 @@ export type SharedConfigState = {
   clusterDimension: "type" | "provider";
   numericalDimension: "actionability" | "specificity" | "length";
   colorDimension: "type" | "provider" | "justification" | "sentiment";
+  hoveredProvider: number | null;
   hoveredItem: number | null;
+  hoveredSentence: number | null;
   searchedEmeddings: number[] | undefined;
   similarityThreshold: number;
   currentSelectedItems: number[];
@@ -86,7 +88,9 @@ export type SharedConfigActions = {
   setClusterDimension: (dimension: string) => void;
   setNumericalDimension: (dimension: string) => void;
   setColorDimension: (dimension: string) => void;
+  setHoveredProvider: (id: number | null) => void;
   setHoveredItem: (id: number | null) => void;
+  setHoveredSentence: (id: number | null) => void;
   setSearchedEmbeddings: (embeddings: number[] | undefined) => void;
   setSimilarityThreshold: (threshold: number) => void;
   setCurrentSelectedItems: (feedbacks: number[]) => void;
@@ -104,6 +108,8 @@ export const useSharedConfigStore = create<
       clusterDimension: "provider",
       numericalDimension: "actionability",
       colorDimension: "sentiment",
+      hoveredProvider: null,
+      hoveredSentence: null,
       hoveredItem: null,
       searchedEmeddings: undefined,
       similarityThreshold: 0.6,
@@ -135,10 +141,22 @@ export const useSharedConfigStore = create<
             state.colorDimension = dimension;
           }),
         ),
+      setHoveredProvider: (id: number | null) =>
+        set(
+          produce((state) => {
+            state.hoveredProvider = id;
+          }),
+        ),
       setHoveredItem: (id: number | null) =>
         set(
           produce((state) => {
             state.hoveredItem = id;
+          }),
+        ),
+      setHoveredSentence: (id: number | null) =>
+        set(
+          produce((state) => {
+            state.hoveredSentence = id;
           }),
         ),
       setSearchedEmbeddings: (embeddings: number[] | undefined) =>

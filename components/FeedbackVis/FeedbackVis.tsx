@@ -21,31 +21,19 @@ const FeedbackVis = (props: FeedbackVisProps) => {
   const [maxR, setMaxR] = useState(0);
   const [minR, setMinR] = useState(0);
 
-  const [
+  const {
     clusterDimension,
     numericalDimension,
     colorDimension,
+    hoveredProvider,
     hoveredItem,
+    hoveredSentence,
     setHoveredItem,
     searchedEmeddings,
     similarityThreshold,
     currentSelectedItems,
     currentRevisionItem,
-    bubbleRadii,
-    setBubbleRadii,
-  ] = useSharedConfigStore((state) => [
-    state.clusterDimension,
-    state.numericalDimension,
-    state.colorDimension,
-    state.hoveredItem,
-    state.setHoveredItem,
-    state.searchedEmeddings,
-    state.similarityThreshold,
-    state.currentSelectedItems,
-    state.currentRevisionItem,
-    state.bubbleRadii,
-    state.setBubbleRadii,
-  ]);
+  } = useSharedConfigStore();
   const revisionList = useRevisionListStore((state) => state.revisionList);
   const currentRevision = revisionList.find(
     (item) => item.id === currentRevisionItem,
@@ -89,6 +77,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       group: string;
       value: number;
       embeddings: number[];
+      sentences: number[];
+      source: string;
     }>;
 
     // Calculate nodes
@@ -115,6 +105,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             value: item.transformedValues,
             color: item[colorDimension],
             embeddings: item.embeddings,
+            sentences: item.detection,
+            source: item.source,
           })),
         })),
       };
@@ -502,8 +494,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("stroke-opacity", 0);
     };
 
-    // Handle hover state effects
-    const handleHover = () => {
+    // Handle hover item state effects
+    const handleHoverItem = () => {
       console.log("Hovered on feedback", hoveredItem);
       // Create glow filter for hover effect
       const defs = svg.append("defs");
@@ -565,6 +557,104 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .call(applySimilarityEffects);
     };
 
+    const handleHoverSentence = () => {
+      console.log("Hovered on sentence", hoveredSentence);
+      // Create glow filter for hover effect
+      const defs = svg.append("defs");
+      defs
+        .append("filter")
+        .attr("id", "glow")
+        .append("feGaussianBlur")
+        .attr("stdDeviation", "1.5")
+        .attr("result", "coloredBlur");
+
+      // Highlight hovered item
+      fillCircles
+        .filter((d) => d.data.sentences.includes(hoveredSentence))
+        // .attr("stroke", "#e5e6e6")
+        // .attr("stroke-width", 3)
+        .attr("opacity", 1);
+
+      // Animate progress circle
+      progressCircle
+        .filter((d) => d.data.sentences.includes(hoveredSentence))
+        .attr("stroke-opacity", 1)
+        .attr("stroke-dashoffset", 0);
+
+      // Reusable similarity effect applicator
+      const applySimilarityEffects = (selection: any) => {
+        selection
+          .attr("opacity", (d: any) =>
+            d.data.sentences.includes(hoveredSentence) ? 1 : 0.8,
+          )
+          .attr("filter", (d: any) =>
+            d.data.sentences.includes(hoveredSentence) ? null : "url(#glow)",
+          );
+      };
+
+      // Apply effects to non-hovered items
+      fillCircles
+        .filter((d) => d.data.id !== hoveredItem)
+        .transition()
+        .duration(300)
+        .call(applySimilarityEffects);
+
+      barCircles
+        .filter((d) => d.data.id !== hoveredItem)
+        .transition()
+        .duration(300)
+        .call(applySimilarityEffects);
+    };
+
+    const handleHoverProvider = () => {
+      console.log("Hovered on provider", hoveredProvider);
+      // Create glow filter for hover effect
+      const defs = svg.append("defs");
+      defs
+        .append("filter")
+        .attr("id", "glow")
+        .append("feGaussianBlur")
+        .attr("stdDeviation", "1.5")
+        .attr("result", "coloredBlur");
+
+      // Highlight hovered item
+      fillCircles
+        .filter((d) => d.data.source === hoveredProvider)
+        // .attr("stroke", "#e5e6e6")
+        // .attr("stroke-width", 3)
+        .attr("opacity", 1);
+
+      // Animate progress circle
+      progressCircle
+        .filter((d) => d.data.source === hoveredProvider)
+        .attr("stroke-opacity", 1)
+        .attr("stroke-dashoffset", 0);
+
+      // Reusable similarity effect applicator
+      const applySimilarityEffects = (selection: any) => {
+        selection
+          .attr("opacity", (d: any) =>
+            d.data.source === hoveredProvider ? 1 : 0.8,
+          )
+          .attr("filter", (d: any) =>
+            d.data.source === hoveredProvider ? null : "url(#glow)",
+          );
+      };
+
+      // Apply effects to non-hovered items
+      fillCircles
+        .filter((d) => d.data.id !== hoveredItem)
+        .transition()
+        .duration(300)
+        .call(applySimilarityEffects);
+
+      barCircles
+        .filter((d) => d.data.id !== hoveredItem)
+        .transition()
+        .duration(300)
+        .call(applySimilarityEffects);
+    };
+
     // Handle selection state when no hovering
     const handleSelection = () => {
       console.log("Selected feedbacks", currentSelectedItems);
@@ -585,8 +675,16 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     // Execute main logic flow
     resetStyles();
-    hoveredItem ? handleHover() : handleSelection();
+    hoveredItem
+      ? handleHoverItem()
+      : hoveredSentence
+        ? handleHoverSentence()
+        : hoveredProvider
+          ? handleHoverProvider()
+          : handleSelection();
   }, [
+    hoveredSentence,
+    hoveredProvider,
     hoveredItem,
     similarityThreshold,
     allFeedback,

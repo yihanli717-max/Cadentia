@@ -26,9 +26,14 @@ type ProviderCardProps = {
 export const ProviderCard = (props: ProviderCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const allFeedbackItems = useFeedbackStore((state) => state.feedback);
-  const [hoveredItem, setHoveredItem, colorDimension] = useSharedConfigStore(
-    (state) => [state.hoveredItem, state.setHoveredItem, state.colorDimension],
-  );
+  const {
+    setCurrentSelectedItems,
+    setHoveredProvider,
+    hoveredSentence,
+    hoveredItem,
+    setHoveredItem,
+    colorDimension,
+  } = useSharedConfigStore();
 
   // Find the related feedback items
   const relatedFeedbacks = allFeedbackItems.filter(
@@ -73,14 +78,32 @@ export const ProviderCard = (props: ProviderCardProps) => {
       className={cn(
         "relative rounded-lg bg-base-100 overflow-auto text-neutral h-full m-2 my-[10px] cursor-pointer",
         "ring-offset-1 ring-offset-base-100",
-        shouldExpand
+        (hoveredSentence &&
+          relatedFeedbacks.find((item) =>
+            item.detection.includes(hoveredSentence),
+          )) ||
+          shouldExpand
           ? "ring-info ring-3 scale-[1.01] transition-all duration-150 ease-in-out"
           : "",
       )}
       draggable={props.draggable}
       onDragStart={props.onDragStart}
-      onMouseEnter={() => setIsExpanded(true)}
-      onMouseLeave={() => setIsExpanded(false)}
+      onMouseEnter={() => {
+        setIsExpanded(true);
+        setHoveredProvider(props.feedbackSourceItem.id);
+      }}
+      onMouseLeave={() => {
+        setIsExpanded(false);
+        setHoveredProvider(null);
+      }}
+      onClick={() => {
+        const feedbackIDs = relatedFeedbacks.map((item) => {
+          if (item.source === props.feedbackSourceItem.id) return item.id;
+        }) as number[];
+        const currentSelectedItems =
+          useSharedConfigStore.getState().currentSelectedItems;
+        setCurrentSelectedItems([...currentSelectedItems, ...feedbackIDs]);
+      }}
     >
       <div
         className="px-3 pb-2 bg-white border-2 rounded-lg select-none space-y-2"

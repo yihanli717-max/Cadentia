@@ -15,19 +15,17 @@ interface EssayPanelProps {
 
 const EssayPanel = (props: EssayPanelProps) => {
   const essay = useEssayStore((state) => state.essay);
-  const [
+  const {
+    hoveredProvider,
     hoveredItem,
+    hoveredSentence,
     currentSelectedItems,
     currentRevisionItem,
     comparisonMode,
     setComparisonMode,
-  ] = useSharedConfigStore((state) => [
-    state.hoveredItem,
-    state.currentSelectedItems,
-    state.currentRevisionItem,
-    state.comparisonMode,
-    state.setComparisonMode,
-  ]);
+    setHoveredSentence,
+    setCurrentSelectedItems,
+  } = useSharedConfigStore();
 
   const revisionList = useRevisionListStore((state) => state.revisionList);
   const revisionObject = revisionList.find(
@@ -112,17 +110,33 @@ const EssayPanel = (props: EssayPanelProps) => {
                   <span
                     id={section.id.toString()}
                     className={cn(
-                      currentSelectedSentences.has(section.content)
-                        ? "bg-sky-100"
-                        : "",
+                      currentSelectedSentences.has(section.content) &&
+                        "bg-sky-100",
                       revisionObject?.revision.find(
                         (item) => item.original === section.content,
                       ) && "bg-green-100",
                       "transition-all duration-150 ease-in-out",
-                      highlightSentences.has(section.content)
+                      hoveredSentence === section.id ||
+                        allFeedback
+                          .find((item) => item.source === hoveredProvider)
+                          ?.detection.includes(section.id) ||
+                        highlightSentences.has(section.content)
                         ? "bg-sky-100"
                         : "",
                     )}
+                    onMouseEnter={() => setHoveredSentence(section.id)}
+                    onMouseLeave={() => setHoveredSentence(null)}
+                    onClick={() => {
+                      const feedbackIDs = allFeedback.map((item) => {
+                        if (item.detection.includes(section.id)) return item.id;
+                      }) as number[];
+                      const currentSelectedItems =
+                        useSharedConfigStore.getState().currentSelectedItems;
+                      setCurrentSelectedItems([
+                        ...currentSelectedItems,
+                        ...feedbackIDs,
+                      ]);
+                    }}
                   >
                     {comparisonMode ? (
                       // if senction.content exit in revisionObject's revision's orginal, then show the text diff via TextDiff component
