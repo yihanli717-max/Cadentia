@@ -695,7 +695,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
   return (
     <div ref={containerRef} className={cn(props.classes, "relative")}>
       {/* <div className="absolute">{hoveredItem}</div> */}
-      <Menu classes="absolute top-0 left-28" />
+      <Menu classes="absolute top-0 left-24" />
       {dimensions && (
         <svg
           ref={svgRef}

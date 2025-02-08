@@ -178,7 +178,7 @@ const Menu = (props: MenuProps) => {
       <div
         className={cn(
           props.classes,
-          "p-2 gap-4 flex flex-row items-start z-50 justify-between",
+          "p-2 gap-3 flex flex-row items-start z-50 justify-between",
         )}
       >
         <label className="input input-bordered flex items-center gap-2 text-2xs font-medium h-10 ml-2 p-3 rounded-md">
