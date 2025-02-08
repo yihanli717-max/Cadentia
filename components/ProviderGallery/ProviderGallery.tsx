@@ -7,31 +7,28 @@ import {
 } from "@/lib/store";
 import { feedbackSource } from "@/data/source";
 import { cn } from "@/lib/utils";
+import { useContextMenu } from "react-contexify";
+import "react-contexify/ReactContexify.css";
+import ContextMenu from "@/components/ProviderGallery/ContextMenu";
+
+const MENU_ID = "provider-context-menu";
 
 type ProviderGalleryProps = {
   classes?: string;
 };
 
 const ProviderGallery = (props: ProviderGalleryProps) => {
-  const [
-    hoveredItem,
-    setHoveredItem,
-    currentSelectedItems,
-    numericalDimension,
-    currentRevisionItem,
-  ] = useSharedConfigStore((state) => [
-    state.hoveredItem,
-    state.setHoveredItem,
-    state.currentSelectedItems,
-    state.numericalDimension,
-    state.currentRevisionItem,
+  const [ifClicked, setIfClicked] = useState(false);
+  const [contextMenuText, setContextMenuText] = useState([
+    "Select all relevant feedback",
+    "Remove all relevant feedback",
   ]);
+  // Use context menu from react-contexify
+  const { show } = useContextMenu({ id: MENU_ID });
 
+  const { hoveredItem, setHoveredProvider } = useSharedConfigStore();
   const allFeedbackItems = useFeedbackStore((state) => state.feedback);
   const revisionList = useRevisionListStore((state) => state.revisionList);
-  const currentRevision = revisionList.find(
-    (item) => item.id === currentRevisionItem,
-  );
 
   const feedbackRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const [isUserHovering, setIsUserHovering] = useState(false);
@@ -76,8 +73,25 @@ const ProviderGallery = (props: ProviderGalleryProps) => {
               }}
               onMouseEnter={() => setIsUserHovering(true)}
               onMouseLeave={() => setIsUserHovering(false)}
+              onMouseUp={(e) => {
+                console.log("11", ifClicked);
+                e.stopPropagation();
+                e.preventDefault();
+
+                setIfClicked(true);
+                setHoveredProvider(item.id);
+                setTimeout(() => {
+                  show({
+                    id: MENU_ID,
+                    event: e, // pass the original mouse event
+                    props: {
+                      feedbackSource: item,
+                    },
+                  });
+                }, 0);
+              }}
             >
-              <ProviderCard feedbackSourceItem={item} />
+              <ProviderCard feedbackSourceItem={item} isClicked={ifClicked} />
             </div>
           ))
         ) : (
@@ -85,6 +99,10 @@ const ProviderGallery = (props: ProviderGalleryProps) => {
             No feedback available.
           </p>
         )}
+        <ContextMenu
+          contextMenuText={contextMenuText}
+          setIfClicked={setIfClicked}
+        />
       </div>
     </div>
   );

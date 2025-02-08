@@ -21,13 +21,13 @@ type ProviderCardProps = {
   draggable?: boolean;
   onDragStart?: (event: React.DragEvent<HTMLDivElement>) => void;
   hideContent?: boolean;
+  isClicked?: boolean;
 };
 
 export const ProviderCard = (props: ProviderCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const allFeedbackItems = useFeedbackStore((state) => state.feedback);
   const {
-    setCurrentSelectedItems,
     setHoveredProvider,
     hoveredSentence,
     hoveredItem,
@@ -93,16 +93,10 @@ export const ProviderCard = (props: ProviderCardProps) => {
         setHoveredProvider(props.feedbackSourceItem.id);
       }}
       onMouseLeave={() => {
-        setIsExpanded(false);
-        setHoveredProvider(null);
-      }}
-      onClick={() => {
-        const feedbackIDs = relatedFeedbacks.map((item) => {
-          if (item.source === props.feedbackSourceItem.id) return item.id;
-        }) as number[];
-        const currentSelectedItems =
-          useSharedConfigStore.getState().currentSelectedItems;
-        setCurrentSelectedItems([...currentSelectedItems, ...feedbackIDs]);
+        if (!props.isClicked) {
+          setIsExpanded(false);
+          setHoveredProvider(null);
+        }
       }}
     >
       <div

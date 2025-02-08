@@ -11,7 +11,6 @@ import TextDiff from "@/components/EssayPanel/TextDiff";
 import { useContextMenu } from "react-contexify";
 import "react-contexify/ReactContexify.css";
 import ContextMenu from "@/components/EssayPanel/ContextMenu";
-import { set } from "zod";
 
 const MENU_ID = "sentence-context-menu";
 
