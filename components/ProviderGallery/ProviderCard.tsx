@@ -135,7 +135,7 @@ export const ProviderCard = (props: ProviderCardProps) => {
               ),
             }}
           />
-          <div className="flex overflow-x-auto no-scrollbar p-1">
+          <div className="flex overflow-x-auto no-scrollbar p-1 h-6">
             {relatedFeedbacks.map((feedback, index) => (
               <div
                 className={cn(

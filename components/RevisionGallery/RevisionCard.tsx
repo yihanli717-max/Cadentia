@@ -153,7 +153,7 @@ const RevisionCard = (props: RevisionCardProps) => {
 
       <div className="flex flex-col gap-1">
         <hr className="border-dashed" />
-        <div className="flex overflow-x-auto no-scrollbar p-1">
+        <div className="flex overflow-x-auto no-scrollbar p-1 h-6">
           {thisFeedbacks.map((feedback) => (
             <div
               className={cn(
