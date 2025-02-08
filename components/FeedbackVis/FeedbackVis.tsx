@@ -180,10 +180,10 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     // Handle click event
     const handleClick = (event: MouseEvent, d: any) => {
-      console.log("Clicked on feedback", d.data.id);
+      // console.log("Clicked on feedback", d.data.id);
 
       if (event.shiftKey) {
-        console.log("Shift key pressed");
+        // console.log("Shift key pressed");
         event.preventDefault();
 
         const { similarityThreshold } = useSharedConfigStore.getState();
@@ -221,7 +221,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       // console.log(currentRevision);
 
       if (currentRevision?.feedback?.includes(d.data.id)) {
-        console.log("Remove feedback from revision");
+        // console.log("Remove feedback from revision");
         const newRevisionFeedback = currentRevision.feedback.filter(
           (id) => id !== d.data.id,
         );
@@ -231,7 +231,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           revision: currentRevision?.revision || [],
         });
       } else {
-        console.log("Add feedback to selected feedback");
+        // console.log("Add feedback to selected feedback");
         const { currentSelectedItems, setCurrentSelectedItems } =
           useSharedConfigStore.getState();
         const newSelectedFeedbacks = currentSelectedItems.includes(d.data.id)
@@ -496,7 +496,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     // Handle hover item state effects
     const handleHoverItem = () => {
-      console.log("Hovered on feedback", hoveredItem);
+      // console.log("Hovered on feedback", hoveredItem);
       // Create glow filter for hover effect
       const defs = svg.append("defs");
       defs
@@ -558,7 +558,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     };
 
     const handleHoverSentence = () => {
-      console.log("Hovered on sentence", hoveredSentence);
+      // console.log("Hovered on sentence", hoveredSentence);
       // Create glow filter for hover effect
       const defs = svg.append("defs");
       defs
@@ -607,7 +607,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     };
 
     const handleHoverProvider = () => {
-      console.log("Hovered on provider", hoveredProvider);
+      // console.log("Hovered on provider", hoveredProvider);
       // Create glow filter for hover effect
       const defs = svg.append("defs");
       defs
@@ -657,7 +657,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     // Handle selection state when no hovering
     const handleSelection = () => {
-      console.log("Selected feedbacks", currentSelectedItems);
+      // console.log("Selected feedbacks", currentSelectedItems);
       fillCircles
         .transition()
         .duration(300)

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   useEssayStore,
@@ -8,12 +8,28 @@ import {
 } from "@/lib/store";
 import { Sentence } from "@/lib/type";
 import TextDiff from "@/components/EssayPanel/TextDiff";
+import { useContextMenu } from "react-contexify";
+import "react-contexify/ReactContexify.css";
+import ContextMenu from "@/components/EssayPanel/ContextMenu";
+import { set } from "zod";
+
+const MENU_ID = "sentence-context-menu";
 
 interface EssayPanelProps {
   classes?: string;
 }
 
 const EssayPanel = (props: EssayPanelProps) => {
+  const [ifClicked, setIfClicked] = useState(false);
+  const [contextMenuText, setContextMenuText] = useState([
+    "Select all relevant feedback",
+    "Remove all relevant feedback",
+    "Add to selected sentences",
+    "Remove from selected sentences",
+  ]);
+  // Use context menu from react-contexify
+  const { show } = useContextMenu({ id: MENU_ID });
+
   const essay = useEssayStore((state) => state.essay);
   const {
     hoveredProvider,
@@ -24,7 +40,7 @@ const EssayPanel = (props: EssayPanelProps) => {
     comparisonMode,
     setComparisonMode,
     setHoveredSentence,
-    setCurrentSelectedItems,
+    currentSelectedSentences,
   } = useSharedConfigStore();
 
   const revisionList = useRevisionListStore((state) => state.revisionList);
@@ -52,15 +68,6 @@ const EssayPanel = (props: EssayPanelProps) => {
       ),
     [currentSelectedItems, allFeedback],
   );
-  const currentSelectedSentences = useMemo(() => {
-    const sentences = new Set<string>();
-    currentSelectedFeedbacks.forEach((feedback) => {
-      feedback?.detection.map((id) => {
-        sentences.add(essay.find((item) => item.id === id)?.content || "");
-      });
-    });
-    return sentences;
-  }, [currentSelectedFeedbacks, essay]);
 
   const paragraphs = useMemo(() => {
     return essay.reduce(
@@ -110,7 +117,7 @@ const EssayPanel = (props: EssayPanelProps) => {
                   <span
                     id={section.id.toString()}
                     className={cn(
-                      currentSelectedSentences.has(section.content) &&
+                      currentSelectedSentences.includes(section.id) &&
                         "bg-sky-100",
                       revisionObject?.revision.find(
                         (item) => item.original === section.content,
@@ -123,19 +130,29 @@ const EssayPanel = (props: EssayPanelProps) => {
                         highlightSentences.has(section.content)
                         ? "bg-sky-100"
                         : "",
+                      hoveredSentence === section.id ? "underline" : "",
                     )}
                     onMouseEnter={() => setHoveredSentence(section.id)}
-                    onMouseLeave={() => setHoveredSentence(null)}
-                    onClick={() => {
-                      const feedbackIDs = allFeedback.map((item) => {
-                        if (item.detection.includes(section.id)) return item.id;
-                      }) as number[];
-                      const currentSelectedItems =
-                        useSharedConfigStore.getState().currentSelectedItems;
-                      setCurrentSelectedItems([
-                        ...currentSelectedItems,
-                        ...feedbackIDs,
-                      ]);
+                    onMouseLeave={() => {
+                      console.log("ifClicked", ifClicked);
+                      if (!ifClicked) setHoveredSentence(null);
+                    }}
+                    onMouseUp={(e) => {
+                      // console.log("11", ifClicked);
+                      e.stopPropagation();
+                      e.preventDefault();
+
+                      setIfClicked(true);
+                      setHoveredSentence(section.id);
+                      setTimeout(() => {
+                        show({
+                          id: MENU_ID,
+                          event: e, // pass the original mouse event
+                          props: {
+                            sentence: section,
+                          },
+                        });
+                      }, 0);
                     }}
                   >
                     {comparisonMode ? (
@@ -178,6 +195,11 @@ const EssayPanel = (props: EssayPanelProps) => {
           ),
         )}
       </div>
+
+      <ContextMenu
+        contextMenuText={contextMenuText}
+        setIfClicked={setIfClicked}
+      />
     </div>
   );
 };

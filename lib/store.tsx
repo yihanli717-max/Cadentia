@@ -7,6 +7,7 @@ import {
   FeedbackSourceItem,
   RevisionItem,
 } from "@/lib/type";
+import { number } from "zod";
 
 export type OpenAIAPIState = {
   API: string;
@@ -79,6 +80,7 @@ export type SharedConfigState = {
   similarityThreshold: number;
   currentSelectedItems: number[];
   currentRevisionItem: number;
+  currentSelectedSentences: number[];
   comparisonMode: boolean;
   bubbleRadii: Record<string, number>;
 };
@@ -95,6 +97,7 @@ export type SharedConfigActions = {
   setSimilarityThreshold: (threshold: number) => void;
   setCurrentSelectedItems: (feedbacks: number[]) => void;
   setCurrentRevisionItem: (id: number) => void;
+  setCurrentSelectedSentences: (sentences: number[]) => void;
   setComparisonMode: (mode: boolean) => void;
   setBubbleRadii: (radii: Record<string, number>) => void;
 };
@@ -115,6 +118,7 @@ export const useSharedConfigStore = create<
       similarityThreshold: 0.6,
       currentSelectedItems: [],
       currentRevisionItem: 0,
+      currentSelectedSentences: [],
       comparisonMode: false,
       bubbleRadii: {},
       setLoading: (loading: boolean) =>
@@ -176,12 +180,33 @@ export const useSharedConfigStore = create<
         set(
           produce((state) => {
             state.currentSelectedItems = feedbacks;
+
+            const allFeedback = useFeedbackStore.getState().feedback;
+            const sentenceIds = new Set<number>();
+
+            feedbacks
+              .map((id) => allFeedback.find((item) => item.id === id))
+              .filter(
+                (feedback): feedback is Exclude<typeof feedback, undefined> =>
+                  !!feedback,
+              )
+              .forEach((feedback) => {
+                feedback.detection?.forEach((id) => sentenceIds.add(id));
+              });
+
+            state.currentSelectedSentences = Array.from(sentenceIds);
           }),
         ),
       setCurrentRevisionItem: (id: number) =>
         set(
           produce((state) => {
             state.currentRevisionItem = id;
+          }),
+        ),
+      setCurrentSelectedSentences: (sentences: number[]) =>
+        set(
+          produce((state) => {
+            state.currentSelectedSentences = sentences;
           }),
         ),
       setComparisonMode: (mode: boolean) =>

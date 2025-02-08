@@ -181,7 +181,7 @@ const PrepStation = () => {
     {} as { [key: string]: FeedbackItem[] },
   );
 
-  console.log("cluseredFeedbacks", cluseredFeedbacks);
+  // console.log("cluseredFeedbacks", cluseredFeedbacks);
 
   const bubbleVariants = {
     hidden: {
@@ -232,7 +232,7 @@ const PrepStation = () => {
       }
 
       if (currentRevision?.feedback.includes(id)) {
-        console.log("Remove feedback from revision");
+        // console.log("Remove feedback from revision");
         const newRevisionFeedback = currentRevision.feedback.filter(
           (itemId) => itemId !== id,
         );
@@ -275,7 +275,7 @@ const PrepStation = () => {
         ),
       ).map(([key, feedbacks]) => (
         <div
-          key={key}
+          key={key + Math.random()}
           className={cn(
             "flex flex-col w-12 gap-1 items-center transition-all duration-500 max-h-[67px] hover:max-h-60",
             feedbacks.find((fb) => fb?.id === hoveredItem) ? "max-h-60" : "",
@@ -316,7 +316,7 @@ const PrepStation = () => {
                           circleRefs.current.delete(fb.id);
                         }
                       }}
-                      key={fb.id}
+                      key={fb.id + Math.random()}
                       layout
                       initial="hidden"
                       animate="visible"
