@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import OpenAI from "openai";
+import type { OpenAI as OpenAIType } from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import * as d3 from "d3";
@@ -135,6 +136,43 @@ export async function getEmbedding(
   return response.data[0].embedding;
 }
 
+const Revision = z.object({
+  revision: z.array(
+    z.object({
+      original: z.string(),
+      revised: z.string(),
+    }),
+  ),
+});
+
+export async function Regenerate(
+  conversation: OpenAIType.ChatCompletionMessageParam[],
+  prompt: string,
+) {
+  const API = useOpenAIAPI.getState().API;
+  const openai = new OpenAI({
+    apiKey: API,
+    dangerouslyAllowBrowser: true,
+  });
+
+  const newConversation: OpenAIType.ChatCompletionMessageParam[] = [
+    ...conversation,
+    {
+      role: "user",
+      content: prompt,
+    },
+  ];
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: newConversation,
+    temperature: 0.7,
+    response_format: zodResponseFormat(Revision, "revision"),
+  });
+
+  return response.choices[0].message.content;
+}
+
 export async function generateRevision(
   essay: Sentence[],
   feedbackList: string[],
@@ -170,36 +208,34 @@ export async function generateRevision(
     ),
   ).join("\n");
 
-  const Revision = z.object({
-    revision: z.array(
-      z.object({
-        original: z.string(),
-        revised: z.string(),
-      }),
-    ),
-  });
+  let conversation: OpenAIType.ChatCompletionMessageParam[] = [
+    {
+      role: "system",
+      content:
+        "As a professional writer, you have received feedback on your essay and have been asked to revise specific sentences that need improvement. Your task is to carefully revise the given sentences based on the feedback received, ensuring that the original meaning is maintained and considering the context of the sentences in the essay.\n" +
+        `Essay: '${connectedEssay}`,
+    },
+    {
+      role: "user",
+      content:
+        `The feedback you received: '${connectedFeedback}'\n\n` +
+        `The sentences you need to revise: '${sentenceList.join("\n")}'`,
+    },
+  ];
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
-    messages: [
-      {
-        role: "system",
-        content:
-          "As a professional writer, you have received feedback on your essay and have been asked to revise specific sentences that need improvement. Your task is to carefully revise the given sentences based on the feedback received, ensuring that the original meaning is maintained and considering the context of the sentences in the essay.\n" +
-          `Essay: '${connectedEssay}`,
-      },
-      {
-        role: "user",
-        content:
-          `The feedback you received: '${connectedFeedback}'\n\n` +
-          `The sentences you need to revise: '${sentenceList.join("\n")}'`,
-      },
-    ],
+    messages: conversation,
     temperature: 0.7,
     response_format: zodResponseFormat(Revision, "revision"),
   });
 
-  return response.choices[0].message.content;
+  conversation.push({
+    role: "assistant",
+    content: response.choices[0].message.content,
+  });
+
+  return { conversation, response: response.choices[0].message.content };
 }
 
 export function getInterpolateColor(

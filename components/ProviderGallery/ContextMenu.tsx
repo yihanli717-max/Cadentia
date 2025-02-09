@@ -60,7 +60,7 @@ const ContextMenu = (props: ContextMenuProps) => {
   return (
     <Menu
       id={MENU_ID}
-      className="no-shadow-menu border text-xs"
+      className="no-shadow-menu border text-2xs"
       theme="light"
       onVisibilityChange={handleVisibilityChange}
     >

@@ -210,8 +210,8 @@ const EssayPanel = (props: EssayPanelProps) => {
                       <span
                         className="size-4 border bg-white rounded-sm join-item flex items-center justify-center text-neutral hover:bg-base-200 active:scale-90 transition-all duration-150 ease-in-out"
                         onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
+                          console.log("clicked", section.content);
+                          setClickedSentence(section.content);
                           showRegenerateMenu({
                             id: REGENERATE_MENU_ID,
                             event: e, // pass the original mouse event
@@ -237,7 +237,7 @@ const EssayPanel = (props: EssayPanelProps) => {
         setIfClicked={setIfClicked}
       />
       {clickedSentence && <EditContextMenu sentence={clickedSentence} />}
-      <RegenerateContextMenu />
+      {clickedSentence && <RegenerateContextMenu sentence={clickedSentence} />}
     </div>
   );
 };

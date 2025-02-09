@@ -1,3 +1,5 @@
+import type { OpenAI as OpenAIType } from "openai";
+
 export type Category =
   | "claim"
   | "reasoning"
@@ -40,6 +42,7 @@ export type FeedbackSourceItem = {
 export type RevisionItem = {
   id: number;
   feedback: number[];
+  conversation: OpenAIType.ChatCompletionMessageParam[];
   revision: {
     original: string;
     revised: string;

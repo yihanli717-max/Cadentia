@@ -269,9 +269,11 @@ const Menu = (props: MenuProps) => {
               Array.from(sentences),
             ).then((revision) => {
               setLoading(false);
-              if (revision) {
+              if (revision.response && revision.conversation) {
                 setCurrentSelectedItems([]);
-                console.log(JSON.parse(revision));
+                const response = JSON.parse(revision.response);
+                const conversation = revision.conversation;
+                console.log(response);
 
                 // add the revision to the revision list
                 const { revisionList, setRevisionList } =
@@ -288,7 +290,7 @@ const Menu = (props: MenuProps) => {
                         ? {
                             ...item,
                             feedback: toAddressItems,
-                            revision: JSON.parse(revision).revision,
+                            revision: response.revision,
                           }
                         : item,
                     ),
@@ -299,7 +301,8 @@ const Menu = (props: MenuProps) => {
                     {
                       id: currentRevisionItem,
                       feedback: toAddressItems,
-                      revision: JSON.parse(revision).revision,
+                      conversation: conversation,
+                      revision: response.revision,
                     },
                   ]);
                 }

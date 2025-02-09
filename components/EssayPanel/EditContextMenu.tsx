@@ -1,10 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Menu, Item, useContextMenu } from "react-contexify";
-import {
-  useFeedbackStore,
-  useSharedConfigStore,
-  useRevisionListStore,
-} from "@/lib/store";
+import { useSharedConfigStore, useRevisionListStore } from "@/lib/store";
 
 const MENU_ID = "edit-context-menu";
 
@@ -58,6 +54,7 @@ const EditContextMenu = (props: EditContextMenuProps) => {
       className="no-shadow-menu border text-2xs"
       theme="light"
       animation={false}
+      preventDefaultOnKeydown={true}
     >
       <div className="menu-input-wrapper p-1" onClick={handleInputClick}>
         <textarea
@@ -65,10 +62,13 @@ const EditContextMenu = (props: EditContextMenuProps) => {
           placeholder="Type here"
           className="textarea textarea-bordered text-2xs w-full rounded p-2 h-24"
           onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => {
+            e.stopPropagation();
+          }}
         />
       </div>
 
-      <div className="flex justify-between p-1 -mt-2">
+      <div className="flex justify-between p-1">
         <Item onClick={handleConfirm}>Confirm</Item>
         <Item onClick={() => hideAll()}>Cancel</Item>
       </div>
