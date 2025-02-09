@@ -228,6 +228,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         updateRevision({
           id: currentRevisionItem,
           feedback: newRevisionFeedback || [],
+          conversation: currentRevision?.conversation || [],
           revision: currentRevision?.revision || [],
         });
       } else {
