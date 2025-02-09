@@ -25,6 +25,7 @@ interface EssayPanelProps {
 
 const EssayPanel = (props: EssayPanelProps) => {
   const [ifClicked, setIfClicked] = useState(false);
+  const [clickedSentence, setClickedSentence] = useState<string | null>(null);
   const [contextMenuText, setContextMenuText] = useState([
     "Select all relevant feedback",
     "Remove all relevant feedback",
@@ -192,8 +193,8 @@ const EssayPanel = (props: EssayPanelProps) => {
                       <span
                         className="size-4 border bg-white rounded-sm join-item flex items-center justify-center text-neutral hover:bg-base-200 active:scale-90 transition-all duration-150 ease-in-out"
                         onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
+                          console.log("clicked", section.content);
+                          setClickedSentence(section.content);
                           showEditMenu({
                             id: EDIT_MENU_ID,
                             event: e, // pass the original mouse event
@@ -235,7 +236,7 @@ const EssayPanel = (props: EssayPanelProps) => {
         contextMenuText={contextMenuText}
         setIfClicked={setIfClicked}
       />
-      <EditContextMenu />
+      {clickedSentence && <EditContextMenu sentence={clickedSentence} />}
       <RegenerateContextMenu />
     </div>
   );

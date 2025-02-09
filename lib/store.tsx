@@ -234,6 +234,11 @@ export type RevisionListActions = {
   setRevisionList: (revisionList: RevisionItem[]) => void;
   createRevision: () => void;
   updateRevision: (target: RevisionItem) => void;
+  updateRevisedSentence: (
+    id: number,
+    original: string,
+    newRevision: string,
+  ) => void;
 };
 
 export const useRevisionListStore = create<
@@ -276,6 +281,26 @@ export const useRevisionListStore = create<
                 feedback: target.feedback,
                 revision: target.revision,
               });
+            }
+          }),
+        );
+      },
+      updateRevisedSentence: (id, original, newRevision) => {
+        set(
+          produce((state) => {
+            const revisionObject = state.revisionList.find(
+              (item: RevisionItem) => item.id === id,
+            );
+            console.log("revisionObject", revisionObject);
+            if (revisionObject) {
+              const revisedSentence = revisionObject.revision.find(
+                (item: { original: string; revised: string }) =>
+                  item.original === original,
+              );
+              console.log("revisedSentence", revisedSentence);
+              if (revisedSentence) {
+                revisedSentence.revised = newRevision;
+              }
             }
           }),
         );
