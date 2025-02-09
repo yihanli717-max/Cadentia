@@ -239,6 +239,7 @@ const PrepStation = () => {
         updateRevision({
           id: currentRevisionItem,
           feedback: newRevisionFeedback || [],
+          conversation: currentRevision?.conversation || [],
           revision: currentRevision?.revision || [],
         });
         setHoveredItem(null);
