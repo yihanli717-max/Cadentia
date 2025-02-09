@@ -33,7 +33,7 @@ const EditContextMenu = (props: EditContextMenuProps) => {
   };
 
   const handleConfirm = () => {
-    console.log("Confirmed value:", inputValue);
+    // console.log("Confirmed value:", inputValue);
     updateRevisedSentence(
       currentRevisionItem,
       props.sentence,
@@ -43,10 +43,10 @@ const EditContextMenu = (props: EditContextMenuProps) => {
   };
 
   useEffect(() => {
-    console.log(
-      "currentRevisedSentencePair",
-      currentRevisedSentencePair?.revised,
-    );
+    // console.log(
+    //   "currentRevisedSentencePair",
+    //   currentRevisedSentencePair?.revised,
+    // );
     setInputValue(
       currentRevisedSentencePair ? currentRevisedSentencePair.revised : "",
     );

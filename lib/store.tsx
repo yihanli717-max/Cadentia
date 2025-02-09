@@ -291,13 +291,13 @@ export const useRevisionListStore = create<
             const revisionObject = state.revisionList.find(
               (item: RevisionItem) => item.id === id,
             );
-            console.log("revisionObject", revisionObject);
+            // console.log("revisionObject", revisionObject);
             if (revisionObject) {
               const revisedSentence = revisionObject.revision.find(
                 (item: { original: string; revised: string }) =>
                   item.original === original,
               );
-              console.log("revisedSentence", revisedSentence);
+              // console.log("revisedSentence", revisedSentence);
               if (revisedSentence) {
                 revisedSentence.revised = newRevision;
               }
