@@ -10,9 +10,14 @@ import { Sentence } from "@/lib/type";
 import TextDiff from "@/components/EssayPanel/TextDiff";
 import { useContextMenu } from "react-contexify";
 import "react-contexify/ReactContexify.css";
-import ContextMenu from "@/components/EssayPanel/ContextMenu";
+import SentenceContextMenu from "@/components/EssayPanel/SentenceContextMenu";
+import EditContextMenu from "@/components/EssayPanel/EditContextMenu";
+import RegenerateContextMenu from "@/components/EssayPanel/RegenerateContextMenu";
+import { TbEdit, TbRefresh } from "react-icons/tb";
 
-const MENU_ID = "sentence-context-menu";
+const SENTENCE_MENU_ID = "sentence-context-menu";
+const EDIT_MENU_ID = "edit-context-menu";
+const REGENERATE_MENU_ID = "regenerate-context-menu";
 
 interface EssayPanelProps {
   classes?: string;
@@ -27,7 +32,11 @@ const EssayPanel = (props: EssayPanelProps) => {
     "Remove from selected sentences",
   ]);
   // Use context menu from react-contexify
-  const { show } = useContextMenu({ id: MENU_ID });
+  const { show: showSentenceMenu } = useContextMenu({ id: SENTENCE_MENU_ID });
+  const { show: showEditMenu } = useContextMenu({ id: EDIT_MENU_ID });
+  const { show: showRegenerateMenu } = useContextMenu({
+    id: REGENERATE_MENU_ID,
+  });
 
   const essay = useEssayStore((state) => state.essay);
   const {
@@ -60,13 +69,6 @@ const EssayPanel = (props: EssayPanelProps) => {
     });
     return sentences;
   }, [hoveredFeedback, essay]);
-  const currentSelectedFeedbacks = useMemo(
-    () =>
-      currentSelectedItems.map((id) =>
-        allFeedback.find((item) => item.id === id),
-      ),
-    [currentSelectedItems, allFeedback],
-  );
 
   const paragraphs = useMemo(() => {
     return essay.reduce(
@@ -144,8 +146,8 @@ const EssayPanel = (props: EssayPanelProps) => {
                       setIfClicked(true);
                       setHoveredSentence(section.id);
                       setTimeout(() => {
-                        show({
-                          id: MENU_ID,
+                        showSentenceMenu({
+                          id: SENTENCE_MENU_ID,
                           event: e, // pass the original mouse event
                           props: {
                             sentence: section,
@@ -181,13 +183,47 @@ const EssayPanel = (props: EssayPanelProps) => {
                         (item) => item.original === section.content,
                       )?.revised || section.content) + " "
                     )}
-                    {!comparisonMode && // if senction.content exit in revisionObject's revision's orginal, then show the revision content
-                      revisionObject?.revision.find(
-                        (item) => item.original === section.content,
-                      )?.revised && (
-                        <span className="text-xs opacity-60">[edited]</span>
-                      )}{" "}
                   </span>
+                  {revisionObject?.revision.find(
+                    (item) => item.original === section.content,
+                  )?.revised && (
+                    // <span className="text-xs opacity-60">[edited]</span>
+                    <span className="inline-flex translate-y-[1px] ml-[3px]">
+                      <span
+                        className="size-4 border bg-white rounded-sm join-item flex items-center justify-center text-neutral hover:bg-base-200 active:scale-90 transition-all duration-150 ease-in-out"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          showEditMenu({
+                            id: EDIT_MENU_ID,
+                            event: e, // pass the original mouse event
+                            props: {
+                              sentence: section,
+                            },
+                          });
+                        }}
+                      >
+                        <TbEdit size={12} />
+                      </span>
+
+                      <span
+                        className="size-4 border bg-white rounded-sm join-item flex items-center justify-center text-neutral hover:bg-base-200 active:scale-90 transition-all duration-150 ease-in-out"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          showRegenerateMenu({
+                            id: REGENERATE_MENU_ID,
+                            event: e, // pass the original mouse event
+                            props: {
+                              sentence: section,
+                            },
+                          });
+                        }}
+                      >
+                        <TbRefresh size={12} />
+                      </span>
+                    </span>
+                  )}{" "}
                 </React.Fragment>
               ))}
             </div>
@@ -195,10 +231,12 @@ const EssayPanel = (props: EssayPanelProps) => {
         )}
       </div>
 
-      <ContextMenu
+      <SentenceContextMenu
         contextMenuText={contextMenuText}
         setIfClicked={setIfClicked}
       />
+      <EditContextMenu />
+      <RegenerateContextMenu />
     </div>
   );
 };

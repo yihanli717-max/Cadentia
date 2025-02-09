@@ -4,12 +4,12 @@ import { useFeedbackStore, useSharedConfigStore } from "@/lib/store";
 
 const MENU_ID = "sentence-context-menu";
 
-interface ContextMenuProps {
+interface SentenceContextMenuProps {
   contextMenuText: string[];
   setIfClicked: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ContextMenu = (props: ContextMenuProps) => {
+const SentenceContextMenu = (props: SentenceContextMenuProps) => {
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const {
     setHoveredSentence,
@@ -62,13 +62,23 @@ const ContextMenu = (props: ContextMenuProps) => {
       default:
         break;
     }
+  };
 
-    props.setIfClicked(false);
-    setHoveredSentence(null);
+  const handleVisibilityChange = (isVisible: boolean) => {
+    console.log(isVisible);
+    if (!isVisible) {
+      props.setIfClicked(false);
+      setHoveredSentence(null);
+    }
   };
 
   return (
-    <Menu id={MENU_ID} className="no-shadow-menu border text-xs" theme="light">
+    <Menu
+      id={MENU_ID}
+      className="no-shadow-menu border text-xs"
+      theme="light"
+      onVisibilityChange={handleVisibilityChange}
+    >
       {props.contextMenuText.map((text, index) => (
         <Item key={index} onClick={handleItemClick} data={{ action: text }}>
           {text}
@@ -78,4 +88,4 @@ const ContextMenu = (props: ContextMenuProps) => {
   );
 };
 
-export default ContextMenu;
+export default SentenceContextMenu;

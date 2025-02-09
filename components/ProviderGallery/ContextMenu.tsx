@@ -47,13 +47,23 @@ const ContextMenu = (props: ContextMenuProps) => {
       default:
         break;
     }
+  };
 
-    setHoveredProvider(null);
-    props.setIfClicked(false);
+  const handleVisibilityChange = (isVisible: boolean) => {
+    console.log(isVisible);
+    if (!isVisible) {
+      setHoveredProvider(null);
+      props.setIfClicked(false);
+    }
   };
 
   return (
-    <Menu id={MENU_ID} className="no-shadow-menu border text-xs" theme="light">
+    <Menu
+      id={MENU_ID}
+      className="no-shadow-menu border text-xs"
+      theme="light"
+      onVisibilityChange={handleVisibilityChange}
+    >
       {props.contextMenuText.map((text, index) => (
         <Item key={index} onClick={handleItemClick} data={{ action: text }}>
           {text}
