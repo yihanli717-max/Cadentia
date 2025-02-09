@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FeedbackSourceItem } from "@/lib/type";
 import { cn, getColor, isSimilarSentence } from "@/lib/utils";
 import { useSharedConfigStore, useFeedbackStore } from "@/lib/store";
@@ -72,6 +72,13 @@ export const ProviderCard = (props: ProviderCardProps) => {
       }
     });
   };
+
+  useEffect(() => {
+    if (!props.isClicked) {
+      setIsExpanded(false);
+      setHoveredProvider(null);
+    }
+  }, [props.isClicked]);
 
   return (
     <div

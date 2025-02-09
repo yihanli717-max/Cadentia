@@ -1,5 +1,6 @@
 import React from "react";
-import { Menu, Item } from "react-contexify";
+import { StyledMenu } from "@/components/ContextMenu/StyledMenu";
+import { Item } from "react-contexify";
 import { useFeedbackStore, useSharedConfigStore } from "@/lib/store";
 
 const MENU_ID = "provider-context-menu";
@@ -50,15 +51,15 @@ const ContextMenu = (props: ContextMenuProps) => {
   };
 
   const handleVisibilityChange = (isVisible: boolean) => {
-    console.log(isVisible);
     if (!isVisible) {
+      console.log("isVisible");
       setHoveredProvider(null);
       props.setIfClicked(false);
     }
   };
 
   return (
-    <Menu
+    <StyledMenu
       id={MENU_ID}
       className="no-shadow-menu border text-2xs"
       theme="light"
@@ -69,7 +70,7 @@ const ContextMenu = (props: ContextMenuProps) => {
           {text}
         </Item>
       ))}
-    </Menu>
+    </StyledMenu>
   );
 };
 

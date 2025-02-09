@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Menu, Item, useContextMenu } from "react-contexify";
+import React, { useState } from "react";
+import { StyledMenu } from "@/components/ContextMenu/StyledMenu";
+import { Item, useContextMenu } from "react-contexify";
 import { useSharedConfigStore, useRevisionListStore } from "@/lib/store";
 import { Regenerate } from "@/lib/utils";
 
@@ -64,7 +65,7 @@ const RegenerateContextMenu = (props: RegenerateContextMenuProps) => {
   };
 
   return (
-    <Menu
+    <StyledMenu
       id={MENU_ID}
       className="no-shadow-menu border text-2xs"
       theme="light"
@@ -100,7 +101,7 @@ const RegenerateContextMenu = (props: RegenerateContextMenuProps) => {
         <Item onClick={handleConfirm}>Confirm</Item>
         <Item onClick={handleCancel}>Cancel</Item>
       </div>
-    </Menu>
+    </StyledMenu>
   );
 };
 

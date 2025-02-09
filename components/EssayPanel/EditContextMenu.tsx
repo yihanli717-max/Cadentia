@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Menu, Item, useContextMenu } from "react-contexify";
+import { StyledMenu } from "@/components/ContextMenu/StyledMenu";
+import { Item, useContextMenu } from "react-contexify";
 import { useSharedConfigStore, useRevisionListStore } from "@/lib/store";
 
 const MENU_ID = "edit-context-menu";
@@ -49,7 +50,7 @@ const EditContextMenu = (props: EditContextMenuProps) => {
   }, [currentRevisedSentencePair]);
 
   return (
-    <Menu
+    <StyledMenu
       id={MENU_ID}
       className="no-shadow-menu border text-2xs"
       theme="light"
@@ -72,7 +73,7 @@ const EditContextMenu = (props: EditContextMenuProps) => {
         <Item onClick={handleConfirm}>Confirm</Item>
         <Item onClick={() => hideAll()}>Cancel</Item>
       </div>
-    </Menu>
+    </StyledMenu>
   );
 };
 
