@@ -24,14 +24,14 @@ const Page = () => {
         <div>
           <Header />
           <div className="flex flex-row justify-between min-h-screen overflow-hidden">
-            <ProviderGallery classes="flex-none h-screen overflow-auto pt-14 w-[300px] sticky top-0 z-[10001]" />
+            <EssayPanel classes="flex-none w-[512px] sticky top-0 h-screen overflow-auto" />
             <div className="flex-1 min-w-0">
               <div className="flex flex-col h-full">
                 <RevisionGallery classes="flex-none mt-14 overflow-x-auto" />
                 <FeedbackVis classes="w-full flex-1 min-h-0" />
               </div>
             </div>
-            <EssayPanel classes="flex-none w-[512px] sticky top-0 h-screen overflow-auto" />
+            <ProviderGallery classes="flex-none h-screen overflow-auto pt-14 w-[300px] sticky top-0 z-[10001]" />
           </div>
         </div>
       )}

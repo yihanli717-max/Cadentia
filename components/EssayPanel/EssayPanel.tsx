@@ -86,11 +86,11 @@ const EssayPanel = (props: EssayPanelProps) => {
     <div
       className={cn(
         props.classes +
-          " font-normal border-l border-base-200 text-neutral flex flex-col select-none bg-white relative h-screen",
+          " font-normal border-r border-base-200 text-neutral flex flex-col select-none bg-white relative h-screen",
       )}
     >
-      <div className="h-14 px-8 bg-white text-neutral flex flex-row items-center gap-2 absolute top-14 z-50 w-full justify-between">
-        <p className="font-semibold text-xl">My Essay</p>
+      <div className="h-14 px-4 bg-white text-neutral flex flex-row items-center gap-2 absolute top-14 z-50 w-full justify-between">
+        <p className="font-semibold text-lg">My Essay</p>
         <div className="form-control">
           <label className="label cursor-pointer space-x-2">
             <span className="label-text text-xs ">
@@ -105,7 +105,7 @@ const EssayPanel = (props: EssayPanelProps) => {
           </label>
         </div>
       </div>
-      <div className="text-xs leading-relaxed p-8 pt-28 overflow-y-auto relative grow">
+      <div className="text-xs leading-relaxed p-4 pt-28 overflow-y-auto relative grow">
         {Object.entries(paragraphs).map(
           ([paragraph, sections], index, array) => (
             <div
