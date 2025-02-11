@@ -4,7 +4,7 @@ import { noto_sans } from "./fonts";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "CritiqueComposer",
+  title: "Synthia",
   description: "An Intelligent User Interface for Feedback Sensemaking",
 };
 

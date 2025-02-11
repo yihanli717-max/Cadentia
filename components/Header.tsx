@@ -12,7 +12,7 @@ const Header = ({}: HeaderProps) => {
       <h1
         className={noto_serif.className + " font-semibold text-md text-neutral"}
       >
-        <Link href="/">CritiqueComposer</Link>
+        <Link href="/">Synthia</Link>
       </h1>
       <Menu classes="absolute z-50 left-48" />
       <TbInfoCircleFilled
