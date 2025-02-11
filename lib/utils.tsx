@@ -149,6 +149,7 @@ export async function Regenerate(
   conversation: OpenAIType.ChatCompletionMessageParam[],
   prompt: string,
 ) {
+  console.log("Regenerate");
   const API = useOpenAIAPI.getState().API;
   const openai = new OpenAI({
     apiKey: API,

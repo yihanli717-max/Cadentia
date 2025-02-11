@@ -31,6 +31,7 @@ const RegenerateContextMenu = (props: RegenerateContextMenuProps) => {
   };
 
   const handleRegenerate = async () => {
+    console.log("Regenerate", revisionObject?.conversation);
     if (revisionObject?.conversation === undefined) return;
     const prompt =
       "Further revise the sentence: " +
