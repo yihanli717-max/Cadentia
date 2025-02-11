@@ -16,7 +16,7 @@ interface LegendProps {
 }
 
 const Legend = (props: LegendProps) => {
-  const { colorDimension } = useSharedConfigStore();
+  const { colorDimension, numericalDimension } = useSharedConfigStore();
   const isSequential = colorDimension === "sentiment";
 
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -29,32 +29,40 @@ const Legend = (props: LegendProps) => {
         isCollapsed ? "p-2" : "p-2 px-3 pt-4",
       )}
     >
-      <div
-        className={cn(
-          "cursor-pointer flex justify-center items-center opacity-40 hover:opacity-100 transition-all duration-150 ease-in-out",
-          isCollapsed ? "" : "absolute top-2 left-2",
-        )}
-        onClick={() => setIsCollapsed(!isCollapsed)}
-      >
-        {isCollapsed ? (
-          <TbLayoutBottombarExpandFilled size={18} />
-        ) : (
-          <TbLayoutBottombarCollapseFilled size={18} />
-        )}
-      </div>
+      {(numericalDimension !== "none" || colorDimension !== "none") && (
+        <div
+          className={cn(
+            "cursor-pointer flex justify-center items-center opacity-40 hover:opacity-100 transition-all duration-150 ease-in-out",
+            isCollapsed ? "" : "absolute top-2 left-2",
+          )}
+          onClick={() => setIsCollapsed(!isCollapsed)}
+        >
+          {isCollapsed ? (
+            <TbLayoutBottombarExpandFilled size={18} />
+          ) : (
+            <TbLayoutBottombarCollapseFilled size={18} />
+          )}
+        </div>
+      )}
 
       <div
         className={cn(
-          "transition-all duration-300 ease-in-out flex flex-col space-y-3 ",
+          "transition-all duration-300 ease-in-out flex flex-col space-y-3",
           isCollapsed ? "hidden" : "",
         )}
       >
-        <SizeLegend minR={props.minR} maxR={props.maxR} />
+        {numericalDimension !== "none" && (
+          <SizeLegend minR={props.minR} maxR={props.maxR} />
+        )}
         <hr className="border-dashed" />
-        {isSequential ? (
-          <SequentialLegend colorDimension={colorDimension} />
-        ) : (
-          <ClusterLegend colorDimension={colorDimension} />
+        {colorDimension !== "none" && (
+          <>
+            {isSequential ? (
+              <SequentialLegend colorDimension={colorDimension} />
+            ) : (
+              <ClusterLegend colorDimension={colorDimension} />
+            )}
+          </>
         )}
       </div>
     </div>

@@ -28,7 +28,7 @@ const RevisionGallery = (props: RevisionGalleryProps) => {
       )}
     >
       <div
-        className="flex-shrink-0 w-52 p-3 border rounded-lg bg-neutral-50 flex flex-col justify-between border-dashed cursor-pointer relative hover:border-2 hover:border-solid transition-all duration-150 ease-in-out group"
+        className="flex-shrink-0 w-20 p-3 ml-1 border rounded-lg bg-neutral-50 flex flex-col justify-between border-dashed cursor-pointer relative hover:border-2 hover:border-solid transition-all duration-150 ease-in-out group"
         onClick={() => {
           createRevision();
           setCurrentSelectedItems([]);

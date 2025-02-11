@@ -84,7 +84,7 @@ export const getClusterColor = (clusterDimension: string) => {
   } else if (clusterDimension === "justification") {
     return (group: string) => categoryColorMap[group] || categoryColor[8];
   } else {
-    return (group: string) => categoryColor[0];
+    return (group: string) => categoryColor[5];
   }
 };
 
@@ -308,10 +308,10 @@ export const typeMap = {
   reasoning: "WA",
   evidence: "EV",
   rebuttal: "RE",
-  orthography: "GR",
+  orthography: "CO",
   organization: "OR",
   "word-usage": "WO",
-  others: "OT",
+  others: "GE",
   alex: "P1",
   instructor: "P2",
   jun: "P3",

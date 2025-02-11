@@ -71,8 +71,8 @@ export const useFeedbackStore = create<FeedbackState & FeedbackActions>()(
 export type SharedConfigState = {
   isLoading: boolean;
   clusterDimension: "type" | "provider";
-  numericalDimension: "actionability" | "specificity" | "length";
-  colorDimension: "type" | "provider" | "justification" | "sentiment";
+  numericalDimension: "none" | "actionability" | "specificity" | "length";
+  colorDimension: "none" | "type" | "provider" | "justification" | "sentiment";
   hoveredProvider: number | null;
   hoveredItem: number | null;
   hoveredSentence: number | null;
@@ -109,8 +109,8 @@ export const useSharedConfigStore = create<
     (set) => ({
       isLoading: false,
       clusterDimension: "provider",
-      numericalDimension: "actionability",
-      colorDimension: "sentiment",
+      numericalDimension: "none",
+      colorDimension: "none",
       hoveredProvider: null,
       hoveredSentence: null,
       hoveredItem: null,

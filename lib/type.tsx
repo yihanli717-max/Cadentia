@@ -29,6 +29,7 @@ export type FeedbackItem = {
   detection: number[];
   sentence_count: number;
   word_count: number;
+  none?: number;
   length?: number;
   embeddings?: number[];
 };

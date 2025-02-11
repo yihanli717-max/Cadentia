@@ -28,7 +28,6 @@ const ProviderGallery = (props: ProviderGalleryProps) => {
 
   const { hoveredItem, setHoveredProvider } = useSharedConfigStore();
   const allFeedbackItems = useFeedbackStore((state) => state.feedback);
-  const revisionList = useRevisionListStore((state) => state.revisionList);
 
   const feedbackRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const [isUserHovering, setIsUserHovering] = useState(false);
@@ -45,13 +44,15 @@ const ProviderGallery = (props: ProviderGalleryProps) => {
         const sourceId = targetFeedback.source;
         const targetElement = feedbackRefs.current.get(sourceId);
 
-        // Scroll to the source feedback item
+        // Scroll to the source feedback item, ensure bottom of the item is visible
         if (targetElement) {
-          targetElement.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-            inline: "nearest",
-          });
+          setTimeout(() => {
+            targetElement.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+              inline: "nearest",
+            });
+          }, 500);
         }
       }
     }

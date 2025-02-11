@@ -15,6 +15,7 @@ export const feedback: FeedbackItem[] = [
     detection: [4],
     sentence_count: 1,
     word_count: 18,
+    none: 1,
   },
   {
     source: 1,
@@ -30,6 +31,7 @@ export const feedback: FeedbackItem[] = [
     detection: [6, 7, 9, 11, 12, 13],
     sentence_count: 2,
     word_count: 26,
+    none: 1,
   },
   {
     source: 1,
@@ -45,6 +47,7 @@ export const feedback: FeedbackItem[] = [
     detection: [6, 7, 9, 10, 12, 13],
     sentence_count: 1,
     word_count: 26,
+    none: 1,
   },
   {
     source: 1,
@@ -60,6 +63,7 @@ export const feedback: FeedbackItem[] = [
     detection: [6, 9, 12, 13],
     sentence_count: 1,
     word_count: 18,
+    none: 1,
   },
   {
     source: 1,
@@ -75,6 +79,7 @@ export const feedback: FeedbackItem[] = [
     detection: [3, 11, 16],
     sentence_count: 1,
     word_count: 11,
+    none: 1,
   },
   {
     source: 1,
@@ -90,6 +95,7 @@ export const feedback: FeedbackItem[] = [
     detection: [1, 2, 3, 4],
     sentence_count: 2,
     word_count: 11,
+    none: 1,
   },
   {
     source: 1,
@@ -105,6 +111,7 @@ export const feedback: FeedbackItem[] = [
     detection: [5, 11, 16],
     sentence_count: 1,
     word_count: 17,
+    none: 1,
   },
   {
     source: 1,
@@ -120,6 +127,7 @@ export const feedback: FeedbackItem[] = [
     detection: [18],
     sentence_count: 1,
     word_count: 34,
+    none: 1,
   },
   {
     source: 1,
@@ -135,6 +143,7 @@ export const feedback: FeedbackItem[] = [
     detection: [4, 5, 11, 16, 18],
     sentence_count: 1,
     word_count: 22,
+    none: 1,
   },
   {
     source: 2,
@@ -150,6 +159,7 @@ export const feedback: FeedbackItem[] = [
     detection: [3, 5, 7, 13, 16, 18],
     sentence_count: 1,
     word_count: 27,
+    none: 1,
   },
   {
     source: 2,
@@ -165,6 +175,7 @@ export const feedback: FeedbackItem[] = [
     detection: [1, 2],
     sentence_count: 1,
     word_count: 26,
+    none: 1,
   },
   {
     source: 2,
@@ -180,6 +191,7 @@ export const feedback: FeedbackItem[] = [
     detection: [6, 7, 9, 10, 12, 13, 15, 16, 17],
     sentence_count: 4,
     word_count: 48,
+    none: 1,
   },
   {
     source: 2,
@@ -195,6 +207,7 @@ export const feedback: FeedbackItem[] = [
     detection: [6, 7, 8, 10, 11, 12, 13, 16],
     sentence_count: 1,
     word_count: 20,
+    none: 1,
   },
   {
     source: 2,
@@ -210,6 +223,7 @@ export const feedback: FeedbackItem[] = [
     detection: [5, 11],
     sentence_count: 1,
     word_count: 19,
+    none: 1,
   },
   {
     source: 2,
@@ -225,6 +239,7 @@ export const feedback: FeedbackItem[] = [
     detection: [16, 17, 18],
     sentence_count: 1,
     word_count: 17,
+    none: 1,
   },
   {
     source: 3,
@@ -240,6 +255,7 @@ export const feedback: FeedbackItem[] = [
     detection: [4, 17],
     sentence_count: 5,
     word_count: 48,
+    none: 1,
   },
   {
     source: 3,
@@ -255,6 +271,7 @@ export const feedback: FeedbackItem[] = [
     detection: [5, 11],
     sentence_count: 1,
     word_count: 18,
+    none: 1,
   },
   {
     source: 3,
@@ -270,6 +287,7 @@ export const feedback: FeedbackItem[] = [
     detection: [6, 7, 9, 10],
     sentence_count: 2,
     word_count: 38,
+    none: 1,
   },
   {
     source: 3,
@@ -285,6 +303,7 @@ export const feedback: FeedbackItem[] = [
     detection: [11, 12, 13, 14, 15],
     sentence_count: 3,
     word_count: 59,
+    none: 1,
   },
   {
     source: 3,
@@ -300,6 +319,7 @@ export const feedback: FeedbackItem[] = [
     detection: [4, 11, 16, 17],
     sentence_count: 3,
     word_count: 54,
+    none: 1,
   },
   {
     source: 4,
@@ -315,6 +335,7 @@ export const feedback: FeedbackItem[] = [
     detection: [6, 7, 9, 11],
     sentence_count: 1,
     word_count: 25,
+    none: 1,
   },
   {
     source: 4,
@@ -330,6 +351,7 @@ export const feedback: FeedbackItem[] = [
     detection: [18],
     sentence_count: 1,
     word_count: 31,
+    none: 1,
   },
   {
     source: 5,
@@ -345,6 +367,7 @@ export const feedback: FeedbackItem[] = [
     detection: [4],
     sentence_count: 1,
     word_count: 20,
+    none: 1,
   },
   {
     source: 5,
@@ -360,6 +383,7 @@ export const feedback: FeedbackItem[] = [
     detection: [11, 16],
     sentence_count: 1,
     word_count: 17,
+    none: 1,
   },
   {
     source: 5,
@@ -375,6 +399,7 @@ export const feedback: FeedbackItem[] = [
     detection: [16, 17, 18],
     sentence_count: 1,
     word_count: 14,
+    none: 1,
   },
   {
     source: 6,
@@ -389,6 +414,7 @@ export const feedback: FeedbackItem[] = [
     detection: [1, 2, 3, 4, 11, 16, 18],
     sentence_count: 1,
     word_count: 9,
+    none: 1,
   },
   {
     source: 6,
@@ -404,6 +430,7 @@ export const feedback: FeedbackItem[] = [
     detection: [4],
     sentence_count: 1,
     word_count: 32,
+    none: 1,
   },
   {
     source: 6,
@@ -419,6 +446,7 @@ export const feedback: FeedbackItem[] = [
     detection: [5, 11, 16],
     sentence_count: 1,
     word_count: 22,
+    none: 1,
   },
   {
     source: 6,
@@ -434,6 +462,7 @@ export const feedback: FeedbackItem[] = [
     detection: [4],
     sentence_count: 3,
     word_count: 52,
+    none: 1,
   },
   {
     source: 6,
@@ -449,6 +478,7 @@ export const feedback: FeedbackItem[] = [
     detection: [4, 5, 11, 16],
     sentence_count: 2,
     word_count: 23,
+    none: 1,
   },
   {
     source: 6,
@@ -464,6 +494,7 @@ export const feedback: FeedbackItem[] = [
     detection: [5, 11],
     sentence_count: 3,
     word_count: 39,
+    none: 1,
   },
   {
     source: 6,
@@ -479,6 +510,7 @@ export const feedback: FeedbackItem[] = [
     detection: [],
     sentence_count: 1,
     word_count: 14,
+    none: 1,
   },
   {
     source: 7,
@@ -494,6 +526,7 @@ export const feedback: FeedbackItem[] = [
     detection: [4],
     sentence_count: 2,
     word_count: 44,
+    none: 1,
   },
   {
     source: 7,
@@ -509,6 +542,7 @@ export const feedback: FeedbackItem[] = [
     detection: [5, 6, 11, 12],
     sentence_count: 2,
     word_count: 32,
+    none: 1,
   },
   {
     source: 7,
@@ -524,6 +558,7 @@ export const feedback: FeedbackItem[] = [
     detection: [16, 17, 18],
     sentence_count: 2,
     word_count: 31,
+    none: 1,
   },
   {
     source: 8,
@@ -539,6 +574,7 @@ export const feedback: FeedbackItem[] = [
     detection: [18],
     sentence_count: 4,
     word_count: 81,
+    none: 1,
   },
   {
     source: 8,
@@ -554,6 +590,7 @@ export const feedback: FeedbackItem[] = [
     detection: [3, 18, 17],
     sentence_count: 5,
     word_count: 71,
+    none: 1,
   },
   {
     source: 8,
@@ -569,6 +606,7 @@ export const feedback: FeedbackItem[] = [
     detection: [3, 18],
     sentence_count: 3,
     word_count: 39,
+    none: 1,
   },
   {
     source: 8,
@@ -584,6 +622,7 @@ export const feedback: FeedbackItem[] = [
     detection: [5, 11, 16, 18],
     sentence_count: 1,
     word_count: 29,
+    none: 1,
   },
   {
     source: 9,
@@ -598,6 +637,7 @@ export const feedback: FeedbackItem[] = [
     detection: [3, 4, 7, 11, 16, 18],
     sentence_count: 1,
     word_count: 8,
+    none: 1,
   },
   {
     source: 9,
@@ -613,6 +653,7 @@ export const feedback: FeedbackItem[] = [
     detection: [4, 5, 11, 16, 18],
     sentence_count: 1,
     word_count: 15,
+    none: 1,
   },
   {
     source: 9,
@@ -628,6 +669,7 @@ export const feedback: FeedbackItem[] = [
     detection: [1, 2, 3, 4, 16, 17, 18],
     sentence_count: 1,
     word_count: 11,
+    none: 1,
   },
   {
     source: 9,
@@ -643,6 +685,7 @@ export const feedback: FeedbackItem[] = [
     detection: [5, 7, 11, 16],
     sentence_count: 2,
     word_count: 18,
+    none: 1,
   },
   {
     source: 9,
@@ -658,6 +701,7 @@ export const feedback: FeedbackItem[] = [
     detection: [4, 11, 16],
     sentence_count: 1,
     word_count: 27,
+    none: 1,
   },
   {
     source: 9,
@@ -673,6 +717,7 @@ export const feedback: FeedbackItem[] = [
     detection: [11, 12, 13, 14, 15],
     sentence_count: 1,
     word_count: 13,
+    none: 1,
   },
   {
     source: 9,
@@ -688,6 +733,7 @@ export const feedback: FeedbackItem[] = [
     detection: [5, 7, 11, 16],
     sentence_count: 1,
     word_count: 18,
+    none: 1,
   },
   {
     source: 9,
@@ -702,6 +748,7 @@ export const feedback: FeedbackItem[] = [
     detection: [5, 6, 11, 12, 16],
     sentence_count: 1,
     word_count: 11,
+    none: 1,
   },
   {
     source: 9,
@@ -717,6 +764,7 @@ export const feedback: FeedbackItem[] = [
     detection: [3, 4, 6, 7, 11, 16, 18],
     sentence_count: 2,
     word_count: 23,
+    none: 1,
   },
   {
     source: 10,
@@ -732,6 +780,7 @@ export const feedback: FeedbackItem[] = [
     detection: [6, 7, 9, 10, 12, 13, 14, 15],
     sentence_count: 1,
     word_count: 48,
+    none: 1,
   },
   {
     source: 10,
@@ -747,6 +796,7 @@ export const feedback: FeedbackItem[] = [
     detection: [7, 15],
     sentence_count: 1,
     word_count: 22,
+    none: 1,
   },
   {
     source: 10,
@@ -762,6 +812,7 @@ export const feedback: FeedbackItem[] = [
     detection: [3, 18],
     sentence_count: 1,
     word_count: 30,
+    none: 1,
   },
   {
     source: 10,
@@ -777,6 +828,7 @@ export const feedback: FeedbackItem[] = [
     detection: [1],
     sentence_count: 1,
     word_count: 22,
+    none: 1,
   },
   {
     source: 10,
@@ -792,5 +844,6 @@ export const feedback: FeedbackItem[] = [
     detection: [16],
     sentence_count: 1,
     word_count: 22,
+    none: 1,
   },
 ];

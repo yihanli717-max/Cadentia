@@ -59,7 +59,7 @@ const Menu = (props: MenuProps) => {
           <div
             tabIndex={0}
             role="button"
-            className="btn rounded-md text-2xs flex flex-col gap-0.5 shadow-none"
+            className="btn rounded-md text-2xs flex flex-col gap-0.5 shadow-none w-24"
           >
             <span className="opacity-40">Cluster by</span>
             <span className="capitalize">{clusterDimension}</span>
@@ -68,7 +68,7 @@ const Menu = (props: MenuProps) => {
             tabIndex={0}
             className="dropdown-content menu bg-base-100 rounded-md z-[1] p-2 shadow text-2xs w-28 mt-1"
           >
-            <li>
+            <li title="Type is the target writing element of feedback.">
               <a
                 onClick={() => setClusterDimension("type")}
                 className={clusterDimension === "type" ? "active" : ""}
@@ -76,7 +76,7 @@ const Menu = (props: MenuProps) => {
                 Type
               </a>
             </li>
-            <li>
+            <li title="Provider is the source of the feedback.">
               <a
                 onClick={() => setClusterDimension("provider")}
                 className={clusterDimension === "provider" ? "active" : ""}
@@ -90,7 +90,7 @@ const Menu = (props: MenuProps) => {
           <div
             tabIndex={0}
             role="button"
-            className="btn rounded-md text-2xs flex flex-col gap-0.5  shadow-none"
+            className="btn rounded-md text-2xs flex flex-col gap-0.5 shadow-none w-24"
           >
             <span className="opacity-40">Color by</span>
             <span className="capitalize">{colorDimension}</span>
@@ -101,13 +101,21 @@ const Menu = (props: MenuProps) => {
           >
             <li>
               <a
+                onClick={() => setColorDimension("none")}
+                className={colorDimension === "none" ? "active" : ""}
+              >
+                None
+              </a>
+            </li>
+            <li title="Justification is whether the feedback is justified with reasons.">
+              <a
                 onClick={() => setColorDimension("justification")}
                 className={colorDimension === "justification" ? "active" : ""}
               >
                 Justification
               </a>
             </li>
-            <li>
+            <li title="Sentiment is whether the feedback is positive or negative.">
               <a
                 onClick={() => setColorDimension("sentiment")}
                 className={colorDimension === "sentiment" ? "active" : ""}
@@ -115,7 +123,7 @@ const Menu = (props: MenuProps) => {
                 Sentiment
               </a>
             </li>
-            <li>
+            <li title="Type is the target writing element of feedback.">
               <a
                 onClick={() => setColorDimension("type")}
                 className={colorDimension === "type" ? "active" : ""}
@@ -123,7 +131,7 @@ const Menu = (props: MenuProps) => {
                 Type
               </a>
             </li>
-            <li>
+            <li title="Provider is the source of the feedback.">
               <a
                 onClick={() => setColorDimension("provider")}
                 className={colorDimension === "provider" ? "active" : ""}
@@ -137,7 +145,7 @@ const Menu = (props: MenuProps) => {
           <div
             tabIndex={0}
             role="button"
-            className="btn rounded-md text-2xs flex flex-col gap-0.5  shadow-none"
+            className="btn rounded-md text-2xs flex flex-col gap-0.5 shadow-none w-24"
           >
             <span className="opacity-40">Size by</span>
             <span className="capitalize">{numericalDimension}</span>
@@ -146,6 +154,14 @@ const Menu = (props: MenuProps) => {
             tabIndex={0}
             className="dropdown-content menu bg-base-100 rounded-md z-[1] p-2 shadow text-2xs w-28 mt-1"
           >
+            <li title="">
+              <a
+                onClick={() => setNumericalDimension("none")}
+                className={numericalDimension === "none" ? "active" : ""}
+              >
+                None
+              </a>
+            </li>
             <li title="Length is the number of words in the feedback.">
               <a
                 onClick={() => setNumericalDimension("length")}

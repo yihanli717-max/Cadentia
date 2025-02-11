@@ -27,11 +27,11 @@ const Page = () => {
             <EssayPanel classes="flex-none w-[512px] sticky top-0 h-screen overflow-auto" />
             <div className="flex-1 min-w-0">
               <div className="flex flex-col h-full">
-                <RevisionGallery classes="flex-none mt-14 overflow-x-auto" />
+                <RevisionGallery classes="flex-none mt-[3rem] overflow-x-auto" />
                 <FeedbackVis classes="w-full flex-1 min-h-0" />
               </div>
             </div>
-            <ProviderGallery classes="flex-none h-screen overflow-auto pt-14 w-[300px] sticky top-0 z-[10001]" />
+            <ProviderGallery classes="flex-none h-screen overflow-auto pt-[3rem] w-[300px] sticky top-0 z-[10001]" />
           </div>
         </div>
       )}

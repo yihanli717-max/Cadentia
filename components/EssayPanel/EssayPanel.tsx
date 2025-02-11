@@ -89,7 +89,7 @@ const EssayPanel = (props: EssayPanelProps) => {
           " font-normal border-r border-base-200 text-neutral flex flex-col select-none bg-white relative h-screen",
       )}
     >
-      <div className="h-14 px-4 bg-white text-neutral flex flex-row items-center gap-2 absolute top-14 z-50 w-full justify-between">
+      <div className="h-[3rem] px-4 bg-white text-neutral flex flex-row items-center gap-2 absolute top-[3rem] z-50 w-full justify-between">
         <p className="font-semibold text-lg">My Essay</p>
         <div className="form-control">
           <label className="label cursor-pointer space-x-2">
