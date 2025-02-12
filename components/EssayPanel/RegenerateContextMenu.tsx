@@ -3,6 +3,7 @@ import { StyledMenu } from "@/components/ContextMenu/StyledMenu";
 import { Item, useContextMenu } from "react-contexify";
 import { useSharedConfigStore, useRevisionListStore } from "@/lib/store";
 import { Regenerate } from "@/lib/utils";
+import { set } from "zod";
 
 const MENU_ID = "regenerate-context-menu";
 
@@ -22,6 +23,7 @@ const RegenerateContextMenu = (props: RegenerateContextMenuProps) => {
 
   const [inputValue, setInputValue] = useState("");
   const [output, setOutput] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const { hideAll } = useContextMenu();
 
@@ -31,6 +33,7 @@ const RegenerateContextMenu = (props: RegenerateContextMenuProps) => {
   };
 
   const handleRegenerate = async () => {
+    setIsGenerating(true);
     console.log("Regenerate", revisionObject?.conversation);
     if (revisionObject?.conversation === undefined) return;
     const prompt =
@@ -46,6 +49,8 @@ const RegenerateContextMenu = (props: RegenerateContextMenuProps) => {
         setOutput(JSON.parse(res).revision[0].revised);
         console.log("Regenerated value:", JSON.parse(res).revision[0].revised);
       }
+
+      setIsGenerating(false);
     });
   };
 
@@ -91,6 +96,12 @@ const RegenerateContextMenu = (props: RegenerateContextMenuProps) => {
         {output && (
           <div className="bg-blue-100 text-blue-800 text-2xs px-2 py-2 rounded  w-full max-h-32 overflow-y-auto no-scrollbar">
             <span className="font-medium">Output:</span> {output}
+          </div>
+        )}
+
+        {isGenerating && (
+          <div className="flex justify-center items-center p-2">
+            <span className="loading loading-xs loading-dots text-warning"></span>
           </div>
         )}
       </div>

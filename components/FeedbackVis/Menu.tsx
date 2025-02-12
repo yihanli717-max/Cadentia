@@ -279,7 +279,7 @@ const Menu = (props: MenuProps) => {
             setLoading(true);
 
             // Generate the revision
-            const revision = generateRevision(
+            generateRevision(
               essay,
               selectedFeedbacks,
               Array.from(sentences),
@@ -289,39 +289,17 @@ const Menu = (props: MenuProps) => {
                 setCurrentSelectedItems([]);
                 const response = JSON.parse(revision.response);
                 const conversation = revision.conversation;
-                console.log(response);
 
                 // add the revision to the revision list
-                const { revisionList, setRevisionList } =
-                  useRevisionListStore.getState();
+                const { updateRevision } = useRevisionListStore.getState();
 
-                // if the revision list already has an item with the same feedback, update the revision
-                const existingRevision = revisionList.find(
-                  (item) => item.id === currentRevisionItem,
-                );
-                if (existingRevision) {
-                  setRevisionList(
-                    revisionList.map((item) =>
-                      item.id === currentRevisionItem
-                        ? {
-                            ...item,
-                            feedback: toAddressItems,
-                            revision: response.revision,
-                          }
-                        : item,
-                    ),
-                  );
-                } else {
-                  setRevisionList([
-                    ...revisionList,
-                    {
-                      id: currentRevisionItem,
-                      feedback: toAddressItems,
-                      conversation: conversation,
-                      revision: response.revision,
-                    },
-                  ]);
-                }
+                // Update the revision list
+                updateRevision({
+                  id: currentRevisionItem,
+                  feedback: toAddressItems,
+                  conversation: conversation,
+                  revision: response.revision,
+                });
               }
             });
           }}

@@ -253,6 +253,7 @@ export const useRevisionListStore = create<
           produce((state) => {
             state.revisionList.push({
               id: state.revisionList.length,
+              conversation: [],
               feedback: [],
               revision: [],
             });
@@ -272,14 +273,17 @@ export const useRevisionListStore = create<
                         ...item,
                         feedback: target.feedback,
                         revision: target.revision,
+                        conversation: target.conversation,
                       }
                     : item,
               );
             } else {
+              console.log("target", target);
               state.revisionList.push({
                 id: target.id,
                 feedback: target.feedback,
                 revision: target.revision,
+                conversation: target.conversation,
               });
             }
           }),
