@@ -28,7 +28,7 @@ const RevisionGallery = (props: RevisionGalleryProps) => {
       )}
     >
       <div
-        className="flex-shrink-0 w-20 p-3 ml-1 border rounded-lg bg-neutral-50 flex flex-col justify-between border-dashed cursor-pointer relative hover:border-2 hover:border-solid transition-all duration-150 ease-in-out group"
+        className="flex-shrink-0 w-20 p-3 ml-1 border rounded-lg bg-base-200 flex flex-col justify-between border-dashed cursor-pointer relative hover:border-2 hover:border-solid transition-all duration-150 ease-in-out hover:bg-base-300"
         onClick={() => {
           createRevision();
           setCurrentSelectedItems([]);
@@ -37,10 +37,7 @@ const RevisionGallery = (props: RevisionGalleryProps) => {
         }}
       >
         <div className="w-full flex justify-center items-center h-full">
-          <TbPlus
-            size={36}
-            className="text-base-300 group-hover:opacity-60 font-medium"
-          />
+          <TbPlus size={36} className="opacity-20 font-medium" />
         </div>
 
         {/* <p className="w-full flex justify-center items-center text-xs text-base-300 absolute bottom-2 left-0">

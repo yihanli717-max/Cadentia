@@ -219,9 +219,9 @@ const Menu = (props: MenuProps) => {
           <kbd className="kbd kbd-sm">↵</kbd>
         </label>
 
-        <div className="ml-2 flex flex-col gap-1 w-48">
+        <div className="ml-2 flex flex-col gap-1 w-52">
           <p className="text-2xs">
-            Similarity Threshold: {similarityThreshold}
+            Feedback Similarity Threshold on Hover: {similarityThreshold}
           </p>
           <input
             type="range"

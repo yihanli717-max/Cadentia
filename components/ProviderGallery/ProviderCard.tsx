@@ -59,7 +59,7 @@ export const ProviderCard = (props: ProviderCardProps) => {
     return newContentSentences.map((sentence, index) => {
       if (isSimilarSentence(sentence, originalContentSentences)) {
         return (
-          <span key={index} className="font-medium">
+          <span key={index} className="font-medium text-xs">
             {sentence}{" "}
           </span>
         );

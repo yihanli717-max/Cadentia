@@ -131,7 +131,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("fill", getFillColor)
         // .attr("stroke", getStrokeColor)
         .attr("stroke", null)
-        .attr("stroke-width", 3)
+        .attr("stroke-width", 0)
         .attr("opacity", getCircleOpacity);
 
       // Animate circle radius
@@ -145,6 +145,17 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .on("click", handleClick)
         .on("mouseover", handleMouseOver)
         .on("mouseout", handleMouseOut);
+
+      // Create bar-container circle
+      group
+        .append<SVGCircleElement>("circle")
+        .attr("class", "bar-container-circle")
+        .attr("cx", (d) => d.x!)
+        .attr("cy", (d) => d.y!)
+        .attr("r", (d) => d.r - 6)
+        .attr("fill", "none")
+        .attr("stroke-dasharray", (d) => `0 ${2 * Math.PI * d.r}`)
+        .attr("stroke-linecap", "round");
 
       // Create bar circle
       group
@@ -163,13 +174,13 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("class", "progress-circle")
         .attr("cx", (d) => d.x!)
         .attr("cy", (d) => d.y!)
-        .attr("r", (d) => d.r + 3)
+        .attr("r", (d) => d.r + 4)
         .attr("fill", "none")
         .attr("stroke", "transparent")
-        .attr("stroke-width", 3)
+        .attr("stroke-width", 4)
         .attr("stroke-linecap", "round")
         .each(function (d) {
-          const circumference = 2 * Math.PI * (d.r + 3);
+          const circumference = 2 * Math.PI * (d.r + 4);
           d3.select(this)
             .attr("stroke-dasharray", circumference)
             .attr("stroke-dashoffset", circumference);
@@ -255,7 +266,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       // Reset progress circle
       progressCircle
         .interrupt()
-        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 3))
+        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 4))
         .attr("stroke", "#00b5ff")
         .attr("stroke-opacity", 0);
 
@@ -276,13 +287,13 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       );
       const progressCircle = group
         .select<SVGCircleElement>(".progress-circle")
-        .attr("r", (d: any) => d.r + 3);
+        .attr("r", (d: any) => d.r + 4);
 
       // Stop animation and reset progress circle
       progressCircle
         .interrupt()
         .attr("stroke", "transparent")
-        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 3));
+        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 4));
 
       setHoveredItem(null);
     };
@@ -327,6 +338,11 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
             group
               .select<SVGCircleElement>(".bar-circle")
+              .attr("cx", d.x!)
+              .attr("cy", d.y!);
+
+            group
+              .select<SVGCircleElement>(".bar-container-circle")
               .attr("cx", d.x!)
               .attr("cy", d.y!);
 
@@ -426,14 +442,26 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     svg
       .selectAll<SVGGElement, d3.HierarchyCircularNode<any>>("g")
       .select(".progress-circle")
-      .attr("r", (d) => d.r + 3)
-      .attr("stroke-dasharray", (d: any) => 2 * Math.PI * (d.r + 3));
+      .attr("r", (d) => d.r + 4)
+      .attr("stroke-dasharray", (d: any) => 2 * Math.PI * (d.r + 4));
   }, [numericalDimension]);
 
   useEffect(() => {
     if (!svgRef.current) return;
 
     const svg = d3.select(svgRef.current);
+
+    svg
+      .selectAll<SVGGElement, d3.HierarchyCircularNode<any>>("g")
+      .select(".bar-container-circle")
+      .attr("opacity", 0.1)
+      .attr("stroke-width", 3)
+      .attr("stroke", (d) => (searchedEmeddings ? "#ffffff" : null))
+      .attr(
+        "stroke-dasharray",
+        (d) => `${2 * Math.PI * d.r} ${2 * Math.PI * d.r}`,
+      )
+      .attr("r", (d) => d.r - 6);
 
     svg
       .selectAll<SVGGElement, d3.HierarchyCircularNode<any>>("g")
@@ -463,6 +491,9 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     // Get all node references
     const fillCircles = svg.selectAll<SVGCircleElement, any>(".fill-circle");
     const barCircles = svg.selectAll<SVGCircleElement, any>(".bar-circle");
+    const barContainerCircles = svg.selectAll<SVGCircleElement, any>(
+      ".bar-container-circle",
+    );
     const progressCircle = svg.selectAll<SVGCircleElement, any>(
       ".progress-circle",
     );
@@ -477,6 +508,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
             ? 1
             : 0.8,
         )
+        .attr("stroke", null)
+        .attr("stroke-width", 0)
         // .attr("stroke", (d) =>
         //   currentRevision?.feedback?.includes(d.data.id) ? "#34d399" : null,
         // )
@@ -488,9 +521,10 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         );
 
       barCircles.attr("filter", null);
+      barContainerCircles.attr("filter", null);
 
       progressCircle
-        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 3))
+        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 4))
         .attr("stroke", "#00b5ff")
         .attr("stroke-opacity", 0);
     };
@@ -527,21 +561,12 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
       // Reusable similarity effect applicator
       const applySimilarityEffects = (selection: any) => {
-        selection
-          .attr("opacity", (d: any) =>
-            cosineSimilarity(hoveredEmbeddings, d.data.embeddings) >
-              similarityThreshold ||
-            currentSelectedItems.includes(d.data.id) ||
-            currentRevision?.feedback?.includes(d.data.id)
-              ? 1
-              : 0.8,
-          )
-          .attr("filter", (d: any) =>
-            cosineSimilarity(hoveredEmbeddings, d.data.embeddings) <
-            similarityThreshold
-              ? "url(#glow)"
-              : null,
-          );
+        selection.attr("filter", (d: any) =>
+          cosineSimilarity(hoveredEmbeddings, d.data.embeddings) <
+          similarityThreshold
+            ? "url(#glow)"
+            : null,
+        );
       };
 
       // Apply effects to non-hovered items
@@ -549,9 +574,57 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .filter((d) => d.data.id !== hoveredItem)
         .transition()
         .duration(300)
-        .call(applySimilarityEffects);
+        .call(applySimilarityEffects)
+        .call((selection) => {
+          selection
+            .attr("opacity", (d: any) =>
+              cosineSimilarity(hoveredEmbeddings, d.data.embeddings) >
+                similarityThreshold ||
+              currentSelectedItems.includes(d.data.id) ||
+              currentRevision?.feedback?.includes(d.data.id)
+                ? 1
+                : 0.8,
+            )
+            .attr("stroke", function (d: any) {
+              if (
+                cosineSimilarity(hoveredEmbeddings, d.data.embeddings) >
+                similarityThreshold
+              ) {
+                const fillColor = d3.select(this).attr("fill");
+                const color = d3.hsl(fillColor);
+
+                if (!color.displayable()) return "#333";
+
+                color.l = Math.max(0, color.l * 0.8);
+                return color.toString();
+              }
+              return null;
+            })
+            .attr("stroke-width", (d: any) =>
+              cosineSimilarity(hoveredEmbeddings, d.data.embeddings) >
+              similarityThreshold
+                ? 3
+                : 0,
+            );
+        });
 
       barCircles
+        .filter((d) => d.data.id !== hoveredItem)
+        .transition()
+        .duration(300)
+        .call(applySimilarityEffects)
+        .call((selection) => {
+          selection.attr("opacity", (d: any) =>
+            cosineSimilarity(hoveredEmbeddings, d.data.embeddings) >
+              similarityThreshold ||
+            currentSelectedItems.includes(d.data.id) ||
+            currentRevision?.feedback?.includes(d.data.id)
+              ? 1
+              : 0.8,
+          );
+        });
+
+      barContainerCircles
         .filter((d) => d.data.id !== hoveredItem)
         .transition()
         .duration(300)
@@ -576,21 +649,17 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         // .attr("stroke-width", 3)
         .attr("opacity", 1);
 
-      // Animate progress circle
-      progressCircle
-        .filter((d) => d.data.sentences.includes(hoveredSentence))
-        .attr("stroke-opacity", 1)
-        .attr("stroke-dashoffset", 0);
+      // // Animate progress circle
+      // progressCircle
+      //   .filter((d) => d.data.sentences.includes(hoveredSentence))
+      //   .attr("stroke-opacity", 1)
+      //   .attr("stroke-dashoffset", 0);
 
       // Reusable similarity effect applicator
       const applySimilarityEffects = (selection: any) => {
-        selection
-          .attr("opacity", (d: any) =>
-            d.data.sentences.includes(hoveredSentence) ? 1 : 0.8,
-          )
-          .attr("filter", (d: any) =>
-            d.data.sentences.includes(hoveredSentence) ? null : "url(#glow)",
-          );
+        selection.attr("filter", (d: any) =>
+          d.data.sentences.includes(hoveredSentence) ? null : "url(#glow)",
+        );
       };
 
       // Apply effects to non-hovered items
@@ -598,13 +667,39 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .filter((d) => d.data.id !== hoveredItem)
         .transition()
         .duration(300)
-        .call(applySimilarityEffects);
+        .call(applySimilarityEffects)
+        .call((selection) => {
+          selection
+            .attr("opacity", (d: any) =>
+              d.data.sentences.includes(hoveredSentence) ? 1 : 0.8,
+            )
+            .attr("stroke", function (d: any) {
+              if (d.data.sentences.includes(hoveredSentence)) {
+                const fillColor = d3.select(this).attr("fill");
+                const color = d3.hsl(fillColor);
+
+                if (!color.displayable()) return "#333";
+
+                color.l = Math.max(0, color.l * 0.7);
+                return color.toString();
+              }
+              return null;
+            })
+            .attr("stroke-width", (d: any) =>
+              d.data.sentences.includes(hoveredSentence) ? 3 : 0,
+            );
+        });
 
       barCircles
         .filter((d) => d.data.id !== hoveredItem)
         .transition()
         .duration(300)
-        .call(applySimilarityEffects);
+        .call(applySimilarityEffects)
+        .call((selection) => {
+          selection.attr("opacity", (d: any) =>
+            d.data.sentences.includes(hoveredSentence) ? 1 : 0.8,
+          );
+        });
     };
 
     const handleHoverProvider = () => {
@@ -625,21 +720,17 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         // .attr("stroke-width", 3)
         .attr("opacity", 1);
 
-      // Animate progress circle
-      progressCircle
-        .filter((d) => d.data.source === hoveredProvider)
-        .attr("stroke-opacity", 1)
-        .attr("stroke-dashoffset", 0);
+      // // Animate progress circle
+      // progressCircle
+      //   .filter((d) => d.data.source === hoveredProvider)
+      //   .attr("stroke-opacity", 1)
+      //   .attr("stroke-dashoffset", 0);
 
       // Reusable similarity effect applicator
       const applySimilarityEffects = (selection: any) => {
-        selection
-          .attr("opacity", (d: any) =>
-            d.data.source === hoveredProvider ? 1 : 0.8,
-          )
-          .attr("filter", (d: any) =>
-            d.data.source === hoveredProvider ? null : "url(#glow)",
-          );
+        selection.attr("filter", (d: any) =>
+          d.data.source === hoveredProvider ? null : "url(#glow)",
+        );
       };
 
       // Apply effects to non-hovered items
@@ -647,13 +738,39 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .filter((d) => d.data.id !== hoveredItem)
         .transition()
         .duration(300)
-        .call(applySimilarityEffects);
+        .call(applySimilarityEffects)
+        .call((selection) => {
+          selection
+            .attr("opacity", (d: any) =>
+              d.data.source === hoveredProvider ? 1 : 0.8,
+            )
+            .attr("stroke", function (d: any) {
+              if (d.data.source === hoveredProvider) {
+                const fillColor = d3.select(this).attr("fill");
+                const color = d3.hsl(fillColor);
+
+                if (!color.displayable()) return "#333";
+
+                color.l = Math.max(0, color.l * 0.7);
+                return color.toString();
+              }
+              return null;
+            })
+            .attr("stroke-width", (d: any) =>
+              d.data.source === hoveredProvider ? 3 : 0,
+            );
+        });
 
       barCircles
         .filter((d) => d.data.id !== hoveredItem)
         .transition()
         .duration(300)
-        .call(applySimilarityEffects);
+        .call(applySimilarityEffects)
+        .call((selection) => {
+          selection.attr("opacity", (d: any) =>
+            d.data.source === hoveredProvider ? 1 : 0.8,
+          );
+        });
     };
 
     // Handle selection state when no hovering
@@ -746,8 +863,8 @@ const forceCluster = () => {
 
 const forceCollide = () => {
   const alpha = 0.3; // Fixed for greater rigidity
-  const padding1 = 1; // Separation between same-color nodes
-  const padding2 = 30; // Separation between different-color nodes
+  const padding1 = 3; // Separation between same-color nodes
+  const padding2 = 40; // Separation between different-color nodes
   let localNodes: d3.HierarchyCircularNode<unknown>[]; // Use generic unknown
   let maxRadius: number;
 
