@@ -99,7 +99,9 @@ const RegenerateContextMenu = (props: RegenerateContextMenuProps) => {
         <Item closeOnClick={false} onClick={handleRegenerate}>
           Regenerate
         </Item>
-        <Item onClick={handleConfirm}>Confirm</Item>
+        <Item onClick={handleConfirm} disabled={output !== "" ? false : true}>
+          Confirm
+        </Item>
         <Item onClick={handleCancel}>Cancel</Item>
       </div>
     </StyledMenu>
