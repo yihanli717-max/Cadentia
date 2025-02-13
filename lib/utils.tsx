@@ -6,8 +6,34 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import * as d3 from "d3";
 import { diffWords } from "diff";
-import { useOpenAIAPI } from "@/lib/store";
+import { useOpenAIAPI, useStudyManagerStore } from "@/lib/store";
 import { Sentence, RevisionItem } from "@/lib/type";
+import { push, ref, set } from "firebase/database";
+import { database } from "@/app/firebaseConfig";
+
+export function eventTracker(event: {
+  action: string;
+  data: object | string | null;
+}) {
+  try {
+    const condition = useStudyManagerStore.getState().condition;
+    const dataset = useStudyManagerStore.getState().dataset;
+    const user = useStudyManagerStore.getState().user;
+    const refId = ref(
+      database,
+      "events/" + user + "/" + condition + "-" + dataset,
+    );
+    const newEvent = {
+      ...event,
+      timestamp: Date.now(),
+    };
+
+    push(refId, newEvent);
+  } catch (error) {
+    console.log("event:", event);
+    console.error("Error tracking event:", error);
+  }
+}
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

@@ -7,7 +7,7 @@ import {
 import Menu from "@/components/FeedbackVis/Menu";
 import PrepStation from "@/components/FeedbackVis/PrepStation";
 import Legend from "@/components/FeedbackVis/Legend/Legend";
-import { cn, getColor, normalizeAndTransform } from "@/lib/utils";
+import { cn, getColor, normalizeAndTransform, eventTracker } from "@/lib/utils";
 import { cosineSimilarity } from "fast-cosine-similarity";
 import * as d3 from "d3";
 
@@ -221,6 +221,14 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           new Set([...currentSelectedItems, ...matchedIds]),
         );
         setCurrentSelectedItems(combinedIds);
+
+        eventTracker({
+          action: "add all similar feedback to prepstation",
+          data: {
+            feedbackID: d.data.id,
+            similarIDs: matchedIds,
+          },
+        });
         return;
       }
 
@@ -242,10 +250,34 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           conversation: currentRevision?.conversation || [],
           revision: currentRevision?.revision || [],
         });
+
+        eventTracker({
+          action: "remove feedback from prepstation",
+          data: {
+            feedbackID: d.data.id,
+          },
+        });
       } else {
         // console.log("Add feedback to selected feedback");
         const { currentSelectedItems, setCurrentSelectedItems } =
           useSharedConfigStore.getState();
+
+        if (currentSelectedItems.includes(d.data.id)) {
+          eventTracker({
+            action: "remove feedback to prepstation",
+            data: {
+              feedbackID: d.data.id,
+            },
+          });
+        } else {
+          eventTracker({
+            action: "add feedback to prepstation",
+            data: {
+              feedbackID: d.data.id,
+            },
+          });
+        }
+
         const newSelectedFeedbacks = currentSelectedItems.includes(d.data.id)
           ? currentSelectedItems.filter((id) => id !== d.data.id)
           : [...currentSelectedItems, d.data.id];
@@ -257,7 +289,15 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     // Handle mouse over event
     const handleMouseOver = (event: MouseEvent, d: any) => {
-      hoverTimer = setTimeout(() => setHoveredItem(d.data.id), 1500);
+      hoverTimer = setTimeout(() => {
+        setHoveredItem(d.data.id);
+        eventTracker({
+          action: "hover on feedback",
+          data: {
+            feedbackID: d.data.id,
+          },
+        });
+      }, 1500);
       const group = d3.select(
         (event.currentTarget as Element).parentNode as SVGGElement,
       );

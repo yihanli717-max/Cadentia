@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { StyledMenu } from "@/components/ContextMenu/StyledMenu";
 import { Item, useContextMenu } from "react-contexify";
 import { useSharedConfigStore, useRevisionListStore } from "@/lib/store";
+import { eventTracker } from "@/lib/utils";
 
 const MENU_ID = "edit-context-menu";
 
@@ -30,6 +31,15 @@ const EditContextMenu = (props: EditContextMenuProps) => {
   };
 
   const handleConfirm = () => {
+    eventTracker({
+      action: "update revised sentence by edit",
+      data: {
+        sentence: props.sentence,
+        prevRevision:
+          currentRevisedSentencePair && currentRevisedSentencePair.revised,
+        newRevision: inputValue,
+      },
+    });
     // console.log("Confirmed value:", inputValue);
     updateRevisedSentence(
       currentRevisionItem,

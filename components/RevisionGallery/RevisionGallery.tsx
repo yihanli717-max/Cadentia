@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "@/lib/utils";
+import { cn, eventTracker } from "@/lib/utils";
 import { useRevisionListStore, useSharedConfigStore } from "@/lib/store";
 import RevisionCard from "@/components/RevisionGallery/RevisionCard";
 import { TbPlus } from "react-icons/tb";

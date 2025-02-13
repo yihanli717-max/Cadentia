@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { FeedbackSourceItem } from "@/lib/type";
-import { cn, getColor, isSimilarSentence } from "@/lib/utils";
+import { cn, getColor, isSimilarSentence, eventTracker } from "@/lib/utils";
 import { useSharedConfigStore, useFeedbackStore } from "@/lib/store";
 import { noto_serif } from "@/app/fonts";
 
@@ -98,6 +98,12 @@ export const ProviderCard = (props: ProviderCardProps) => {
       onMouseEnter={() => {
         setIsExpanded(true);
         setHoveredProvider(props.feedbackSourceItem.id);
+        eventTracker({
+          action: "hover provider",
+          data: {
+            provider: props.feedbackSourceItem.id,
+          },
+        });
       }}
       onMouseLeave={() => {
         if (!props.isClicked) {
@@ -144,7 +150,15 @@ export const ProviderCard = (props: ProviderCardProps) => {
                   "transition-transform duration-500 ease-out",
                 )}
                 key={feedback.id}
-                onMouseEnter={() => setHoveredItem(feedback.id)}
+                onMouseEnter={() => {
+                  setHoveredItem(feedback.id);
+                  eventTracker({
+                    action: "hover on feedback in provider card",
+                    data: {
+                      feedback: feedback.id,
+                    },
+                  });
+                }}
                 onMouseLeave={() => setHoveredItem(null)}
               >
                 <div

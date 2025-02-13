@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { StyledMenu } from "@/components/ContextMenu/StyledMenu";
 import { Item, useContextMenu } from "react-contexify";
 import { useSharedConfigStore, useRevisionListStore } from "@/lib/store";
-import { Regenerate } from "@/lib/utils";
-import { set } from "zod";
+import { Regenerate, eventTracker } from "@/lib/utils";
 
 const MENU_ID = "regenerate-context-menu";
 
@@ -48,6 +47,13 @@ const RegenerateContextMenu = (props: RegenerateContextMenuProps) => {
       if (res) {
         setOutput(JSON.parse(res).revision[0].revised);
         console.log("Regenerated value:", JSON.parse(res).revision[0].revised);
+        eventTracker({
+          action: "regenerate revised sentence",
+          data: {
+            sentence: props.sentence,
+            revised: JSON.parse(res).revision[0].revised,
+          },
+        });
       }
 
       setIsGenerating(false);
@@ -56,6 +62,15 @@ const RegenerateContextMenu = (props: RegenerateContextMenuProps) => {
 
   const handleConfirm = () => {
     updateRevisedSentence(currentRevisionItem, props.sentence, output || "");
+    eventTracker({
+      action: "update revised sentence by regenerate",
+      data: {
+        sentence: props.sentence,
+        prevRevision:
+          currentRevisedSentencePair && currentRevisedSentencePair.revised,
+        newRevision: output,
+      },
+    });
     handleCancel();
   };
 

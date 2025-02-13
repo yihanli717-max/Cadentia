@@ -2,6 +2,7 @@ import React from "react";
 import { StyledMenu } from "@/components/ContextMenu/StyledMenu";
 import { Item } from "react-contexify";
 import { useFeedbackStore, useSharedConfigStore } from "@/lib/store";
+import { eventTracker } from "@/lib/utils";
 
 const MENU_ID = "provider-context-menu";
 
@@ -38,12 +39,26 @@ const ContextMenu = (props: ContextMenuProps) => {
           new Set([...currentSelectedItems, ...feedbackIDs]),
         );
         setCurrentSelectedItems(mergedItems);
+        eventTracker({
+          action: "select all relevant feedback for provider",
+          data: {
+            feedbackIDs,
+            providerID: feedbackSource.id,
+          },
+        });
         break;
       case "Remove all relevant feedback":
         const filteredItems = currentSelectedItems.filter(
           (id) => !feedbackIDs.includes(id),
         );
         setCurrentSelectedItems(filteredItems);
+        eventTracker({
+          action: "remove all relevant feedback for provider",
+          data: {
+            feedbackIDs,
+            providerID: feedbackSource.id,
+          },
+        });
         break;
       default:
         break;

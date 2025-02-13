@@ -7,7 +7,7 @@ import {
   FeedbackSourceItem,
   RevisionItem,
 } from "@/lib/type";
-import { number } from "zod";
+import { eventTracker } from "@/lib/utils";
 
 export type OpenAIAPIState = {
   API: string;
@@ -131,36 +131,75 @@ export const useSharedConfigStore = create<
         set(
           produce((state) => {
             state.clusterDimension = dimension;
+            eventTracker({
+              action: "change dimension",
+              data: {
+                type: "cluster",
+                dimension: dimension,
+              },
+            });
           }),
         ),
       setNumericalDimension: (dimension: string) =>
         set(
           produce((state) => {
             state.numericalDimension = dimension;
+            eventTracker({
+              action: "change dimension",
+              data: {
+                type: "numerical",
+                dimension: dimension,
+              },
+            });
           }),
         ),
       setColorDimension: (dimension: string) =>
         set(
           produce((state) => {
             state.colorDimension = dimension;
+            eventTracker({
+              action: "change dimension",
+              data: {
+                type: "color",
+                dimension: dimension,
+              },
+            });
           }),
         ),
       setHoveredProvider: (id: number | null) =>
         set(
           produce((state) => {
             state.hoveredProvider = id;
+            eventTracker({
+              action: "hover provider",
+              data: {
+                provider: id,
+              },
+            });
           }),
         ),
       setHoveredItem: (id: number | null) =>
         set(
           produce((state) => {
             state.hoveredItem = id;
+            eventTracker({
+              action: "hover feedback",
+              data: {
+                feedback: id,
+              },
+            });
           }),
         ),
       setHoveredSentence: (id: number | null) =>
         set(
           produce((state) => {
             state.hoveredSentence = id;
+            eventTracker({
+              action: "hover sentence",
+              data: {
+                sentence: id,
+              },
+            });
           }),
         ),
       setSearchedEmbeddings: (embeddings: number[] | undefined) =>
@@ -174,6 +213,12 @@ export const useSharedConfigStore = create<
         set(
           produce((state) => {
             state.similarityThreshold = threshold;
+            eventTracker({
+              action: "change similarity threshold",
+              data: {
+                threshold: threshold,
+              },
+            });
           }),
         ),
       setCurrentSelectedItems: (feedbacks: number[]) =>
@@ -195,24 +240,49 @@ export const useSharedConfigStore = create<
               });
 
             state.currentSelectedSentences = Array.from(sentenceIds);
+
+            eventTracker({
+              action: "select feedback",
+              data: {
+                feedbacks: feedbacks,
+              },
+            });
           }),
         ),
       setCurrentRevisionItem: (id: number) =>
         set(
           produce((state) => {
             state.currentRevisionItem = id;
+            eventTracker({
+              action: "select revision",
+              data: {
+                revision: id,
+              },
+            });
           }),
         ),
       setCurrentSelectedSentences: (sentences: number[]) =>
         set(
           produce((state) => {
             state.currentSelectedSentences = sentences;
+            eventTracker({
+              action: "select sentence",
+              data: {
+                sentences: sentences,
+              },
+            });
           }),
         ),
       setComparisonMode: (mode: boolean) =>
         set(
           produce((state) => {
             state.comparisonMode = mode;
+            eventTracker({
+              action: "toggle comparison mode",
+              data: {
+                mode: mode,
+              },
+            });
           }),
         ),
       setBubbleRadii: (radii: Record<string, number>) =>
@@ -257,6 +327,13 @@ export const useRevisionListStore = create<
               feedback: [],
               revision: [],
             });
+
+            eventTracker({
+              action: "create revision",
+              data: {
+                id: state.revisionList.length,
+              },
+            });
           }),
         ),
       updateRevision: (target) => {
@@ -286,6 +363,11 @@ export const useRevisionListStore = create<
                 conversation: target.conversation,
               });
             }
+
+            eventTracker({
+              action: "update revision",
+              data: target,
+            });
           }),
         );
       },
@@ -301,6 +383,17 @@ export const useRevisionListStore = create<
                 (item: { original: string; revised: string }) =>
                   item.original === original,
               );
+
+              eventTracker({
+                action: "update revised sentence",
+                data: {
+                  id: id,
+                  original: original,
+                  prevRevision: revisedSentence.revised,
+                  newRevision: newRevision,
+                },
+              });
+
               // console.log("revisedSentence", revisedSentence);
               if (revisedSentence) {
                 revisedSentence.revised = newRevision;
@@ -311,5 +404,48 @@ export const useRevisionListStore = create<
       },
     }),
     { name: "revision-list", skipHydration: false },
+  ),
+);
+
+export type studyManagerState = {
+  user: string;
+  condition: "baseline" | "synthia" | "test";
+  dataset: number;
+};
+
+export type studyManagerActions = {
+  setUser: (user: string) => void;
+  setCondition: (condition: string) => void;
+  setDataset: (dataset: number) => void;
+};
+
+export const useStudyManagerStore = create<
+  studyManagerState & studyManagerActions
+>()(
+  persist(
+    (set) => ({
+      user: "P0",
+      condition: "test",
+      dataset: 0,
+      setUser: (user: string) =>
+        set(
+          produce((state) => {
+            state.user = user;
+          }),
+        ),
+      setCondition: (condition: string) =>
+        set(
+          produce((state) => {
+            state.condition = condition;
+          }),
+        ),
+      setDataset: (dataset: number) =>
+        set(
+          produce((state) => {
+            state.dataset = dataset;
+          }),
+        ),
+    }),
+    { name: "study-manager", skipHydration: false },
   ),
 );

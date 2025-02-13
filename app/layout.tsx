@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Synthia",
-  description: "An Intelligent User Interface for Feedback Sensemaking",
+  description: "Visually Synthesizing Writing Feedback for Iterative Revision",
 };
 
 export default function RootLayout({

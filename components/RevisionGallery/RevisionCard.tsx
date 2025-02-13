@@ -9,6 +9,7 @@ import {
   getColor,
   getInterpolateColor,
   countWordChanges,
+  eventTracker,
 } from "@/lib/utils";
 
 const typeMap = {
@@ -161,7 +162,15 @@ const RevisionCard = (props: RevisionCardProps) => {
                 "transition-transform duration-500 ease-out",
               )}
               key={feedback.id}
-              onMouseEnter={() => setHoveredItem(feedback.id)}
+              onMouseEnter={() => {
+                setHoveredItem(feedback.id);
+                eventTracker({
+                  action: "hover on feedback in revision card",
+                  data: {
+                    feedback: feedback.id,
+                  },
+                });
+              }}
               onMouseLeave={() => setHoveredItem(null)}
             >
               <div

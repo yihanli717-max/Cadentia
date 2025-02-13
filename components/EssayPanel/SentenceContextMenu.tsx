@@ -2,6 +2,7 @@ import React from "react";
 import { StyledMenu } from "@/components/ContextMenu/StyledMenu";
 import { Item } from "react-contexify";
 import { useFeedbackStore, useSharedConfigStore } from "@/lib/store";
+import { eventTracker } from "@/lib/utils";
 
 const MENU_ID = "sentence-context-menu";
 
@@ -41,24 +42,50 @@ const SentenceContextMenu = (props: SentenceContextMenuProps) => {
           new Set([...currentSelectedItems, ...feedbackIDs]),
         );
         setCurrentSelectedItems(mergedItems);
+        eventTracker({
+          action: "select all relevant feedback for sentence",
+          data: {
+            feedbackIDs,
+            sentenceID: sentence.id,
+          },
+        });
         break;
       case "Remove all relevant feedback":
         const filteredItems = currentSelectedItems.filter(
           (id) => !feedbackIDs.includes(id),
         );
         setCurrentSelectedItems(filteredItems);
+        eventTracker({
+          action: "remove all relevant feedback for sentence",
+          data: {
+            feedbackIDs,
+            sentenceID: sentence.id,
+          },
+        });
         break;
       case "Add to selected sentences":
         const newItems = Array.from(
           new Set([...currentSelectedSentences, sentence.id]),
         );
         setCurrentSelectedSentences(newItems);
+        eventTracker({
+          action: "add sentence to selected sentences",
+          data: {
+            sentenceID: sentence.id,
+          },
+        });
         break;
       case "Remove from selected sentences":
         const removedItems = currentSelectedSentences.filter(
           (id) => id !== sentence.id,
         );
         setCurrentSelectedSentences(removedItems);
+        eventTracker({
+          action: "remove sentence from selected sentences",
+          data: {
+            sentenceID: sentence.id,
+          },
+        });
         break;
       default:
         break;

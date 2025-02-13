@@ -10,7 +10,7 @@ import {
   useSharedConfigStore,
   useRevisionListStore,
 } from "@/lib/store";
-import { getColor, typeMap, cn } from "@/lib/utils";
+import { getColor, typeMap, cn, eventTracker } from "@/lib/utils";
 import { FeedbackItem } from "@/lib/type";
 
 const D3_EASE = [0.645, 0.045, 0.355, 1];
@@ -102,6 +102,10 @@ const ProgressRing = ({
               setHoveredItem(thisId);
             }, 1500))
           : setHoveredItem(thisId);
+        eventTracker({
+          action: "hover on feedback in prepstation",
+          data: { id: thisId },
+        });
       }}
       onMouseLeave={() => {
         if (hoverTimerRef.current) {
@@ -217,6 +221,13 @@ const PrepStation = () => {
       y > containerRect.bottom + buffer;
 
     if (isOutside) {
+      eventTracker({
+        action: "remove feedback from prepstation",
+        data: {
+          feedbackID: id,
+        },
+      });
+
       const { currentSelectedItems, currentRevisionItem, setHoveredItem } =
         useSharedConfigStore.getState();
       const { revisionList, updateRevision } = useRevisionListStore.getState();

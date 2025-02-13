@@ -7,12 +7,15 @@ import {
   useEssayStore,
   useFeedbackStore,
   useSharedConfigStore,
+  useStudyManagerStore,
 } from "@/lib/store";
 import { cn, countWords, getEmbedding } from "@/lib/utils";
 
 const APIInput = () => {
-  const [input, setIupt] = useState("");
+  const [inputAPI, setIuptAPI] = useState("");
+  const [inputID, setInputID] = useState("");
 
+  const setUser = useStudyManagerStore((state) => state.setUser);
   const setAPI = useOpenAIAPI((state) => state.setAPI);
   const setLoading = useSharedConfigStore((state) => state.setLoading);
 
@@ -48,20 +51,31 @@ const APIInput = () => {
       <div className="flex flex-col gap-2 p-8 bg-white rounded-lg border w-[512px] select-none">
         <p>Hi there! Welcome to Synthia!</p>
 
+        <input
+          type="text"
+          value={inputID}
+          placeholder="Participant ID..."
+          onChange={(event) => {
+            setInputID(event.target.value);
+          }}
+          className="input input-bordered w-full text-sm"
+        />
+
         <div className="flex flex-col gap-2 w-full">
           <input
             type="text"
-            value={input}
+            value={inputAPI}
             placeholder="Your OpenAI API Key..."
             onChange={(event) => {
-              setIupt(event.target.value);
+              setIuptAPI(event.target.value);
             }}
             className="input input-bordered w-full text-sm"
           />
           <button
             className="btn"
             onClick={() => {
-              setAPI(input);
+              setAPI(inputAPI);
+              setUser(inputID);
               loadDefaultData();
             }}
           >

@@ -5,7 +5,7 @@ import {
   useSharedConfigStore,
   useRevisionListStore,
 } from "@/lib/store";
-import { cn, getEmbedding, generateRevision } from "@/lib/utils";
+import { cn, getEmbedding, generateRevision, eventTracker } from "@/lib/utils";
 
 interface MenuProps {
   classes?: string;
@@ -210,6 +210,12 @@ const Menu = (props: MenuProps) => {
                   return;
                 }
                 const embeddings = await getEmbedding(searchedText);
+                eventTracker({
+                  action: "search",
+                  data: {
+                    text: searchedText,
+                  },
+                });
                 setSearchedEmbeddings(embeddings);
               }
             }}
