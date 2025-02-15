@@ -13,7 +13,7 @@ import "react-contexify/ReactContexify.css";
 import SentenceContextMenu from "@/components/EssayPanel/SentenceContextMenu";
 import EditContextMenu from "@/components/EssayPanel/EditContextMenu";
 import RegenerateContextMenu from "@/components/EssayPanel/RegenerateContextMenu";
-import { TbEdit, TbRefresh } from "react-icons/tb";
+import { TbCheck, TbEdit, TbRefresh } from "react-icons/tb";
 
 const SENTENCE_MENU_ID = "sentence-context-menu";
 const EDIT_MENU_ID = "edit-context-menu";
@@ -190,6 +190,9 @@ const EssayPanel = (props: EssayPanelProps) => {
                   )?.revised && (
                     // <span className="text-xs opacity-60">[edited]</span>
                     <span className="inline-flex translate-y-[1px] ml-[3px]">
+                      <span className="size-4 border bg-white rounded-sm join-item flex items-center justify-center text-neutral hover:bg-base-200 active:scale-90 transition-all duration-150 ease-in-out">
+                        <TbCheck size={12} />
+                      </span>
                       <span
                         className="size-4 border bg-white rounded-sm join-item flex items-center justify-center text-neutral hover:bg-base-200 active:scale-90 transition-all duration-150 ease-in-out"
                         onClick={(e) => {

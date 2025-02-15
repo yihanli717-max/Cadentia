@@ -282,6 +282,25 @@ const Menu = (props: MenuProps) => {
                 });
               });
 
+            const currentSelectedSentences =
+              useSharedConfigStore.getState().currentSelectedSentences;
+            const currentRemovedSentences =
+              useSharedConfigStore.getState().currentRemovedSentences;
+
+            // Boolean sentences AND currentSelectedSentences
+            currentSelectedSentences.forEach((id) => {
+              sentences.add(
+                essay.find((item) => item.id === id)?.content || "",
+              );
+            });
+
+            // Boolean sentences AND NOT currentRemovedSentences
+            currentRemovedSentences.forEach((id) => {
+              sentences.delete(
+                essay.find((item) => item.id === id)?.content || "",
+              );
+            });
+
             setLoading(true);
 
             // Generate the revision

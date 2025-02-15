@@ -18,6 +18,8 @@ const SentenceContextMenu = (props: SentenceContextMenuProps) => {
     setCurrentSelectedItems,
     currentSelectedSentences,
     setCurrentSelectedSentences,
+    currentRemovedSentences,
+    setCurrentRemovedSentences,
   } = useSharedConfigStore();
 
   const handleItemClick = (args: any) => {
@@ -64,10 +66,16 @@ const SentenceContextMenu = (props: SentenceContextMenuProps) => {
         });
         break;
       case "Add to selected sentences":
-        const newItems = Array.from(
+        // Add to currentSelectedSentences
+        let newItems = Array.from(
           new Set([...currentSelectedSentences, sentence.id]),
         );
         setCurrentSelectedSentences(newItems);
+
+        // Remove from currentRemovedSentences
+        newItems = currentRemovedSentences.filter((id) => id !== sentence.id);
+        setCurrentRemovedSentences(newItems);
+
         eventTracker({
           action: "add sentence to selected sentences",
           data: {
@@ -76,10 +84,18 @@ const SentenceContextMenu = (props: SentenceContextMenuProps) => {
         });
         break;
       case "Remove from selected sentences":
-        const removedItems = currentSelectedSentences.filter(
+        // Remove from currentSelectedSentences
+        let removedItems = currentSelectedSentences.filter(
           (id) => id !== sentence.id,
         );
         setCurrentSelectedSentences(removedItems);
+
+        // Add to currentRemovedSentences
+        removedItems = Array.from(
+          new Set([...currentRemovedSentences, sentence.id]),
+        );
+        setCurrentRemovedSentences(removedItems);
+
         eventTracker({
           action: "remove sentence from selected sentences",
           data: {
