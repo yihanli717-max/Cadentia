@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { noto_serif } from "@/app/fonts";
 import Link from "next/link";
 import { TbInfoCircleFilled } from "react-icons/tb";
-import Menu from "@/components/Menu";
 
 type HeaderProps = {};
 
@@ -15,7 +14,6 @@ const Header = ({}: HeaderProps) => {
         <Link href="/">Synthia</Link>
       </h1>
       <div className="flex flex-row gap-4 justify-center items-center">
-        <Menu classes="z-50" />
         <TbInfoCircleFilled
           size={24}
           className="text-base-300 hover:text-neutral cursor-pointer"

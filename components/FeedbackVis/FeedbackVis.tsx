@@ -471,7 +471,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     clusterDimension,
     numericalDimension,
     colorDimension,
-    // allFeedback.length,
+    allFeedback.length,
   ]);
 
   useEffect(() => {
@@ -540,30 +540,19 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     // Generic style reset for all elements
     const resetStyles = () => {
+      console.log("Resetting styles");
       fillCircles
+        .interrupt()
         .attr("filter", null)
-        .attr("opacity", (d) =>
-          currentSelectedItems.includes(d.data.id) ||
-          currentRevision?.feedback?.includes(d.data.id)
-            ? 1
-            : 0.8,
-        )
+        .attr("opacity", 0.8)
         .attr("stroke", null)
-        .attr("stroke-width", 0)
-        // .attr("stroke", (d) =>
-        //   currentRevision?.feedback?.includes(d.data.id) ? "#34d399" : null,
-        // )
-        .attr("fill", (d) =>
-          currentSelectedItems.includes(d.data.id) ||
-          currentRevision?.feedback?.includes(d.data.id)
-            ? "#e5e6e6"
-            : getColor(colorDimension)(d.data.color as never),
-        );
+        .attr("stroke-width", 0);
 
-      barCircles.attr("filter", null);
-      barContainerCircles.attr("filter", null);
+      barCircles.interrupt().attr("filter", null);
+      barContainerCircles.interrupt().attr("filter", null);
 
       progressCircle
+        .interrupt()
         .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 4))
         .attr("stroke", "#00b5ff")
         .attr("stroke-opacity", 0);
@@ -582,11 +571,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("result", "coloredBlur");
 
       // Highlight hovered item
-      fillCircles
-        .filter((d) => d.data.id === hoveredItem)
-        // .attr("stroke", "#e5e6e6")
-        // .attr("stroke-width", 3)
-        .attr("opacity", 1);
+      fillCircles.filter((d) => d.data.id === hoveredItem).attr("opacity", 1);
 
       // Animate progress circle
       progressCircle
@@ -685,15 +670,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       // Highlight hovered item
       fillCircles
         .filter((d) => d.data.sentences.includes(hoveredSentence))
-        // .attr("stroke", "#e5e6e6")
-        // .attr("stroke-width", 3)
         .attr("opacity", 1);
-
-      // // Animate progress circle
-      // progressCircle
-      //   .filter((d) => d.data.sentences.includes(hoveredSentence))
-      //   .attr("stroke-opacity", 1)
-      //   .attr("stroke-dashoffset", 0);
 
       // Reusable similarity effect applicator
       const applySimilarityEffects = (selection: any) => {
@@ -756,15 +733,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       // Highlight hovered item
       fillCircles
         .filter((d) => d.data.source === hoveredProvider)
-        // .attr("stroke", "#e5e6e6")
-        // .attr("stroke-width", 3)
         .attr("opacity", 1);
-
-      // // Animate progress circle
-      // progressCircle
-      //   .filter((d) => d.data.source === hoveredProvider)
-      //   .attr("stroke-opacity", 1)
-      //   .attr("stroke-dashoffset", 0);
 
       // Reusable similarity effect applicator
       const applySimilarityEffects = (selection: any) => {
@@ -819,10 +788,6 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       fillCircles
         .transition()
         .duration(300)
-        // .attr("stroke", (d) =>
-        //   currentRevision?.feedback?.includes(d.data.id) ? "#34d399" : null,
-        // )
-        .attr("stroke-width", 3)
         .attr("fill", (d) =>
           currentSelectedItems.includes(d.data.id) ||
           currentRevision?.feedback?.includes(d.data.id)

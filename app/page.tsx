@@ -1,7 +1,7 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Header from "@/components/Header";
-import APIInput from "@/components/APIInput";
+import EntryPanel from "@/components/EntryPanel";
 import ProviderGallery from "@/components/ProviderGallery/ProviderGallery";
 import EssayPanel from "@/components/EssayPanel/EssayPanel";
 import FeedbackVis from "@/components/FeedbackVis/FeedbackVis";
@@ -13,14 +13,14 @@ import {
 } from "@/lib/store";
 
 const Page = () => {
-  const API = useOpenAIAPI((state) => state.API);
+  const [start, setStart] = useState(false);
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const isLoading = useSharedConfigStore((state) => state.isLoading);
 
   return (
     <div>
-      {API === "" && <APIInput />}
-      {API !== "" && allFeedback.length > 0 && (
+      {!start && <EntryPanel setStart={setStart} />}
+      {start && allFeedback.length > 0 && (
         <div>
           <Header />
           <div className="flex flex-row justify-between min-h-screen overflow-hidden">

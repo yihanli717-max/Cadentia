@@ -3,9 +3,8 @@ import { ProviderCard } from "@/components/ProviderGallery/ProviderCard";
 import {
   useFeedbackStore,
   useSharedConfigStore,
-  useRevisionListStore,
+  useFeedbackSourceStore,
 } from "@/lib/store";
-import { feedbackSource } from "@/data/source";
 import { cn } from "@/lib/utils";
 import { useContextMenu } from "react-contexify";
 import "react-contexify/ReactContexify.css";
@@ -26,6 +25,9 @@ const ProviderGallery = (props: ProviderGalleryProps) => {
   // Use context menu from react-contexify
   const { show } = useContextMenu({ id: MENU_ID });
 
+  const feedbackSource = useFeedbackSourceStore(
+    (state) => state.feedbackSource,
+  );
   const { hoveredItem, setHoveredProvider } = useSharedConfigStore();
   const allFeedbackItems = useFeedbackStore((state) => state.feedback);
 
@@ -73,7 +75,10 @@ const ProviderGallery = (props: ProviderGalleryProps) => {
                 }
               }}
               onMouseEnter={() => setIsUserHovering(true)}
-              onMouseLeave={() => setIsUserHovering(false)}
+              onMouseLeave={() => {
+                setIsUserHovering(false);
+                setHoveredProvider(null);
+              }}
               onMouseUp={(e) => {
                 console.log("11", ifClicked);
                 e.stopPropagation();

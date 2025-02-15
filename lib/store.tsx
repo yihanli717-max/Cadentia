@@ -20,7 +20,7 @@ export type OpenAIAPIActions = {
 export const useOpenAIAPI = create<OpenAIAPIState & OpenAIAPIActions>()(
   persist(
     (set) => ({
-      API: "",
+      API: process.env.NEXT_PUBLIC_OPENAI_API_KEY || "",
       setAPI: (API: string) => set({ API: API }),
     }),
     { name: "openai-api", skipHydration: true },
@@ -41,7 +41,28 @@ export const useEssayStore = create<EssayState & EssayActions>()(
       essay: [],
       setEssay: (essay: Sentence[]) => set({ essay }),
     }),
-    { name: "essay", skipHydration: false },
+    { name: "essay", skipHydration: true },
+  ),
+);
+
+export type FeedbackSourceState = {
+  feedbackSource: FeedbackSourceItem[];
+};
+
+export type FeedbackSourceActions = {
+  setFeedbackSource: (feedbackSource: FeedbackSourceItem[]) => void;
+};
+
+export const useFeedbackSourceStore = create<
+  FeedbackSourceState & FeedbackSourceActions
+>()(
+  persist(
+    (set) => ({
+      feedbackSource: [],
+      setFeedbackSource: (feedbackSource: FeedbackSourceItem[]) =>
+        set({ feedbackSource }),
+    }),
+    { name: "feedbackSource", skipHydration: true },
   ),
 );
 
@@ -64,7 +85,7 @@ export const useFeedbackStore = create<FeedbackState & FeedbackActions>()(
           }),
         ),
     }),
-    { name: "feedback", skipHydration: false },
+    { name: "feedback", skipHydration: true },
   ),
 );
 
@@ -292,7 +313,7 @@ export const useSharedConfigStore = create<
           }),
         ),
     }),
-    { name: "shared-config", skipHydration: false },
+    { name: "shared-config", skipHydration: true },
   ),
 );
 
@@ -403,7 +424,7 @@ export const useRevisionListStore = create<
         );
       },
     }),
-    { name: "revision-list", skipHydration: false },
+    { name: "revision-list", skipHydration: true },
   ),
 );
 
@@ -446,6 +467,6 @@ export const useStudyManagerStore = create<
           }),
         ),
     }),
-    { name: "study-manager", skipHydration: false },
+    { name: "study-manager", skipHydration: true },
   ),
 );

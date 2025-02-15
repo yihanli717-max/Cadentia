@@ -4,8 +4,7 @@ import React, { useState, useEffect } from "react";
 import HelpfulnessVis from "@/components/FeedbackGallery/HelpfulnessVis";
 import { FeedbackSourceItem, FeedbackItem } from "@/lib/type";
 import { cn, isSimilarSentence, getColor } from "@/lib/utils";
-import { feedbackSource } from "@/data/source";
-import { useSharedConfigStore } from "@/lib/store";
+import { useSharedConfigStore, useFeedbackSourceStore } from "@/lib/store";
 import { TbX, TbClipboardText } from "react-icons/tb";
 import { noto_serif } from "@/app/fonts";
 
@@ -43,6 +42,7 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
 
   const handleMouseEnterCheckSource = () => {
     // find id = props.feedbackItem.source in feedbackSource
+    const feedbackSource = useFeedbackSourceStore.getState().feedbackSource;
     const data = feedbackSource.find(
       (item: FeedbackSourceItem) => item.id === props.feedbackItem.source,
     );

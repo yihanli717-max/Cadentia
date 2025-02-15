@@ -136,7 +136,7 @@ const EssayPanel = (props: EssayPanelProps) => {
                     )}
                     onMouseEnter={() => setHoveredSentence(section.id)}
                     onMouseLeave={() => {
-                      console.log("ifClicked", ifClicked);
+                      // console.log("ifClicked", ifClicked);
                       if (!ifClicked) setHoveredSentence(null);
                     }}
                     onMouseUp={(e) => {
