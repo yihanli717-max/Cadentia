@@ -1,12 +1,14 @@
 import React from "react";
 import { useSharedConfigStore, useFeedbackStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
 
 interface SizeLegendProps {
+  classes?: string;
   minR: number;
   maxR: number;
 }
 
-const SizeLegend = ({ minR, maxR }: SizeLegendProps) => {
+const SizeLegend = ({ classes, minR, maxR }: SizeLegendProps) => {
   const allFeedback = useFeedbackStore((state) => state.feedback);
 
   const { numericalDimension } = useSharedConfigStore();
@@ -22,7 +24,7 @@ const SizeLegend = ({ minR, maxR }: SizeLegendProps) => {
   );
 
   return (
-    <div className="flex flex-col items-start gap-1 relative">
+    <div className={cn(classes, "flex-col items-start gap-1")}>
       {/* <div className="text-2xs bg-base-100 px-3 py-1 rounded absolute left-0 top-0 font-medium">
         {numericalDimension}
       </div> */}

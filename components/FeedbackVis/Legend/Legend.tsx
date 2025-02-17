@@ -25,36 +25,46 @@ const Legend = (props: LegendProps) => {
     <div
       className={cn(
         props.classes,
-        "flex flex-col space-y-3 select-none bg-white/40 backdrop-blur-lg border border-base-200 rounded-lg",
-        isCollapsed ? "p-2" : "p-2 px-3 pt-4",
+        "flex flex-col select-none bg-white/40 backdrop-blur-lg border border-base-200 rounded-lg p-2 px-3",
+        isCollapsed ? "" : "pt-4 space-y-3",
       )}
     >
       {(numericalDimension !== "none" || colorDimension !== "none") && (
         <div
           className={cn(
-            "cursor-pointer flex justify-center items-center opacity-40 hover:opacity-100 transition-all duration-150 ease-in-out",
+            "cursor-pointer flex justify-start items-start opacity-40 hover:opacity-100 transition-all duration-150 ease-in-out",
             isCollapsed ? "" : "absolute top-2 left-2",
           )}
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           {isCollapsed ? (
-            <TbLayoutBottombarExpandFilled size={18} />
+            <div className="flex flex-row gap-1 items-center">
+              <TbLayoutBottombarExpandFilled size={18} />
+              <p className="text-2xs font-medium">Click to show full legend</p>
+            </div>
           ) : (
-            <TbLayoutBottombarCollapseFilled size={18} />
+            <div className="flex flex-row gap-1 items-center">
+              <TbLayoutBottombarCollapseFilled size={18} />
+              <p className="text-2xs font-medium">Click to hide legend</p>
+            </div>
           )}
         </div>
       )}
 
       <div
         className={cn(
-          "transition-all duration-300 ease-in-out flex flex-col space-y-3",
-          isCollapsed ? "hidden" : "",
+          "transition-all duration-300 ease-in-out flex flex-col ",
+          isCollapsed ? "space-y-2" : "space-y-3",
         )}
       >
         {numericalDimension !== "none" && (
-          <SizeLegend minR={props.minR} maxR={props.maxR} />
+          <SizeLegend
+            minR={props.minR}
+            maxR={props.maxR}
+            classes={isCollapsed ? "hidden" : "flex relative"}
+          />
         )}
-        <hr className="border-dashed" />
+        <hr className={cn("border-dashed", isCollapsed ? "" : "")} />
         {colorDimension !== "none" && (
           <>
             {isSequential ? (

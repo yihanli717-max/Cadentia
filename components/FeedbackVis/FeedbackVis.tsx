@@ -51,7 +51,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     const updateDimensions = () => {
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
-        setDimensions({ width: width - 40, height: height - 80 });
+        setDimensions({ width: width - 40, height: height - 100 });
       }
     };
 
@@ -818,15 +818,15 @@ const FeedbackVis = (props: FeedbackVisProps) => {
   return (
     <div ref={containerRef} className={cn(props.classes, "relative")}>
       {/* <div className="absolute">{hoveredItem}</div> */}
-      <Menu classes="absolute top-0 left-28" />
       {dimensions && (
         <svg
           ref={svgRef}
           width={dimensions.width}
           height={dimensions.height}
-          className="cursor-pointer absolute bottom-6"
+          className="cursor-pointer absolute bottom-6 z-50"
         ></svg>
       )}
+      <Menu classes="absolute top-0 left-1" />
       <PrepStation />
       <Legend classes="absolute bottom-2 left-3" minR={minR} maxR={maxR} />
     </div>
