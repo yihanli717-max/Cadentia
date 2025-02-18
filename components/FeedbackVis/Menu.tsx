@@ -65,7 +65,7 @@ const Menu = (props: MenuProps) => {
             <div
               tabIndex={0}
               role="button"
-              className="btn rounded-md text-2xs flex flex-col gap-0.5 shadow-none w-24"
+              className="btn rounded-md text-2xs flex flex-col gap-0.5 shadow-none w-28"
             >
               <span className="opacity-40">Cluster by</span>
               <span className="capitalize">{clusterDimension}</span>
@@ -96,7 +96,7 @@ const Menu = (props: MenuProps) => {
             <div
               tabIndex={0}
               role="button"
-              className="btn rounded-md text-2xs flex flex-col gap-0.5 shadow-none w-24"
+              className="btn rounded-md text-2xs flex flex-col gap-0.5 shadow-none w-28"
             >
               <span className="opacity-40">Color by</span>
               <span className="capitalize">{colorDimension}</span>
@@ -151,7 +151,7 @@ const Menu = (props: MenuProps) => {
             <div
               tabIndex={0}
               role="button"
-              className="btn rounded-md text-2xs flex flex-col gap-0.5 shadow-none w-24"
+              className="btn rounded-md text-2xs flex flex-col gap-0.5 shadow-none w-28"
             >
               <span className="opacity-40">Size by</span>
               <span className="capitalize">{numericalDimension}</span>
