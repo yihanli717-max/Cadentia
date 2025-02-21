@@ -331,13 +331,6 @@ export const useRevisionListStore = create<
                 feedback: [],
                 revision: [],
               });
-
-              eventTracker({
-                action: "track revision list",
-                data: {
-                  revisions: state.revisionList,
-                },
-              });
             }),
           ),
         updateRevision: (target) => {
@@ -367,13 +360,6 @@ export const useRevisionListStore = create<
                   conversation: target.conversation,
                 });
               }
-
-              eventTracker({
-                action: "track revision list",
-                data: {
-                  revisions: state.revisionList,
-                },
-              });
             }),
           );
         },
@@ -395,13 +381,6 @@ export const useRevisionListStore = create<
                   revisedSentence.revised = newRevision;
                 }
               }
-
-              eventTracker({
-                action: "track revision list",
-                data: {
-                  revisions: state.revisionList,
-                },
-              });
             }),
           );
         },
