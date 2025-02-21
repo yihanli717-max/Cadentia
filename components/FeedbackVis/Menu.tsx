@@ -308,6 +308,13 @@ const Menu = (props: MenuProps) => {
 
             setLoading(true);
 
+            eventTracker({
+              action: "apply feedback",
+              data: {
+                feedback: toAddressItems,
+              },
+            });
+
             // Generate the revision
             generateRevision(
               essay,
@@ -315,7 +322,7 @@ const Menu = (props: MenuProps) => {
               Array.from(sentences),
             ).then((revision) => {
               setLoading(false);
-              if (revision.response && revision.conversation) {
+              if (revision) {
                 setCurrentSelectedItems([]);
                 const response = JSON.parse(revision.response);
                 const conversation = revision.conversation;

@@ -20,7 +20,7 @@ export type OpenAIAPIActions = {
 export const useOpenAIAPI = create<OpenAIAPIState & OpenAIAPIActions>()(
   persist(
     (set) => ({
-      API: process.env.OPENAI_API_KEY || "",
+      API: process.env.NEXT_PUBLIC_OPENAI_API_KEY || "",
       setAPI: (API: string) => set({ API: API }),
     }),
     { name: "openai-api", skipHydration: true },
@@ -194,36 +194,18 @@ export const useSharedConfigStore = create<
         set(
           produce((state) => {
             state.hoveredProvider = id;
-            eventTracker({
-              action: "hover provider",
-              data: {
-                provider: id,
-              },
-            });
           }),
         ),
       setHoveredItem: (id: number | null) =>
         set(
           produce((state) => {
             state.hoveredItem = id;
-            eventTracker({
-              action: "hover feedback",
-              data: {
-                feedback: id,
-              },
-            });
           }),
         ),
       setHoveredSentence: (id: number | null) =>
         set(
           produce((state) => {
             state.hoveredSentence = id;
-            eventTracker({
-              action: "hover sentence",
-              data: {
-                sentence: id,
-              },
-            });
           }),
         ),
       setSearchedEmbeddings: (embeddings: number[] | undefined) =>
@@ -264,49 +246,24 @@ export const useSharedConfigStore = create<
               });
 
             state.currentSelectedSentences = Array.from(sentenceIds);
-
-            eventTracker({
-              action: "select feedback",
-              data: {
-                feedbacks: feedbacks,
-              },
-            });
           }),
         ),
       setCurrentRevisionItem: (id: number) =>
         set(
           produce((state) => {
             state.currentRevisionItem = id;
-            eventTracker({
-              action: "select revision",
-              data: {
-                revision: id,
-              },
-            });
           }),
         ),
       setCurrentSelectedSentences: (sentences: number[]) =>
         set(
           produce((state) => {
             state.currentSelectedSentences = sentences;
-            eventTracker({
-              action: "select sentence",
-              data: {
-                sentences: sentences,
-              },
-            });
           }),
         ),
       setComparisonMode: (mode: boolean) =>
         set(
           produce((state) => {
             state.comparisonMode = mode;
-            eventTracker({
-              action: "toggle comparison mode",
-              data: {
-                mode: mode,
-              },
-            });
           }),
         ),
       setBubbleRadii: (radii: Record<string, number>) =>
@@ -357,13 +314,6 @@ export const useRevisionListStore = create<
               feedback: [],
               revision: [],
             });
-
-            eventTracker({
-              action: "create revision",
-              data: {
-                id: state.revisionList.length,
-              },
-            });
           }),
         ),
       updateRevision: (target) => {
@@ -393,11 +343,6 @@ export const useRevisionListStore = create<
                 conversation: target.conversation,
               });
             }
-
-            eventTracker({
-              action: "update revision",
-              data: target,
-            });
           }),
         );
       },
@@ -413,16 +358,6 @@ export const useRevisionListStore = create<
                 (item: { original: string; revised: string }) =>
                   item.original === original,
               );
-
-              eventTracker({
-                action: "update revised sentence",
-                data: {
-                  id: id,
-                  original: original,
-                  prevRevision: revisedSentence.revised,
-                  newRevision: newRevision,
-                },
-              });
 
               // console.log("revisedSentence", revisedSentence);
               if (revisedSentence) {

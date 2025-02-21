@@ -80,6 +80,7 @@ const SentenceContextMenu = (props: SentenceContextMenuProps) => {
           action: "add sentence to selected sentences",
           data: {
             sentenceID: sentence.id,
+            selectedSentences: newItems,
           },
         });
         break;
@@ -100,6 +101,7 @@ const SentenceContextMenu = (props: SentenceContextMenuProps) => {
           action: "remove sentence from selected sentences",
           data: {
             sentenceID: sentence.id,
+            removedSentences: removedItems,
           },
         });
         break;

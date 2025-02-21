@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn, eventTracker } from "@/lib/utils";
 import {
   useEssayStore,
   useFeedbackStore,
@@ -100,7 +100,15 @@ const EssayPanel = (props: EssayPanelProps) => {
               type="checkbox"
               className="toggle toggle-sm"
               checked={comparisonMode}
-              onChange={() => setComparisonMode(!comparisonMode)}
+              onChange={() => {
+                eventTracker({
+                  action: "toggle comparison mode",
+                  data: {
+                    mode: !comparisonMode,
+                  },
+                });
+                setComparisonMode(!comparisonMode);
+              }}
             />
           </label>
         </div>
@@ -134,7 +142,15 @@ const EssayPanel = (props: EssayPanelProps) => {
                         : "",
                       hoveredSentence === section.id ? "underline" : "",
                     )}
-                    onMouseEnter={() => setHoveredSentence(section.id)}
+                    onMouseEnter={() => {
+                      setHoveredSentence(section.id);
+                      eventTracker({
+                        action: "hover on sentence",
+                        data: {
+                          sentence: section.id,
+                        },
+                      });
+                    }}
                     onMouseLeave={() => {
                       // console.log("ifClicked", ifClicked);
                       if (!ifClicked) setHoveredSentence(null);
@@ -205,6 +221,12 @@ const EssayPanel = (props: EssayPanelProps) => {
                               sentence: section,
                             },
                           });
+                          eventTracker({
+                            action: "click on edit",
+                            data: {
+                              sentence: section.id,
+                            },
+                          });
                         }}
                       >
                         <TbEdit size={12} />
@@ -220,6 +242,12 @@ const EssayPanel = (props: EssayPanelProps) => {
                             event: e, // pass the original mouse event
                             props: {
                               sentence: section,
+                            },
+                          });
+                          eventTracker({
+                            action: "click on regenerate",
+                            data: {
+                              sentence: section.id,
                             },
                           });
                         }}

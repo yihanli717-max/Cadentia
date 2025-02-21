@@ -1,9 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import OpenAI from "openai";
 import type { OpenAI as OpenAIType } from "openai";
-import { zodResponseFormat } from "openai/helpers/zod";
-import { z } from "zod";
 import * as d3 from "d3";
 import { diffWords } from "diff";
 import { useOpenAIAPI, useStudyManagerStore } from "@/lib/store";
@@ -175,15 +172,6 @@ export async function getEmbedding(
 
   return embedding;
 }
-
-const Revision = z.object({
-  revision: z.array(
-    z.object({
-      original: z.string(),
-      revised: z.string(),
-    }),
-  ),
-});
 
 export async function Regenerate(
   conversation: OpenAIType.ChatCompletionMessageParam[],

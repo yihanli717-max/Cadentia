@@ -65,6 +65,12 @@ const RevisionCard = (props: RevisionCardProps) => {
         setCurrentRevisionItem(props.id);
         setHoveredItem(null);
         setCurrentSelectedItems([]);
+        eventTracker({
+          action: "click on revision card",
+          data: {
+            revision: props.id,
+          },
+        });
       }}
     >
       <div className="space-y-2">
@@ -165,7 +171,7 @@ const RevisionCard = (props: RevisionCardProps) => {
               onMouseEnter={() => {
                 setHoveredItem(feedback.id);
                 eventTracker({
-                  action: "hover on feedback in revision card",
+                  action: "hover on feedback bubble in revision card",
                   data: {
                     feedback: feedback.id,
                   },

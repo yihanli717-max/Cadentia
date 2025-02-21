@@ -99,7 +99,7 @@ export const ProviderCard = (props: ProviderCardProps) => {
         setIsExpanded(true);
         setHoveredProvider(props.feedbackSourceItem.id);
         eventTracker({
-          action: "hover provider",
+          action: "hover on provider card",
           data: {
             provider: props.feedbackSourceItem.id,
           },
@@ -153,7 +153,7 @@ export const ProviderCard = (props: ProviderCardProps) => {
                 onMouseEnter={() => {
                   setHoveredItem(feedback.id);
                   eventTracker({
-                    action: "hover on feedback in provider card",
+                    action: "hover on feedback bubble in provider card",
                     data: {
                       feedback: feedback.id,
                     },

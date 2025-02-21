@@ -34,6 +34,12 @@ const RevisionGallery = (props: RevisionGalleryProps) => {
           setCurrentSelectedItems([]);
           setHoveredItem(null);
           setCurrentRevisionItem(revisionList.length);
+          eventTracker({
+            action: "create new revision",
+            data: {
+              id: revisionList.length,
+            },
+          });
         }}
       >
         <div className="w-full flex justify-center items-center h-full">

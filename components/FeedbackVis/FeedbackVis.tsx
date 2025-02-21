@@ -252,7 +252,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         });
 
         eventTracker({
-          action: "remove feedback from prepstation",
+          action: "remove feedback from applied feedback",
           data: {
             feedbackID: d.data.id,
           },
@@ -264,7 +264,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
         if (currentSelectedItems.includes(d.data.id)) {
           eventTracker({
-            action: "remove feedback to prepstation",
+            action: "remove feedback from prepstation",
             data: {
               feedbackID: d.data.id,
             },
@@ -292,7 +292,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       hoverTimer = setTimeout(() => {
         setHoveredItem(d.data.id);
         eventTracker({
-          action: "hover on feedback",
+          action: "hover on feedback bubble",
           data: {
             feedbackID: d.data.id,
           },
