@@ -1,5 +1,8 @@
 "use client";
 import React, { useState } from "react";
+import { essay as essay0 } from "@/data/essay0";
+import { feedback as feedback0 } from "@/data/feedback0";
+import { feedbackSource as feedbackSource0 } from "@/data/source0";
 import { essay as essay1 } from "@/data/essay1";
 import { feedback as feedback1 } from "@/data/feedback1";
 import { feedbackSource as feedbackSource1 } from "@/data/source1";
@@ -29,7 +32,7 @@ interface EntryPanelProps {
 const EntryPanel = (props: EntryPanelProps) => {
   // const [inputAPI, setIuptAPI] = useState("");
   const [inputID, setInputID] = useState("");
-  const [dataset, setDataset] = useState("Dataset #1");
+  const [dataset, setDataset] = useState("Dataset #0");
 
   const setUser = useStudyManagerStore((state) => state.setUser);
   // const setAPI = useOpenAIAPI((state) => state.setAPI);
@@ -46,13 +49,29 @@ const EntryPanel = (props: EntryPanelProps) => {
 
   const loadDefaultData = async () => {
     const embeddingsMap =
-      dataset === "Dataset #1"
-        ? await loadEmbeddings("embeddings1.json")
-        : await loadEmbeddings("embeddings2.json");
-    const essay = dataset === "Dataset #1" ? essay1 : essay2;
-    const feedback = dataset === "Dataset #1" ? feedback1 : feedback2;
+      dataset === "Dataset #0"
+        ? await loadEmbeddings("embeddings0.json")
+        : dataset === "Dataset #1"
+          ? await loadEmbeddings("embeddings1.json")
+          : await loadEmbeddings("embeddings2.json");
+    const essay =
+      dataset === "Dataset #0"
+        ? essay0
+        : dataset === "Dataset #1"
+          ? essay1
+          : essay2;
+    const feedback =
+      dataset === "Dataset #0"
+        ? feedback0
+        : dataset === "Dataset #1"
+          ? feedback1
+          : feedback2;
     const feedbackSource =
-      dataset === "Dataset #1" ? feedbackSource1 : feedbackSource2;
+      dataset === "Dataset #0"
+        ? feedbackSource0
+        : dataset === "Dataset #1"
+          ? feedbackSource1
+          : feedbackSource2;
 
     useEssayStore.setState({ essay: essay });
     useFeedbackSourceStore.setState({ feedbackSource: feedbackSource });
@@ -124,6 +143,14 @@ const EntryPanel = (props: EntryPanelProps) => {
                 tabIndex={0}
                 className="dropdown-content menu bg-base-100 rounded-md z-[1] p-2 shadow text-2xs mt-1 w-28"
               >
+                <li>
+                  <a
+                    onClick={() => setDataset("Dataset #0")}
+                    className={dataset === "Dataset #0" ? "active" : ""}
+                  >
+                    Dataset #0
+                  </a>
+                </li>
                 <li>
                   <a
                     onClick={() => setDataset("Dataset #1")}
