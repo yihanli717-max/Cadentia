@@ -439,7 +439,7 @@ export const useRevisionListStore = create<
 
 export type studyManagerState = {
   user: string;
-  condition: "baseline" | "synthia" | "test";
+  condition: "synthia" | "test";
   dataset: number;
 };
 
@@ -455,7 +455,7 @@ export const useStudyManagerStore = create<
   persist(
     (set) => ({
       user: "P0",
-      condition: "test",
+      condition: "synthia",
       dataset: 0,
       setUser: (user: string) =>
         set(

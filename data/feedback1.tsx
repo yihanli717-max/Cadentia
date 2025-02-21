@@ -451,7 +451,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    provider: "EssayForum Reviewer 1",
+    provider: "EssayForum R1",
     content:
       "There is no real thesis to guide and develop the author's argument, although upon reading in full I was able to determine what I thought the author intended the thesis to be.",
     type: "Claim",
@@ -467,7 +467,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    provider: "EssayForum Reviewer 1",
+    provider: "EssayForum R1",
     content:
       "The essay is also lacking in support for the arguments set forth, and the counter-argument presented is brief and not well developed.",
     type: "Rebuttal",
@@ -483,7 +483,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    provider: "EssayForum Reviewer 1",
+    provider: "EssayForum R1",
     content:
       'The author needs to take a more determined and solid stance on the topic. He/she leads the paper by stating they "partly disagree" with the point of view that less emphasis needs to be placed on technological solutions. The author needs to pick a side and develop the essay around this assertion.',
     type: "Claim",
@@ -499,7 +499,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    provider: "EssayForum Reviewer 1",
+    provider: "EssayForum R1",
     content:
       "The organization of the essay was adequate, but the clarity was lacking. There were strange transitions from sentence to sentence, paragraph to paragraph.",
     type: "Organization",
@@ -515,7 +515,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    provider: "EssayForum Reviewer 1",
+    provider: "EssayForum R1",
     content:
       'Simple changes in leading words could solve this quite easily. Also, some of the work choices were awkward, such as "borne in mind" and "serious problems springing from modern technology." Again, this is a simple fix for the author.',
     type: "Word-usage",
@@ -531,7 +531,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    provider: "EssayForum Reviewer 1",
+    provider: "EssayForum R1",
     content:
       "The conclusion was easy to identify and wrapped up the author's point of view.",
     type: "Others",
@@ -547,7 +547,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 7,
-    provider: "EssayForum Reviewer 2",
+    provider: "EssayForum R2",
     content:
       'I do think the last sentence is doing tell more than show and I would have liked it to not be as generic with telling directly their arguments. When they say "and the reasons are given below" it feels calculated and doesn\'t flow well.',
     type: "Organization",
@@ -563,7 +563,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 7,
-    provider: "EssayForum Reviewer 2",
+    provider: "EssayForum R2",
     content:
       "I feel like the body paragraphs are on the right track, but are weak in their argument. I would have liked to see more supporting documentation and sources to support their analysis.",
     type: "Evidence",
@@ -579,7 +579,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 7,
-    provider: "EssayForum Reviewer 2",
+    provider: "EssayForum R2",
     content:
       "The closing paragraph to me is not strong. It to me goes against the opening paragraph and argument and to me makes the argument set in the beginning not as strong.",
     type: "Claim",
@@ -595,7 +595,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 8,
-    provider: "EssayForum Reviewer 3",
+    provider: "EssayForum R3",
     content:
       'Maybe I am misinterpreting the conclusion of your essay. You finish this essay by saying scientists should focus on new technology rather than technological solutions. Though, through the examples you have given and by your initial thesis statement, you are providing examples of technological solutions, are you not? These "hi tech devices" that help us study and work more efficiently and the medical advances we have made are, in my mind as an uninformed reader, the exact definition of technological solutions.',
     type: "Reasoning",
@@ -611,7 +611,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 8,
-    provider: "EssayForum Reviewer 3",
+    provider: "EssayForum R3",
     content:
       'I enjoy how you\'ve clearly laid out the pros and cons of technology, though I feel that you may need to define your terms a little more thoroughly. How am I supposed to know the difference between "technological solutions" versus "new technology?" What makes them so different? What makes one better than the other? And what makes your final statement relate to where our values should be placed as a society?',
     type: "Reasoning",
@@ -627,7 +627,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 8,
-    provider: "EssayForum Reviewer 3",
+    provider: "EssayForum R3",
     content:
       "I really would've loved to see you delve into the other values, like politics and education. And I would've loved even more if you outlined those values already existing relationships with technology and how it could improve (or worsen!).",
     type: "Others",
@@ -643,7 +643,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 8,
-    provider: "EssayForum Reviewer 3",
+    provider: "EssayForum R3",
     content:
       "This essay just reads as a simple pros/cons list over a very nuanced topic and I feel like there is much more for you to explore on this topic.",
     type: "Others",
@@ -659,7 +659,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    provider: "EssayForum Reviewer 4",
+    provider: "EssayForum R4",
     content: "The argument is weak and difficult to follow. ",
     type: "Reasoning",
     actionability: 0,
@@ -674,7 +674,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    provider: "EssayForum Reviewer 4",
+    provider: "EssayForum R4",
     content:
       "The writer doesn't take a firm stance and their arguments are not well fleshed out. ",
     type: "Claim",
@@ -690,7 +690,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    provider: "EssayForum Reviewer 4",
+    provider: "EssayForum R4",
     content:
       "The opening and closing paragraphs don't establish or conclude strong arguments. ",
     type: "Claim",
@@ -706,7 +706,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    provider: "EssayForum Reviewer 4",
+    provider: "EssayForum R4",
     content:
       "The arguments themselves are not well presented. They need to be more detailed and be presented more confidently. ",
     type: "Reasoning",
@@ -722,7 +722,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    provider: "EssayForum Reviewer 4",
+    provider: "EssayForum R4",
     content:
       "It felt like the writer didn't come into the essay with a strong opinion and was allowing themselves to be convinced by counter arguments as they wrote. ",
     type: "Claim",
@@ -738,7 +738,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    provider: "EssayForum Reviewer 4",
+    provider: "EssayForum R4",
     content:
       "They also didn't have persuasive arguments against the counter arguments that they mentioned. ",
     type: "Rebuttal",
@@ -754,7 +754,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    provider: "EssayForum Reviewer 4",
+    provider: "EssayForum R4",
     content:
       "Only a couple of arguments are even given to support the thesis and they are flimsy at best. ",
     type: "Evidence",
@@ -770,7 +770,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    provider: "EssayForum Reviewer 4",
+    provider: "EssayForum R4",
     content: "The essay needs to be longer and the ideas better supported. ",
     type: "Others",
     actionability: 0,
@@ -785,7 +785,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    provider: "EssayForum Reviewer 5",
+    provider: "EssayForum R5",
     content:
       "The essay would benefit from specific examples or citations to support claims about technology's positive impacts and the serious problems it causes, such as references to particular studies or statistics on technology's role in improving productivity or health outcomes, as well as the negative consequences of technology addiction.",
     type: "Evidence",
@@ -801,7 +801,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    provider: "EssayForum Reviewer 5",
+    provider: "EssayForum R5",
     content:
       'The use of vague phrases like "many aspects of our lives" and "many dangerous diseases" could be replaced with more precise terminology.',
     type: "Word-usage",
@@ -817,7 +817,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    provider: "EssayForum Reviewer 5",
+    provider: "EssayForum R5",
     content:
       "The argument might be clearer if it directly addressed how economic, political, and educational values could be integrated with technological advancements rather than presenting them as separate or opposing forces.",
     type: "Reasoning",
@@ -833,7 +833,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    provider: "EssayForum Reviewer 5",
+    provider: "EssayForum R5",
     content:
       'Spelling and grammar are generally correct, but the essay could improve its academic tone by avoiding colloquial expressions such as "beyond recognition".',
     type: "Word-usage",
@@ -849,7 +849,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    provider: "EssayForum Reviewer 5",
+    provider: "EssayForum R5",
     content:
       "Finally, the essay could enhance its persuasiveness by incorporating theoretical frameworks or models that explain the relationship between technology and societal development.",
     type: "Evidence",

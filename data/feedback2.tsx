@@ -418,7 +418,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    provider: "EssayForum Reviewer 1",
+    provider: "EssayForum R1",
     content:
       "Although the essay seems to focus on the prompt it fails to actually answer it. ",
     type: "Claim",
@@ -434,7 +434,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    provider: "EssayForum Reviewer 1",
+    provider: "EssayForum R1",
     content:
       'The second and fourth and final paragraphs involve no solution beyond "regulations", and "a more efficient and reliable system", while the third was entirely given to the opposing opposite with no direct rebuttal.',
     type: "Rebuttal",
@@ -450,7 +450,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    provider: "EssayForum Reviewer 1",
+    provider: "EssayForum R1",
     content:
       "It's incredibly hard to follow why one paragraph follows another.",
     type: "Organization",
@@ -466,7 +466,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    provider: "EssayForum Reviewer 1",
+    provider: "EssayForum R1",
     content: "Over and over again there were commas with spaces before them. ",
     type: "Orthography",
     actionability: 0,
@@ -481,7 +481,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    provider: "EssayForum Reviewer 1",
+    provider: "EssayForum R1",
     content:
       'There was also juvenile language "Change our lifestyle a lot" as well as speaking in the first person.',
     type: "Word-usage",
@@ -497,7 +497,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    provider: "EssayForum Reviewer 1",
+    provider: "EssayForum R1",
     content:
       'Most devastatingly, either the conjunctions were chosen wrong, or they were misspelled with their opposite: "[in]dispensable multifunctional tools", "it has a number of problems that should [could?] be well handled.',
     type: "Orthography",
@@ -513,7 +513,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 6,
-    provider: "EssayForum Reviewer 1",
+    provider: "EssayForum R1",
     content:
       "It seems like if you're willing to take a leap you can mostly understand detection the essay states, and although it provides arguments for 'their side' it has no rebuttals to the opposition.",
     type: "Rebuttal",
@@ -529,7 +529,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 7,
-    provider: "EssayForum Reviewer 2",
+    provider: "EssayForum R2",
     content:
       "The essay lacks depth in its exploration of each problem. While it briefly mentions social problems such as etiquette issues and cheating in exams, and touches on health concerns like hearing loss and cancer, it fails to provide specific examples, statistics, or studies to support these claims. Without evidence, the arguments presented lack credibility and persuasiveness.",
     type: "Evidence",
@@ -545,7 +545,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 7,
-    provider: "EssayForum Reviewer 2",
+    provider: "EssayForum R2",
     content:
       "Additionally, the discussion of technical problems is limited to the vague notion of interception of conversations by third parties, without delving into broader issues such as privacy breaches, data security, or cyber attacks.",
     type: "Reasoning",
@@ -561,7 +561,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 7,
-    provider: "EssayForum Reviewer 2",
+    provider: "EssayForum R2",
     content:
       "The essay does not effectively address the question of whether the problems associated with mobile phone use outweigh the benefits. While the author briefly acknowledges the drawbacks, they quickly dismiss them by stating that regulations can be implemented to solve social problems, further investigation is needed for health concerns, and more efficient technical systems can be developed. However, this simplistic approach fails to adequately weigh the negative consequences against the benefits of mobile phones. A more balanced analysis would consider the impact of mobile phones on productivity, relationships, mental health, and overall quality of life.",
     type: "Reasoning",
@@ -577,7 +577,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 7,
-    provider: "EssayForum Reviewer 2",
+    provider: "EssayForum R2",
     content:
       "Overall, while the essay provides a basic overview of the problems associated with mobile phone use, it lacks depth, evidence, and critical analysis. To improve, the author should provide more detailed examples, statistics, and studies to support their arguments, and engage in a more balanced evaluation of the benefits and drawbacks of mobile phone use.",
     type: "Evidence",
@@ -593,7 +593,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 8,
-    provider: "EssayForum Reviewer 3",
+    provider: "EssayForum R3",
     content:
       "While the essay provides a basic overview of the issues, it lacks depth and fails to present a strong argument.",
     type: "Reasoning",
@@ -609,7 +609,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 8,
-    provider: "EssayForum Reviewer 3",
+    provider: "EssayForum R3",
     content:
       "The essay also has multiple grammatical errors and lacks clarity in certain areas.",
     type: "Orthography",
@@ -625,7 +625,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 8,
-    provider: "EssayForum Reviewer 3",
+    provider: "EssayForum R3",
     content:
       "However the introduction fails to follow a clear thesis statement that outlines the author's perspective.",
     type: "Claim",
@@ -641,7 +641,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 8,
-    provider: "EssayForum Reviewer 3",
+    provider: "EssayForum R3",
     content:
       "Furthermore, the body paragraphs lack sufficient evidence and analysis to support the author's claims. For example, when discussing social problems, the essay briefly mentions impolite behavior and cheating in exams, but fails to provide specific examples or delve deeper into the impact of these issues. Similarly, when discussing medical problems, the essay mentions hearing loss and cancer, but does not provide any evidence or sources to support these claims. Moreover, the essay's discussion of technical problems is vague and lacks specificity. It mentions the possibility of conversations being intercepted, but does not explore this issue further or provide potential solutions.",
     type: "Evidence",
@@ -657,7 +657,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 8,
-    provider: "EssayForum Reviewer 3",
+    provider: "EssayForum R3",
     content:
       'In terms of language usage, the essay contains several grammatical errors and awkward phrasings. For example, the phrase "Nowadays, the popularity of mobile phones has brought about a lot of convenience but at the meanwhile a variety of problems as well" could be revised for clarity and conciseness.',
     type: "Orthography",
@@ -673,7 +673,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 8,
-    provider: "EssayForum Reviewer 3",
+    provider: "EssayForum R3",
     content:
       "The essay would benefit from incorporating specific examples, evidence, and analysis to strengthen the points made. Additionally, attention should be given to improving grammar and sentence structure to enhance readability.",
     type: "Evidence",
@@ -689,7 +689,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    provider: "EssayForum Reviewer 4",
+    provider: "EssayForum R4",
     content:
       "The first weaknesses that stand out are grammar, word choice, and fluency, which make the essay difficult to read and understand.",
     type: "Orthography",
@@ -705,7 +705,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    provider: "EssayForum Reviewer 4",
+    provider: "EssayForum R4",
     content:
       "Another major weakness is a bold cancer claim with no citation or evidence to back it, plus a somedetection dubious hearing loss claim.",
     type: "Evidence",
@@ -721,7 +721,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    provider: "EssayForum Reviewer 4",
+    provider: "EssayForum R4",
     content:
       "At times the proposed solutions or ideas are imprecise or lack any sound reasoning behind them, e.g. creating a system to protect the privacy of mobile phone users with no details given about how the system would work.",
     type: "Reasoning",
@@ -737,7 +737,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 9,
-    provider: "EssayForum Reviewer 4",
+    provider: "EssayForum R4",
     content:
       'The author does seem to have a thesis and clearly defends the utility of mobile phones. I give this essay a "mixed rating" or a 3.5/10, since it has severe content-related problems at times, but is otherwise constructed like an essay in a formal or technical sense.',
     type: "Others",
@@ -753,7 +753,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    provider: "EssayForum Reviewer 5",
+    provider: "EssayForum R5",
     content: "Many examples given are very overblown and hyperbolic.",
     type: "Evidence",
     actionability: 0,
@@ -768,7 +768,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    provider: "EssayForum Reviewer 5",
+    provider: "EssayForum R5",
     content:
       "In the article, the claims posited are not very concise or well-fleshed out.",
     type: "Claim",
@@ -784,7 +784,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    provider: "EssayForum Reviewer 5",
+    provider: "EssayForum R5",
     content:
       "Most concerningly, the writer of this article did not provide any sources, and only provided opinions without any evidence to back it up.",
     type: "Evidence",
@@ -800,7 +800,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    provider: "EssayForum Reviewer 5",
+    provider: "EssayForum R5",
     content:
       'For example, the sentence "speaking loudly on the phone in public areas, such as schools, libraries and hospitals appears to be very impolite and offensive" is subjective and opinionated, which is inappropriate for this type of writing.',
     type: "Evidence",
@@ -816,7 +816,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    provider: "EssayForum Reviewer 5",
+    provider: "EssayForum R5",
     content:
       "Less than half of claims are supported with reasoning or the reasoning is so brief, it essentially repeats the claim.",
     type: "Reasoning",
@@ -832,7 +832,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 10,
-    provider: "EssayForum Reviewer 5",
+    provider: "EssayForum R5",
     content:
       "Lastly, the conclusion is not relevant to the rest of the article. The main point of the conclusion is very assuming and again heavily opinionated, which is not appropriate for the writing.",
     type: "Claim",
