@@ -145,7 +145,7 @@ export const countWords = (text: string) => {
 
 export async function getEmbedding(
   text: string,
-  model: string = "text-embedding-3-small",
+  model: string = "text-embedding-3-large",
 ): Promise<number[]> {
   const API = useOpenAIAPI.getState().API;
   const openai = new OpenAI({

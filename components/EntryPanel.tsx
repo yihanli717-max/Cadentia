@@ -17,6 +17,11 @@ import {
 import { cn, countWords, getEmbedding } from "@/lib/utils";
 import { noto_serif } from "@/app/fonts";
 
+interface EmbeddingData {
+  id: number;
+  embedding: number[];
+}
+
 interface EntryPanelProps {
   setStart: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -30,7 +35,20 @@ const EntryPanel = (props: EntryPanelProps) => {
   const setAPI = useOpenAIAPI((state) => state.setAPI);
   const setLoading = useSharedConfigStore((state) => state.setLoading);
 
+  const loadEmbeddings = async (
+    filename: string,
+  ): Promise<Map<number, number[]>> => {
+    const response = await fetch(filename);
+    const embeddingsData: EmbeddingData[] = await response.json();
+
+    return new Map(embeddingsData.map((item) => [item.id, item.embedding]));
+  };
+
   const loadDefaultData = async () => {
+    const embeddingsMap =
+      dataset === "Dataset #1"
+        ? await loadEmbeddings("embeddings1.json")
+        : await loadEmbeddings("embeddings2.json");
     const essay = dataset === "Dataset #1" ? essay1 : essay2;
     const feedback = dataset === "Dataset #1" ? feedback1 : feedback2;
     const feedbackSource =
@@ -52,7 +70,7 @@ const EntryPanel = (props: EntryPanelProps) => {
       feedback.map(async (item) => ({
         ...item,
         length: countWords(item.content),
-        embeddings: await getEmbedding(item.content),
+        embeddings: embeddingsMap.get(item.id) || undefined,
       })),
     ).then((result) => {
       setLoading(false);
