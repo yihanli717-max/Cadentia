@@ -399,7 +399,7 @@
   {
     "source": 5,
     "provider": "AI",
-    "content": "The evidence often remains generalized, which limits its impact. The mention of “medical advances” would be stronger with specific references, such as mRNA vaccines or AI-driven diagnostics. The discussion of technology’s threats—like “deadly weapons”—could be enriched by naming concrete examples (e.g., nuclear arms or autonomous drones) to emphasize real-world risks. Including statistics (e.g., “AI has reduced workplace errors by 30%” or “cyberattacks cost $8 trillion annually”) would add credibility.",
+    "content": "The evidence often remains generalized, which limits its impact. The mention of \"medical advances\" would be stronger with specific references, such as mRNA vaccines or AI-driven diagnostics. The discussion of technology’s threats—like \"deadly weapons\"—could be enriched by naming concrete examples (e.g., nuclear arms or autonomous drones) to emphasize real-world risks. Including statistics (e.g., \"AI has reduced workplace errors by 30%\" or \"cyberattacks cost $8 trillion annually\") would add credibility.",
     "type": "Evidence",
     "actionability": 0,
     "specificity": 0.44666666666666666,
@@ -421,7 +421,7 @@
   {
     "source": 5,
     "provider": "AI",
-    "content": "The conclusion asserts that technology’s benefits “outweigh its drawbacks” but does not provide comparative evidence to support this claim. A brief analysis of lives saved through medical technology versus lives lost to tech-related conflicts would create a more balanced and persuasive argument.",
+    "content": "The conclusion asserts that technology’s benefits \"outweigh its drawbacks\" but does not provide comparative evidence to support this claim. A brief analysis of lives saved through medical technology versus lives lost to tech-related conflicts would create a more balanced and persuasive argument.",
     "type": "Evidence",
     "actionability": 0,
     "specificity": 0.4625,
@@ -455,7 +455,7 @@
   {
     "source": 5,
     "provider": "AI",
-    "content": "Minor grammatical errors and stylistic inconsistencies detract from its polish. The phrase “in can also result” should read “it can also result,” and “pay more attention to develop” should be corrected to “pay more attention to developing” (using the gerund form).",
+    "content": "Minor grammatical errors and stylistic inconsistencies detract from its polish. The phrase \"in can also result\" should read \"it can also result,\" and \"pay more attention to develop\" should be corrected to \"pay more attention to developing\" (using the gerund form).",
     "type": "Orthography",
     "actionability": 1,
     "specificity": 0.47857142857142854,
@@ -473,7 +473,7 @@
   {
     "source": 5,
     "provider": "AI",
-    "content": "Redundant phrases like “negative drawbacks” can be simplified to “drawbacks,” and “high blood-pressure” should be written as “high blood pressure” without a hyphen.",
+    "content": "Redundant phrases like \"negative drawbacks\" can be simplified to \"drawbacks,\" and \"high blood-pressure\" should be written as \"high blood pressure\" without a hyphen.",
     "type": "Orthography",
     "actionability": 1,
     "specificity": 0.5,
@@ -491,7 +491,7 @@
   {
     "source": 5,
     "provider": "AI",
-    "content": "Punctuation errors, such as missing commas after introductory words like “Besides,” should be addressed for clarity.",
+    "content": "Punctuation errors, such as missing commas after introductory words like \"Besides,\" should be addressed for clarity.",
     "type": "Orthography",
     "actionability": 1,
     "specificity": 0.475,
@@ -506,7 +506,7 @@
   {
     "source": 5,
     "provider": "AI",
-    "content": "The phrase “partly disagree” in the introduction is slightly ambiguous—clarifying whether the disagreement lies with reducing emphasis on technology or prioritizing other values would strengthen the thesis.",
+    "content": "The phrase \"partly disagree\" in the introduction is slightly ambiguous—clarifying whether the disagreement lies with reducing emphasis on technology or prioritizing other values would strengthen the thesis.",
     "type": "Reasoning",
     "actionability": 0,
     "specificity": 0.4833333333333333,
@@ -523,7 +523,7 @@
   {
     "source": 5,
     "provider": "AI",
-    "content": "Careful proofreading and attention to word choice (e.g., replacing repetitive uses of “technology” with synonyms like “innovation”) would enhance readability.",
+    "content": "Careful proofreading and attention to word choice (e.g., replacing repetitive uses of \"technology\" with synonyms like \"innovation\") would enhance readability.",
     "type": "Word-usage",
     "actionability": 0,
     "specificity": 0.465,
@@ -669,7 +669,7 @@
   {
     "source": 7,
     "provider": "EssayForum R2",
-    "content": "I feel like the body paragraphs are on the right track, but are weak in their argument. I would have liked to see more supporting documentation and \"source\"s to support their analysis.",
+    "content": "I feel like the body paragraphs are on the right track, but are weak in their argument. I would have liked to see more supporting documentation and sources to support their analysis.",
     "type": "Evidence",
     "actionability": 0,
     "specificity": 0.4676470588235294,
