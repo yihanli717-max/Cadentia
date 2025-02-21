@@ -20,7 +20,7 @@ export type OpenAIAPIActions = {
 export const useOpenAIAPI = create<OpenAIAPIState & OpenAIAPIActions>()(
   persist(
     (set) => ({
-      API: process.env.NEXT_PUBLIC_OPENAI_API_KEY || "",
+      API: process.env.OPENAI_API_KEY || "",
       setAPI: (API: string) => set({ API: API }),
     }),
     { name: "openai-api", skipHydration: true },

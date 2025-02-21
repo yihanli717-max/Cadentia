@@ -147,19 +147,33 @@ export async function getEmbedding(
   text: string,
   model: string = "text-embedding-3-large",
 ): Promise<number[]> {
-  const API = useOpenAIAPI.getState().API;
-  const openai = new OpenAI({
-    apiKey: API,
-    dangerouslyAllowBrowser: true,
-  });
+  let embedding: number[] = [];
+  try {
+    const response = await fetch("/api/embeddings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        apiKey: useOpenAIAPI.getState().API,
+        model: model,
+        input: text,
+      }),
+    });
 
-  const response = await openai.embeddings.create({
-    model,
-    input: text,
-    encoding_format: "float",
-  });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Embedding generation failed");
+    }
 
-  return response.data[0].embedding;
+    const data = await response.json();
+    embedding = data.embedding;
+  } catch (error) {
+    console.error("Error generating embedding:", error);
+    throw error;
+  }
+
+  return embedding;
 }
 
 const Revision = z.object({
@@ -175,29 +189,25 @@ export async function Regenerate(
   conversation: OpenAIType.ChatCompletionMessageParam[],
   prompt: string,
 ) {
-  console.log("Regenerate");
-  const API = useOpenAIAPI.getState().API;
-  const openai = new OpenAI({
-    apiKey: API,
-    dangerouslyAllowBrowser: true,
-  });
+  const payload = {
+    conversation: conversation,
+    prompt: prompt,
+  };
 
-  const newConversation: OpenAIType.ChatCompletionMessageParam[] = [
-    ...conversation,
-    {
-      role: "user",
-      content: prompt,
-    },
-  ];
+  try {
+    const response = await fetch("/api/regeneration", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: newConversation,
-    temperature: 0.7,
-    response_format: zodResponseFormat(Revision, "revision"),
-  });
-
-  return response.choices[0].message.content;
+    if (!response.ok) throw new Error("Request failed");
+    const data = await response.json();
+    return data.revision;
+  } catch (error) {
+    console.error("Revision failed:", error);
+    return null;
+  }
 }
 
 export async function generateRevision(
@@ -205,64 +215,26 @@ export async function generateRevision(
   feedbackList: string[],
   sentenceList: string[],
 ) {
-  const API = useOpenAIAPI.getState().API;
-  const openai = new OpenAI({
-    apiKey: API,
-    dangerouslyAllowBrowser: true,
-  });
+  const payload = {
+    essay: essay,
+    feedbackList: feedbackList,
+    sentenceList: sentenceList,
+  };
 
-  // Contactanate the feedbacks
-  const connectedFeedback = feedbackList.join(" ");
+  try {
+    const response = await fetch("/api/revision", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-  // Contactanate the essay by paragraphs
-  const connectedEssay = Object.values(
-    essay.reduce(
-      (result, sentence) => {
-        // Get the paragraph number of the current sentence
-        const paragraph = sentence.paragraph;
-
-        // If the paragraph is not in the result object, initialize it as an empty string
-        if (!result[paragraph]) {
-          result[paragraph] = "";
-        }
-
-        // Concatenate the sentence content to the paragraph
-        result[paragraph] += (result[paragraph] ? " " : "") + sentence.content;
-
-        return result;
-      },
-      {} as Record<number, string>,
-    ),
-  ).join("\n");
-
-  let conversation: OpenAIType.ChatCompletionMessageParam[] = [
-    {
-      role: "system",
-      content:
-        "As a professional writer, you have received feedback on your essay and have been asked to revise specific sentences that need improvement. Your task is to carefully revise the given sentences based on the feedback received, ensuring that the original meaning is maintained and considering the context of the sentences in the essay.\n" +
-        `Essay: '${connectedEssay}`,
-    },
-    {
-      role: "user",
-      content:
-        `The feedback you received: '${connectedFeedback}'\n\n` +
-        `The sentences you need to revise: '${sentenceList.join("\n")}'`,
-    },
-  ];
-
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: conversation,
-    temperature: 0.7,
-    response_format: zodResponseFormat(Revision, "revision"),
-  });
-
-  conversation.push({
-    role: "assistant",
-    content: response.choices[0].message.content,
-  });
-
-  return { conversation, response: response.choices[0].message.content };
+    if (!response.ok) throw new Error("Request failed");
+    const data = await response.json();
+    return { conversation: data.conversation, response: data.revision };
+  } catch (error) {
+    console.error("Revision failed:", error);
+    return null;
+  }
 }
 
 export function getInterpolateColor(
