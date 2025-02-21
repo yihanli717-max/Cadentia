@@ -13,10 +13,6 @@ const Revision = z.object({
   ),
 });
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 interface Sentence {
   paragraph: number;
   content: string;
@@ -24,17 +20,21 @@ interface Sentence {
 
 export async function POST(req: Request) {
   try {
-    const { conversation, prompt } = await req.json();
+    const { apiKey, conversation, prompt } = await req.json();
 
     // Validate required parameters
-    if (!conversation || !prompt) {
+    if (!apiKey || !conversation || !prompt) {
       return NextResponse.json(
         {
-          error: "Missing required parameters: conversation or prompt",
+          error: "Missing required parameters: api key, conversation or prompt",
         },
         { status: 400 },
       );
     }
+
+    const openai = new OpenAI({
+      apiKey: apiKey,
+    });
 
     // Construct conversation messages
     const messages: OpenAI.ChatCompletionMessageParam[] = [

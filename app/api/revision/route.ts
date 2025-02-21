@@ -13,10 +13,6 @@ const Revision = z.object({
   ),
 });
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 interface Sentence {
   paragraph: number;
   content: string;
@@ -24,18 +20,22 @@ interface Sentence {
 
 export async function POST(req: Request) {
   try {
-    const { essay, feedbackList, sentenceList } = await req.json();
+    const { apiKey, essay, feedbackList, sentenceList } = await req.json();
 
     // Validate required parameters
-    if (!essay || !feedbackList || !sentenceList) {
+    if (!apiKey || !essay || !feedbackList || !sentenceList) {
       return NextResponse.json(
         {
           error:
-            "Missing required parameters: essay, feedbackList, or sentenceList",
+            "Missing required parameters: api key, essay, feedback, or sentence",
         },
         { status: 400 },
       );
     }
+
+    const openai = new OpenAI({
+      apiKey: apiKey,
+    });
 
     // Process feedback into single string
     const concatenatedFeedback = feedbackList.join(" ");

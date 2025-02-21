@@ -178,6 +178,7 @@ export async function Regenerate(
   prompt: string,
 ) {
   const payload = {
+    apiKey: useOpenAIAPI.getState().API,
     conversation: conversation,
     prompt: prompt,
   };
@@ -204,6 +205,7 @@ export async function generateRevision(
   sentenceList: string[],
 ) {
   const payload = {
+    apiKey: useOpenAIAPI.getState().API,
     essay: essay,
     feedbackList: feedbackList,
     sentenceList: sentenceList,
