@@ -232,6 +232,13 @@ export const useSharedConfigStore = create<
           produce((state) => {
             state.currentSelectedItems = feedbacks;
 
+            eventTracker({
+              action: "track selected feedback",
+              data: {
+                feedbacks: feedbacks,
+              },
+            });
+
             const allFeedback = useFeedbackStore.getState().feedback;
             const sentenceIds = new Set<number>();
 
