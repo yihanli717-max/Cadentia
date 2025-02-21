@@ -3,6 +3,10 @@ import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 // Define Zod schema for response validation
 const Revision = z.object({
   revision: z.array(
@@ -20,10 +24,10 @@ interface Sentence {
 
 export async function POST(req: Request) {
   try {
-    const { apiKey, essay, feedbackList, sentenceList } = await req.json();
+    const { essay, feedbackList, sentenceList } = await req.json();
 
     // Validate required parameters
-    if (!apiKey || !essay || !feedbackList || !sentenceList) {
+    if (!essay || !feedbackList || !sentenceList) {
       return NextResponse.json(
         {
           error:
@@ -32,10 +36,6 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
-
-    const openai = new OpenAI({
-      apiKey: apiKey,
-    });
 
     // Process feedback into single string
     const concatenatedFeedback = feedbackList.join(" ");

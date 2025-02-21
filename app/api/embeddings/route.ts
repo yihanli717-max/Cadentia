@@ -1,21 +1,21 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 export async function POST(req: Request) {
   try {
-    const { apiKey, model, input } = await req.json();
+    const { model, input } = await req.json();
 
     // Check for required parameters
-    if (!apiKey || !model || !input) {
+    if (!model || !input) {
       return NextResponse.json(
         { error: "Missing required parameters: model or input" },
         { status: 400 },
       );
     }
-
-    const openai = new OpenAI({
-      apiKey: apiKey,
-    });
 
     // Call OpenAI apiKey to generate embeddings
     const response = await openai.embeddings.create({

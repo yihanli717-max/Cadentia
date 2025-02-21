@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge";
 import type { OpenAI as OpenAIType } from "openai";
 import * as d3 from "d3";
 import { diffWords } from "diff";
-import { useOpenAIAPI, useStudyManagerStore } from "@/lib/store";
+import { useStudyManagerStore } from "@/lib/store";
 import { Sentence, RevisionItem } from "@/lib/type";
 import { push, ref, set } from "firebase/database";
 import { database } from "@/app/firebaseConfig";
@@ -152,7 +152,7 @@ export async function getEmbedding(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        apiKey: useOpenAIAPI.getState().API,
+        // apiKey: useOpenAIAPI.getState().API,
         model: model,
         input: text,
       }),
@@ -178,7 +178,7 @@ export async function Regenerate(
   prompt: string,
 ) {
   const payload = {
-    apiKey: useOpenAIAPI.getState().API,
+    // apiKey: useOpenAIAPI.getState().API,
     conversation: conversation,
     prompt: prompt,
   };
@@ -205,7 +205,7 @@ export async function generateRevision(
   sentenceList: string[],
 ) {
   const payload = {
-    apiKey: useOpenAIAPI.getState().API,
+    // apiKey: useOpenAIAPI.getState().API,
     essay: essay,
     feedbackList: feedbackList,
     sentenceList: sentenceList,

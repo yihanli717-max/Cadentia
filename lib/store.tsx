@@ -1,6 +1,6 @@
 import { produce } from "immer";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, subscribeWithSelector } from "zustand/middleware";
 import {
   Sentence,
   FeedbackItem,
@@ -9,23 +9,23 @@ import {
 } from "@/lib/type";
 import { eventTracker } from "@/lib/utils";
 
-export type OpenAIAPIState = {
-  API: string;
-};
+// export type OpenAIAPIState = {
+//   API: string;
+// };
 
-export type OpenAIAPIActions = {
-  setAPI: (API: string) => void;
-};
+// export type OpenAIAPIActions = {
+//   setAPI: (API: string) => void;
+// };
 
-export const useOpenAIAPI = create<OpenAIAPIState & OpenAIAPIActions>()(
-  persist(
-    (set) => ({
-      API: process.env.OPENAI_API_KEY || "",
-      setAPI: (API: string) => set({ API: API }),
-    }),
-    { name: "openai-api", skipHydration: true },
-  ),
-);
+// export const useOpenAIAPI = create<OpenAIAPIState & OpenAIAPIActions>()(
+//   persist(
+//     (set) => ({
+//       API: process.env.OPENAI_API_KEY || "",
+//       setAPI: (API: string) => set({ API: API }),
+//     }),
+//     { name: "openai-api", skipHydration: true },
+//   ),
+// );
 
 export type EssayState = {
   essay: Sentence[];
@@ -301,75 +301,120 @@ export type RevisionListActions = {
 export const useRevisionListStore = create<
   RevisionListState & RevisionListActions
 >()(
-  persist(
-    (set) => ({
-      revisionList: [],
-      setRevisionList: (revisionList) => set({ revisionList }),
-      createRevision: () =>
-        set(
-          produce((state) => {
-            state.revisionList.push({
-              id: state.revisionList.length,
-              conversation: [],
-              feedback: [],
-              revision: [],
-            });
-          }),
-        ),
-      updateRevision: (target) => {
-        set(
-          produce((state) => {
-            const existingRevision = state.revisionList.find(
-              (item: RevisionItem) => item.id === target.id,
-            );
-            if (existingRevision) {
-              state.revisionList = state.revisionList.map(
-                (item: RevisionItem) =>
-                  item.id === target.id
-                    ? {
-                        ...item,
-                        feedback: target.feedback,
-                        revision: target.revision,
-                        conversation: target.conversation,
-                      }
-                    : item,
-              );
-            } else {
-              console.log("target", target);
-              state.revisionList.push({
-                id: target.id,
-                feedback: target.feedback,
-                revision: target.revision,
-                conversation: target.conversation,
-              });
-            }
-          }),
-        );
-      },
-      updateRevisedSentence: (id, original, newRevision) => {
-        set(
-          produce((state) => {
-            const revisionObject = state.revisionList.find(
-              (item: RevisionItem) => item.id === id,
-            );
-            // console.log("revisionObject", revisionObject);
-            if (revisionObject) {
-              const revisedSentence = revisionObject.revision.find(
-                (item: { original: string; revised: string }) =>
-                  item.original === original,
-              );
+  subscribeWithSelector(
+    persist(
+      (set) => ({
+        revisionList: [],
+        setRevisionList: (revisionList) => {
+          set({ revisionList });
 
-              // console.log("revisedSentence", revisedSentence);
-              if (revisedSentence) {
-                revisedSentence.revised = newRevision;
+          eventTracker({
+            action: "track revision list",
+            data: {
+              revisions: revisionList,
+            },
+          });
+        },
+        createRevision: () =>
+          set(
+            produce((state) => {
+              state.revisionList.push({
+                id: state.revisionList.length,
+                conversation: [],
+                feedback: [],
+                revision: [],
+              });
+
+              eventTracker({
+                action: "track revision list",
+                data: {
+                  revisions: state.revisionList,
+                },
+              });
+            }),
+          ),
+        updateRevision: (target) => {
+          set(
+            produce((state) => {
+              const existingRevision = state.revisionList.find(
+                (item: RevisionItem) => item.id === target.id,
+              );
+              if (existingRevision) {
+                state.revisionList = state.revisionList.map(
+                  (item: RevisionItem) =>
+                    item.id === target.id
+                      ? {
+                          ...item,
+                          feedback: target.feedback,
+                          revision: target.revision,
+                          conversation: target.conversation,
+                        }
+                      : item,
+                );
+              } else {
+                console.log("target", target);
+                state.revisionList.push({
+                  id: target.id,
+                  feedback: target.feedback,
+                  revision: target.revision,
+                  conversation: target.conversation,
+                });
               }
-            }
-          }),
-        );
-      },
-    }),
-    { name: "revision-list", skipHydration: true },
+
+              eventTracker({
+                action: "track revision list",
+                data: {
+                  revisions: state.revisionList,
+                },
+              });
+            }),
+          );
+        },
+        updateRevisedSentence: (id, original, newRevision) => {
+          set(
+            produce((state) => {
+              const revisionObject = state.revisionList.find(
+                (item: RevisionItem) => item.id === id,
+              );
+              // console.log("revisionObject", revisionObject);
+              if (revisionObject) {
+                const revisedSentence = revisionObject.revision.find(
+                  (item: { original: string; revised: string }) =>
+                    item.original === original,
+                );
+
+                // console.log("revisedSentence", revisedSentence);
+                if (revisedSentence) {
+                  revisedSentence.revised = newRevision;
+                }
+              }
+
+              eventTracker({
+                action: "track revision list",
+                data: {
+                  revisions: state.revisionList,
+                },
+              });
+            }),
+          );
+        },
+      }),
+      { name: "revision-list", skipHydration: true },
+    ),
   ),
+);
+
+useRevisionListStore.subscribe(
+  (state) => state.revisionList,
+  (newRevision, preRevision) => {
+    console.log("Revision List Updated", newRevision, preRevision);
+    eventTracker({
+      action: "track revision list",
+      data: {
+        revisions: newRevision,
+      },
+    });
+  },
 );
 
 export type studyManagerState = {

@@ -7,7 +7,7 @@ import { essay as essay2 } from "@/data/essay2";
 import { feedback as feedback2 } from "@/data/feedback2";
 import { feedbackSource as feedbackSource2 } from "@/data/source2";
 import {
-  useOpenAIAPI,
+  // useOpenAIAPI,
   useEssayStore,
   useFeedbackStore,
   useFeedbackSourceStore,
@@ -27,12 +27,12 @@ interface EntryPanelProps {
 }
 
 const EntryPanel = (props: EntryPanelProps) => {
-  const [inputAPI, setIuptAPI] = useState("");
+  // const [inputAPI, setIuptAPI] = useState("");
   const [inputID, setInputID] = useState("");
   const [dataset, setDataset] = useState("Dataset #1");
 
   const setUser = useStudyManagerStore((state) => state.setUser);
-  const setAPI = useOpenAIAPI((state) => state.setAPI);
+  // const setAPI = useOpenAIAPI((state) => state.setAPI);
   const setLoading = useSharedConfigStore((state) => state.setLoading);
 
   const loadEmbeddings = async (
