@@ -37,9 +37,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Process feedback into single string
-    const concatenatedFeedback = feedbackList.join(" ");
-
     // Concatenate essay paragraphs
     const paragraphMap = essay.reduce(
       (acc: Record<number, string>, sentence: Sentence) => {
@@ -61,7 +58,13 @@ export async function POST(req: Request) {
       },
       {
         role: "user",
-        content: `The feedback you received: '${concatenatedFeedback}'\n\nThe sentences you need to revise:\n${sentenceList.join("\n")}`,
+        content:
+          "--------Feedback--------\n" +
+          feedbackList.join("\n") +
+          "\n------------------------------\n\n" +
+          "--------Sentence--------\n" +
+          sentenceList.join("\n") +
+          "\n------------------------------",
       },
     ];
 
