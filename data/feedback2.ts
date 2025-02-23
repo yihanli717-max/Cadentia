@@ -340,7 +340,7 @@ export const feedback: FeedbackItem[] = [
     source: 5,
     provider: "AI",
     content:
-      'This sentence is not necessary: "In this essay, I would like to analyse these three issues in order to support my viewpoint.',
+      'This sentence is not necessary: "In this essay, I would like to analyse these three issues in order to support my viewpoint."',
     type: "Organization",
     actionability: 0,
     specificity: 0.45,
@@ -356,7 +356,7 @@ export const feedback: FeedbackItem[] = [
     source: 5,
     provider: "AI",
     content:
-      'Prove this argument for the reader: "First of all, almost everything that changed our lifestyle a lot will also cause some social problems.',
+      'Prove this argument for the reader: "First of all, almost everything that changed our lifestyle a lot will also cause some social problems."',
     type: "Evidence",
     actionability: 0,
     specificity: 0.45,
