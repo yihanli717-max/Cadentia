@@ -83,7 +83,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    provider: "Instructor",
+    provider: "Jeff",
     content:
       'The essay writer does a middle of the road to better than average job on explaining his responses to the prompt and his reasoning for establishing his claims. However, there is no clear evidence cited in his essay response, only vague generalities and "more studies are needed" responses. Who are the people of which he is speaking?',
     type: "Evidence",
@@ -99,7 +99,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    provider: "Instructor",
+    provider: "Jeff",
     content:
       "There are not enough specific instances of the potential, problematic health issues surrounding the topic at hand. A vague mention of cancers and hearing loss, when there are so many more to be mentioned, such as: Carpal tunnel syndrome, elbow tendonitis, posture issues, eye strain, and so forth.",
     type: "Evidence",
@@ -115,7 +115,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    provider: "Instructor",
+    provider: "Jeff",
     content:
       "There are no examples of any kind of regulations that the writer mentions that could be used to keep students honest when it comes to cell phones and exams. A better essay would have given some ideas of those things.",
     type: "Evidence",
@@ -131,7 +131,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    provider: "Instructor",
+    provider: "Jeff",
     content:
       "The proficiency of his statement of claims was a little scattered and made harder to understand due to the poor grammar, typos, and word choices. There is very little precision in the essay argument, and there is a weak rebuttal of the points the writer made at the beginning.",
     type: "Claim",
@@ -147,7 +147,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    provider: "Instructor",
+    provider: "Jeff",
     content:
       "The writer is very informal and, dare I say it, lazy in regards to sentence structure and argument style. There is really only one convincing section in the whole essay to support their idea that all new innovations come with their own issues.",
     type: "Reasoning",
@@ -163,7 +163,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    provider: "Instructor",
+    provider: "Jeff",
     content:
       "There are no supportive sentences or words for any other points of view other than those of the writer.",
     type: "Rebuttal",

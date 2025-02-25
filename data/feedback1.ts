@@ -115,7 +115,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    provider: "Instructor",
+    provider: "Jeff",
     content:
       "The essay presents a nuanced perspective on the role of technology in modern society, but suffers from inconsistencies in word usage, insufficient evidence, and minor orthography errors.",
     type: "Word-usage",
@@ -131,7 +131,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    provider: "Instructor",
+    provider: "Jeff",
     content:
       'Phrases like "improved beyond recognition" could be toned down for academic sobriety, and "intricate problems" might benefit from examples to ground the discussion in concrete terms.',
     type: "Word-usage",
@@ -147,7 +147,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    provider: "Instructor",
+    provider: "Jeff",
     content:
       "The essay lacks robust evidence to support its claims, relying on broad assertions (e.g., the benefits of hi-tech devices and medical advances) without citing specific studies, technologies, or statistical data. This undermines the argument's credibility, as it doesn't provide the reader with a clear basis for its conclusions.",
     type: "Evidence",
@@ -163,7 +163,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    provider: "Instructor",
+    provider: "Jeff",
     content:
       "The essay could benefit from closer attention to punctuation, particularly in the use of commas for clarity in longer sentences.",
     type: "Orthography",
@@ -179,7 +179,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    provider: "Instructor",
+    provider: "Jeff",
     content:
       'Moreover, transitioning phrases like "to begin with" and "however" could be employed more strategically to enhance coherence and flow.',
     type: "Word-usage",
@@ -195,7 +195,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 2,
-    provider: "Instructor",
+    provider: "Jeff",
     content:
       "The conclusion could be strengthened by addressing the counterargument more directly, thus providing a more balanced view.",
     type: "Rebuttal",

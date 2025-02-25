@@ -11,7 +11,7 @@ export const feedbackSource: FeedbackSourceItem[] = [
     id: 2,
     content:
       'The essay presents a nuanced perspective on the role of technology in modern society, but suffers from inconsistencies in word usage, insufficient evidence, and minor orthography errors. Phrases like "improved beyond recognition" could be toned down for academic sobriety, and "intricate problems" might benefit from examples to ground the discussion in concrete terms. The essay lacks robust evidence to support its claims, relying on broad assertions (e.g., the benefits of hi-tech devices and medical advances) without citing specific studies, technologies, or statistical data. This undermines the argument\'s credibility, as it doesn\'t provide the reader with a clear basis for its conclusions. The essay could benefit from closer attention to punctuation, particularly in the use of commas for clarity in longer sentences. Moreover, transitioning phrases like "to begin with" and "however" could be employed more strategically to enhance coherence and flow. The conclusion could be strengthened by addressing the counterargument more directly, thus providing a more balanced view. Overall, refining word choice, bolstering claims with concrete evidence, and minor adjustments in punctuation would significantly enhance the essay\'s persuasiveness and readability.',
-    provider: "Instructor",
+    provider: "Jeff",
   },
   {
     id: 3,
