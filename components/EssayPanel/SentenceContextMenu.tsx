@@ -39,7 +39,7 @@ const SentenceContextMenu = (props: SentenceContextMenuProps) => {
       useSharedConfigStore.getState().currentSelectedItems;
 
     switch (action) {
-      case "Select all relevant feedback":
+      case "Select all feedback bubbles for this sentence":
         const mergedItems = Array.from(
           new Set([...currentSelectedItems, ...feedbackIDs]),
         );
@@ -52,7 +52,7 @@ const SentenceContextMenu = (props: SentenceContextMenuProps) => {
           },
         });
         break;
-      case "Remove all relevant feedback":
+      case "Remove all feedback bubbles for this sentence":
         const filteredItems = currentSelectedItems.filter(
           (id) => !feedbackIDs.includes(id),
         );
@@ -65,7 +65,7 @@ const SentenceContextMenu = (props: SentenceContextMenuProps) => {
           },
         });
         break;
-      case "Add to selected sentences":
+      case "Select this sentence":
         // Add to currentSelectedSentences
         let newItems = Array.from(
           new Set([...currentSelectedSentences, sentence.id]),
@@ -84,7 +84,7 @@ const SentenceContextMenu = (props: SentenceContextMenuProps) => {
           },
         });
         break;
-      case "Remove from selected sentences":
+      case "Remove this sentence":
         // Remove from currentSelectedSentences
         let removedItems = currentSelectedSentences.filter(
           (id) => id !== sentence.id,

@@ -60,7 +60,7 @@ const Menu = (props: MenuProps) => {
           "p-2 gap-3 flex flex-row items-start justify-between",
         )}
       >
-        <div className="flex-none flex flex-col 2xl:flex-row gap-2 z-50">
+        <div className="flex-none flex flex-row gap-2 z-50">
           <div className="dropdown">
             <div
               tabIndex={0}
@@ -227,7 +227,7 @@ const Menu = (props: MenuProps) => {
             />
             <kbd className="kbd kbd-sm">↵</kbd>
           </label>
-          <div className="ml-2 flex flex-col gap-1 w-52">
+          {/* <div className="ml-2 flex flex-col gap-1 w-52">
             <p className="text-2xs">
               Feedback Similarity Threshold on Hover: {similarityThreshold}
             </p>
@@ -242,7 +242,7 @@ const Menu = (props: MenuProps) => {
                 setSimilarityThreshold(parseFloat(e.target.value))
               }
             />
-          </div>
+          </div> */}
         </div>
       </div>
       <div className="absolute right-3 bottom-2 z-50 select-none">

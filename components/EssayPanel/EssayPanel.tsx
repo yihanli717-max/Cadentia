@@ -27,10 +27,10 @@ const EssayPanel = (props: EssayPanelProps) => {
   const [ifClicked, setIfClicked] = useState(false);
   const [clickedSentence, setClickedSentence] = useState<string | null>(null);
   const [contextMenuText, setContextMenuText] = useState([
-    "Select all relevant feedback",
-    "Remove all relevant feedback",
-    "Add to selected sentences",
-    "Remove from selected sentences",
+    "Select all feedback bubbles for this sentence",
+    "Remove all feedback bubbles for this sentence",
+    "Select this sentence",
+    "Remove this sentence",
   ]);
   // Use context menu from react-contexify
   const { show: showSentenceMenu } = useContextMenu({ id: SENTENCE_MENU_ID });
@@ -138,7 +138,7 @@ const EssayPanel = (props: EssayPanelProps) => {
                           .find((item) => item.source === hoveredProvider)
                           ?.detection.includes(section.id) ||
                         highlightSentences.has(section.content)
-                        ? "bg-sky-100"
+                        ? "bg-sky-100 underline"
                         : "",
                       hoveredSentence === section.id ? "underline" : "",
                     )}
@@ -206,9 +206,9 @@ const EssayPanel = (props: EssayPanelProps) => {
                   )?.revised && (
                     // <span className="text-xs opacity-60">[edited]</span>
                     <span className="inline-flex translate-y-[1px] ml-[3px]">
-                      <span className="size-4 border bg-white rounded-sm join-item flex items-center justify-center text-neutral hover:bg-base-200 active:scale-90 transition-all duration-150 ease-in-out">
+                      {/* <span className="size-4 border bg-white rounded-sm join-item flex items-center justify-center text-neutral hover:bg-base-200 active:scale-90 transition-all duration-150 ease-in-out">
                         <TbCheck size={12} />
-                      </span>
+                      </span> */}
                       <span
                         className="size-4 border bg-white rounded-sm join-item flex items-center justify-center text-neutral hover:bg-base-200 active:scale-90 transition-all duration-150 ease-in-out"
                         onClick={(e) => {

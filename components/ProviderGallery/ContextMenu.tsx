@@ -33,7 +33,7 @@ const ContextMenu = (props: ContextMenuProps) => {
       useSharedConfigStore.getState().currentSelectedItems;
 
     switch (action) {
-      case "Select all relevant feedback":
+      case "Select the entire feedback":
         // console.log("Select all relevant feedback:", feedbackIDs);
         const mergedItems = Array.from(
           new Set([...currentSelectedItems, ...feedbackIDs]),
@@ -47,7 +47,7 @@ const ContextMenu = (props: ContextMenuProps) => {
           },
         });
         break;
-      case "Remove all relevant feedback":
+      case "Remove the entire feedback":
         const filteredItems = currentSelectedItems.filter(
           (id) => !feedbackIDs.includes(id),
         );

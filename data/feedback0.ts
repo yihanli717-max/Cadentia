@@ -37,7 +37,7 @@ export const feedback: FeedbackItem[] = [
     source: 1,
     provider: "Jack",
     content:
-      'Precision in word choice needs to be improved: an example is using "insure" instead of "ensure" and using "twofold" instead of "two."',
+      'Similarly, precision in word choice also needs to be improved. One example that I can point out is using "insure" instead of "ensure." Another is using "twofold" instead of "two."',
     type: "Word-usage",
     actionability: 0,
     specificity: 0.4625,
@@ -53,7 +53,7 @@ export const feedback: FeedbackItem[] = [
     source: 1,
     provider: "Jack",
     content:
-      "The author's use of punctuation also lacks precision: the semicolon used in the third paragraph is unnecessary and a comma should be employed instead.",
+      "This lack of precision also extends to the author's use of punctuation. The semicolon used in the third paragraph is unnecessary and a comma should be employed instead.",
     type: "Orthography",
     actionability: 1,
     specificity: 0.4611111111111111,
@@ -69,7 +69,7 @@ export const feedback: FeedbackItem[] = [
     source: 1,
     provider: "Jack",
     content:
-      "The author seems to have trouble with collective nouns, for instance, using human instead of humans and using human instead of humanity.",
+      'The author seems to have trouble with collective nouns. For instance, using human instead of humans ("and we, human, will die out as well") and using human instead of humanity ("various testing is a hazard of human\'s future").',
     type: "Word-usage",
     actionability: 0,
     specificity: 0.525,
@@ -85,7 +85,7 @@ export const feedback: FeedbackItem[] = [
     source: 1,
     provider: "Jack",
     content:
-      "The argument weight between the rebuttal and supporting claim to be nearly the same. The essay can be made more convincing if additional claims could be set forth by the author to support his/her thesis.",
+      "I found that the argument weight between the rebuttal and supporting claim to be nearly the same. The essay can be made more convincing if additional claims could be set forth by the author to support his/her thesis.",
     type: "Claim",
     actionability: 1,
     specificity: 0.4766666666666667,
@@ -117,7 +117,7 @@ export const feedback: FeedbackItem[] = [
     source: 2,
     provider: "Lee",
     content:
-      "The topic sentence is very general, and does not zero in on the thesis the writer will defend. It could be made more concise and effectual by being more specific and more tightly focused.",
+      "The topic sentence is very general, and does not zero on in the thesis the writer will defend. It could be made more concise and effectual by being more specific and more tightly focused.",
     type: "Organization",
     actionability: 1,
     specificity: 0.5,
@@ -197,7 +197,7 @@ export const feedback: FeedbackItem[] = [
     source: 2,
     provider: "Lee",
     content:
-      "The writer would overall benefit from stepping back and tightening their argument, as well as their language. Simple, clear statements can be much more effective than generalities in this type of writing.",
+      "The writer would overall benefit from stepping back and tightening their argument, as well as their language. Simple, clear statements can be much more effective that generalities in this type of writing.",
     type: "Organization",
     actionability: 0,
     specificity: 0.4588235294117647,

@@ -19,8 +19,8 @@ type ProviderGalleryProps = {
 const ProviderGallery = (props: ProviderGalleryProps) => {
   const [ifClicked, setIfClicked] = useState(false);
   const [contextMenuText, setContextMenuText] = useState([
-    "Select all relevant feedback",
-    "Remove all relevant feedback",
+    "Select the entire feedback",
+    "Remove the entire feedback",
   ]);
   // Use context menu from react-contexify
   const { show } = useContextMenu({ id: MENU_ID });
