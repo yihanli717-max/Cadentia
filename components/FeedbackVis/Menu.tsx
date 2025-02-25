@@ -6,6 +6,7 @@ import {
   useRevisionListStore,
 } from "@/lib/store";
 import { cn, getEmbedding, generateRevision, eventTracker } from "@/lib/utils";
+import { removeStopwords } from "stopword";
 
 interface MenuProps {
   classes?: string;
@@ -212,7 +213,18 @@ const Menu = (props: MenuProps) => {
                     setSearchedEmbeddings(undefined);
                     return;
                   }
-                  const embeddings = await getEmbedding(searchedText);
+
+                  // Remove stopwords
+                  const searchedTextWithoutStopwords = removeStopwords(
+                    searchedText.split(" "),
+                  ).join(" ");
+                  // console.log(
+                  //   "Searched text without stopwords: ",
+                  //   searchedTextWithoutStopwords,
+                  // );
+                  const embeddings = await getEmbedding(
+                    searchedTextWithoutStopwords,
+                  );
                   eventTracker({
                     action: "search",
                     data: {
