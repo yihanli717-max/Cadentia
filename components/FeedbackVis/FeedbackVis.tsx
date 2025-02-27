@@ -129,9 +129,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("cy", (d) => d.y!)
         .attr("r", 0)
         .attr("fill", getFillColor)
-        // .attr("stroke", getStrokeColor)
-        .attr("stroke", null)
-        .attr("stroke-width", 0)
+        .attr("stroke", getStrokeColor)
+        .attr("stroke-width", 3)
         .attr("opacity", getCircleOpacity);
 
       // Animate circle radius
@@ -339,8 +338,11 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     };
 
     // Get stroke color based on selection state
-    // const getStrokeColor = (d: any) =>
-    //   currentRevision?.feedback?.includes(d.data.id) ? "#34d399" : null;
+    const getStrokeColor = (d: any) =>
+      currentSelectedItems.includes(d.data.id) ||
+      currentRevision?.feedback?.includes(d.data.id)
+        ? "#a1a1aa"
+        : null;
 
     // Get circle opacity based on selection state
     const getCircleOpacity = (d: any) =>
@@ -421,6 +423,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
               .transition()
               .duration(300)
               .attr("fill", getFillColor)
+              .attr("stroke", getStrokeColor)
+              .attr("stroke-width", 3)
               .attr("r", d.r);
           }),
         (exit) =>
@@ -793,18 +797,31 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           currentRevision?.feedback?.includes(d.data.id)
             ? "#e5e6e6"
             : getColor(colorDimension)(d.data.color as never),
+        )
+        .attr("stroke", (d) =>
+          currentSelectedItems.includes(d.data.id) ||
+          currentRevision?.feedback?.includes(d.data.id)
+            ? "#a1a1aa"
+            : null,
+        )
+        .attr("stroke-width", (d) =>
+          currentSelectedItems.includes(d.data.id) ||
+          currentRevision?.feedback?.includes(d.data.id)
+            ? 3
+            : 0,
         );
     };
 
     // Execute main logic flow
     resetStyles();
+    handleSelection();
     hoveredItem
       ? handleHoverItem()
       : hoveredSentence
         ? handleHoverSentence()
         : hoveredProvider
           ? handleHoverProvider()
-          : handleSelection();
+          : null;
   }, [
     hoveredSentence,
     hoveredProvider,

@@ -79,23 +79,22 @@ const ProviderGallery = (props: ProviderGalleryProps) => {
                 setIsUserHovering(false);
                 setHoveredProvider(null);
               }}
-              onMouseUp={(e) => {
-                console.log("11", ifClicked);
-                e.stopPropagation();
-                e.preventDefault();
+              // onMouseUp={(e) => {
+              //   e.stopPropagation();
+              //   e.preventDefault();
 
-                setIfClicked(true);
-                setHoveredProvider(item.id);
-                setTimeout(() => {
-                  show({
-                    id: MENU_ID,
-                    event: e, // pass the original mouse event
-                    props: {
-                      feedbackSource: item,
-                    },
-                  });
-                }, 0);
-              }}
+              //   setIfClicked(true);
+              //   setHoveredProvider(item.id);
+              //   setTimeout(() => {
+              //     show({
+              //       id: MENU_ID,
+              //       event: e, // pass the original mouse event
+              //       props: {
+              //         feedbackSource: item,
+              //       },
+              //     });
+              //   }, 0);
+              // }}
             >
               <ProviderCard feedbackSourceItem={item} isClicked={ifClicked} />
             </div>

@@ -301,7 +301,7 @@ export const typeMap = {
   "word-usage": "WO",
   others: "GE",
   alex: "P1",
-  instructor: "P2",
+  jeff: "P2",
   jun: "P3",
   april: "P4",
   ai: "P5",

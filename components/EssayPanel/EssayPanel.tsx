@@ -50,6 +50,7 @@ const EssayPanel = (props: EssayPanelProps) => {
     setComparisonMode,
     setHoveredSentence,
     currentSelectedSentences,
+    setCurrentSelectedSentences,
   } = useSharedConfigStore();
 
   const revisionList = useRevisionListStore((state) => state.revisionList);
@@ -155,22 +156,36 @@ const EssayPanel = (props: EssayPanelProps) => {
                       // console.log("ifClicked", ifClicked);
                       if (!ifClicked) setHoveredSentence(null);
                     }}
-                    onMouseUp={(e) => {
-                      // console.log("11", ifClicked);
-                      e.stopPropagation();
-                      e.preventDefault();
+                    // onMouseUp={(e) => {
+                    //   // console.log("11", ifClicked);
+                    //   e.stopPropagation();
+                    //   e.preventDefault();
 
-                      setIfClicked(true);
-                      setHoveredSentence(section.id);
-                      setTimeout(() => {
-                        showSentenceMenu({
-                          id: SENTENCE_MENU_ID,
-                          event: e, // pass the original mouse event
-                          props: {
-                            sentence: section,
-                          },
-                        });
-                      }, 0);
+                    //   setIfClicked(true);
+                    //   setHoveredSentence(section.id);
+                    //   setTimeout(() => {
+                    //     showSentenceMenu({
+                    //       id: SENTENCE_MENU_ID,
+                    //       event: e, // pass the original mouse event
+                    //       props: {
+                    //         sentence: section,
+                    //       },
+                    //     });
+                    //   }, 0);
+                    // }}
+                    onClick={() => {
+                      if (!currentSelectedSentences.includes(section.id)) {
+                        setCurrentSelectedSentences([
+                          ...currentSelectedSentences,
+                          section.id,
+                        ]);
+                      } else {
+                        setCurrentSelectedSentences(
+                          currentSelectedSentences.filter(
+                            (id) => id !== section.id,
+                          ),
+                        );
+                      }
                     }}
                   >
                     {comparisonMode ? (
@@ -255,7 +270,7 @@ const EssayPanel = (props: EssayPanelProps) => {
                         <TbRefresh size={12} />
                       </span>
                     </span>
-                  )}{" "}
+                  )}
                 </React.Fragment>
               ))}
             </div>

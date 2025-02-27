@@ -76,7 +76,8 @@ const RevisionCard = (props: RevisionCardProps) => {
       <div className="space-y-2">
         <div className="flex flex-row justify-between items-center">
           <p className="text-sm font-semibold">
-            Version {thisRevision?.id !== undefined && thisRevision.id + 1}{" "}
+            Feedback Combo{" "}
+            {thisRevision?.id !== undefined && thisRevision.id + 1}{" "}
           </p>
           <div>
             {thisRevision && (

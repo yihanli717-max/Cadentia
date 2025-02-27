@@ -2,8 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { FeedbackSourceItem } from "@/lib/type";
 import { cn, getColor, isSimilarSentence, eventTracker } from "@/lib/utils";
-import { useSharedConfigStore, useFeedbackStore } from "@/lib/store";
+import {
+  useSharedConfigStore,
+  useFeedbackStore,
+  useRevisionListStore,
+} from "@/lib/store";
 import { noto_serif } from "@/app/fonts";
+import { cosineSimilarity } from "fast-cosine-similarity";
 
 const typeMap = {
   claim: "Claims/Ideas",
@@ -25,15 +30,20 @@ type ProviderCardProps = {
 };
 
 export const ProviderCard = (props: ProviderCardProps) => {
+  const revisionList = useRevisionListStore((state) => state.revisionList);
   const [isExpanded, setIsExpanded] = useState(false);
   const allFeedbackItems = useFeedbackStore((state) => state.feedback);
   const {
+    currentSelectedItems,
     setHoveredProvider,
     hoveredSentence,
     hoveredItem,
     setHoveredItem,
     colorDimension,
   } = useSharedConfigStore();
+  const selectedFeedbackItems = allFeedbackItems.filter((item) =>
+    currentSelectedItems.includes(item.id),
+  );
 
   // Find the related feedback items
   const relatedFeedbacks = allFeedbackItems.filter(
@@ -55,21 +65,64 @@ export const ProviderCard = (props: ProviderCardProps) => {
   ): JSX.Element[] => {
     const newContentSentences = newContent.split(/(?<=[.?!])\s+/);
     const originalContentSentences = originalContent.split(/(?<=[.?!])\s+/);
+    const allSelectedSentences = selectedFeedbackItems
+      .map((item) => item.content)
+      .join(" ")
+      .split(/(?<=[.?!])\s+/);
 
     return newContentSentences.map((sentence, index) => {
       if (isSimilarSentence(sentence, originalContentSentences)) {
         return (
-          <span key={index} className="font-medium text-xs">
+          <span
+            key={index}
+            className={cn(
+              "font-medium text-xs",
+              allSelectedSentences.includes(sentence)
+                ? "underline bg-sky-50"
+                : "",
+            )}
+          >
             {sentence}{" "}
           </span>
         );
       } else {
         return (
-          <span key={index} className="opacity-60">
+          <span
+            key={index}
+            className={cn(
+              "opacity-60",
+              allSelectedSentences.includes(sentence)
+                ? "underline bg-sky-50"
+                : "",
+            )}
+          >
             {sentence}{" "}
           </span>
         );
       }
+    });
+  };
+
+  const renderContentWithBgColor = (newContent: string): JSX.Element[] => {
+    const newContentSentences = newContent.split(/(?<=[.?!])\s+/);
+    const allSelectedSentences = selectedFeedbackItems
+      .map((item) => item.content)
+      .join(" ")
+      .split(/(?<=[.?!])\s+/);
+
+    return newContentSentences.map((sentence, index) => {
+      return (
+        <span
+          key={index}
+          className={cn(
+            allSelectedSentences.includes(sentence)
+              ? "underline bg-sky-50"
+              : "",
+          )}
+        >
+          {sentence}{" "}
+        </span>
+      );
     });
   };
 
@@ -79,6 +132,118 @@ export const ProviderCard = (props: ProviderCardProps) => {
       setHoveredProvider(null);
     }
   }, [props.isClicked]);
+
+  // Handle click event
+  const handleClick = (event: React.MouseEvent, d: any) => {
+    // console.log("Clicked on feedback", d.data.id);
+
+    if (event.shiftKey) {
+      // console.log("Shift key pressed");
+      event.preventDefault();
+
+      const { similarityThreshold } = useSharedConfigStore.getState();
+      const clickedEmbeddings = allFeedbackItems.find(
+        (item) => item.id === d.data.id,
+      )?.embeddings as number[];
+
+      if (!clickedEmbeddings) return;
+
+      const matchedIds = allFeedbackItems
+        .filter((item) => {
+          if (!item.embeddings) return false;
+          const similarity = cosineSimilarity(
+            clickedEmbeddings,
+            item.embeddings,
+          );
+          return similarity > similarityThreshold;
+        })
+        .map((item) => item.id);
+
+      const { currentSelectedItems, setCurrentSelectedItems } =
+        useSharedConfigStore.getState();
+      const combinedIds = Array.from(
+        new Set([...currentSelectedItems, ...matchedIds]),
+      );
+      setCurrentSelectedItems(combinedIds);
+
+      eventTracker({
+        action: "add all similar feedback to prepstation",
+        data: {
+          feedbackID: d.data.id,
+          similarIDs: matchedIds,
+        },
+      });
+      return;
+    }
+
+    const { currentRevisionItem } = useSharedConfigStore.getState();
+    const { revisionList, updateRevision } = useRevisionListStore.getState();
+    const currentRevision = revisionList?.find(
+      (item) => item.id === currentRevisionItem,
+    );
+    // console.log(currentRevision);
+
+    if (currentRevision?.feedback?.includes(d.data.id)) {
+      // console.log("Remove feedback from revision");
+      const newRevisionFeedback = currentRevision.feedback.filter(
+        (id) => id !== d.data.id,
+      );
+      updateRevision({
+        id: currentRevisionItem,
+        feedback: newRevisionFeedback || [],
+        conversation: currentRevision?.conversation || [],
+        revision: currentRevision?.revision || [],
+      });
+
+      eventTracker({
+        action: "remove feedback from applied feedback",
+        data: {
+          feedbackID: d.data.id,
+        },
+      });
+    } else {
+      // console.log("Add feedback to selected feedback");
+      const { currentSelectedItems, setCurrentSelectedItems } =
+        useSharedConfigStore.getState();
+
+      if (currentSelectedItems.includes(d.data.id)) {
+        eventTracker({
+          action: "remove feedback from prepstation",
+          data: {
+            feedbackID: d.data.id,
+          },
+        });
+      } else {
+        eventTracker({
+          action: "add feedback to prepstation",
+          data: {
+            feedbackID: d.data.id,
+          },
+        });
+      }
+
+      const newSelectedFeedbacks = currentSelectedItems.includes(d.data.id)
+        ? currentSelectedItems.filter((id) => id !== d.data.id)
+        : [...currentSelectedItems, d.data.id];
+
+      setCurrentSelectedItems(newSelectedFeedbacks);
+      // console.log(newSelectedFeedbacks);
+    }
+  };
+
+  // Get cilcle fill color based on categorical dimension
+  const getFillColor = (id: number, text: string) => {
+    const { currentRevisionItem } = useSharedConfigStore.getState();
+    const { revisionList, updateRevision } = useRevisionListStore.getState();
+    const currentRevision = revisionList?.find(
+      (item) => item.id === currentRevisionItem,
+    );
+
+    return currentSelectedItems.includes(id) ||
+      currentRevision?.feedback?.includes(id)
+      ? "#e5e6e6"
+      : getColor(colorDimension)(text as never);
+  };
 
   return (
     <div
@@ -160,6 +325,9 @@ export const ProviderCard = (props: ProviderCardProps) => {
                   });
                 }}
                 onMouseLeave={() => setHoveredItem(null)}
+                onClick={(event) =>
+                  handleClick(event, { data: { id: feedback.id } })
+                }
               >
                 <div
                   className={cn(
@@ -172,8 +340,9 @@ export const ProviderCard = (props: ProviderCardProps) => {
                       : "",
                   )}
                   style={{
-                    backgroundColor: getColor(colorDimension)(
-                      feedback[colorDimension] as never,
+                    backgroundColor: getFillColor(
+                      feedback.id,
+                      feedback[colorDimension] as string,
                     ),
                   }}
                 ></div>
@@ -232,7 +401,7 @@ export const ProviderCard = (props: ProviderCardProps) => {
           ) : props.hideContent ? null : (
             <span className="font-medium">
               <span className={noto_serif.className}>&quot;</span>
-              {props.feedbackSourceItem.content}
+              {renderContentWithBgColor(props.feedbackSourceItem.content)}
               <span className={noto_serif.className}>&quot;</span>
             </span>
           )}
