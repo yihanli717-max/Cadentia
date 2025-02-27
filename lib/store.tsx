@@ -105,6 +105,7 @@ export type SharedConfigState = {
   comparisonMode: boolean;
   bubbleRadii: Record<string, number>;
   currentRemovedSentences: number[];
+  currentReferenceSentence: number | null;
 };
 
 export type SharedConfigActions = {
@@ -123,6 +124,7 @@ export type SharedConfigActions = {
   setComparisonMode: (mode: boolean) => void;
   setBubbleRadii: (radii: Record<string, number>) => void;
   setCurrentRemovedSentences: (sentences: number[]) => void;
+  setCurrentReferenceSentence: (sentence: number | null) => void;
 };
 
 export const useSharedConfigStore = create<
@@ -145,6 +147,7 @@ export const useSharedConfigStore = create<
       comparisonMode: false,
       bubbleRadii: {},
       currentRemovedSentences: [],
+      currentReferenceSentence: null,
       setLoading: (loading: boolean) =>
         set(
           produce((state) => {
@@ -283,6 +286,12 @@ export const useSharedConfigStore = create<
         set(
           produce((state) => {
             state.currentRemovedSentences = sentences;
+          }),
+        ),
+      setCurrentReferenceSentence: (sentence: number | null) =>
+        set(
+          produce((state) => {
+            state.currentReferenceSentence = sentence;
           }),
         ),
     }),

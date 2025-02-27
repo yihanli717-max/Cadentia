@@ -51,6 +51,8 @@ const EssayPanel = (props: EssayPanelProps) => {
     setHoveredSentence,
     currentSelectedSentences,
     setCurrentSelectedSentences,
+    currentReferenceSentence,
+    setCurrentReferenceSentence,
   } = useSharedConfigStore();
 
   const revisionList = useRevisionListStore((state) => state.revisionList);
@@ -144,6 +146,10 @@ const EssayPanel = (props: EssayPanelProps) => {
                         ? "bg-sky-100 underline"
                         : "",
                       hoveredSentence === section.id ? "underline" : "",
+                      // if the sentence is the last one in the currentSelectedSentences
+                      currentReferenceSentence === section.id
+                        ? "underline"
+                        : "",
                     )}
                     onMouseEnter={() => {
                       setHoveredSentence(section.id);
@@ -175,7 +181,25 @@ const EssayPanel = (props: EssayPanelProps) => {
                     //     });
                     //   }, 0);
                     // }}
-                    onClick={() => {
+                    onClick={(event) => {
+                      // if shift key is pressed, then set the reference sentence
+                      if (event.shiftKey) {
+                        if (currentReferenceSentence === section.id) {
+                          setCurrentReferenceSentence(null);
+                        } else {
+                          setCurrentReferenceSentence(section.id);
+                        }
+
+                        eventTracker({
+                          action: "set reference sentence",
+                          data: {
+                            sentence: section.id,
+                          },
+                        });
+
+                        return;
+                      }
+
                       if (!currentSelectedSentences.includes(section.id)) {
                         setCurrentSelectedSentences([
                           ...currentSelectedSentences,

@@ -33,6 +33,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     similarityThreshold,
     currentSelectedItems,
     currentRevisionItem,
+    currentReferenceSentence,
   } = useSharedConfigStore();
   const revisionList = useRevisionListStore((state) => state.revisionList);
   const currentRevision = revisionList.find(
@@ -549,8 +550,24 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .interrupt()
         .attr("filter", null)
         .attr("opacity", 0.8)
-        .attr("stroke", null)
-        .attr("stroke-width", 0);
+        .attr("fill", (d) =>
+          currentSelectedItems.includes(d.data.id) ||
+          currentRevision?.feedback?.includes(d.data.id)
+            ? "#e5e6e6"
+            : getColor(colorDimension)(d.data.color as never),
+        )
+        .attr("stroke", (d) =>
+          currentSelectedItems.includes(d.data.id) ||
+          currentRevision?.feedback?.includes(d.data.id)
+            ? "#a1a1aa"
+            : null,
+        )
+        .attr("stroke-width", (d) =>
+          currentSelectedItems.includes(d.data.id) ||
+          currentRevision?.feedback?.includes(d.data.id)
+            ? 3
+            : 0,
+        );
 
       barCircles.interrupt().attr("filter", null);
       barContainerCircles.interrupt().attr("filter", null);
@@ -658,6 +675,23 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .transition()
         .duration(300)
         .call(applySimilarityEffects);
+    };
+
+    const handleCurrentReferenceSentence = () => {
+      // Highlight hovered item
+      fillCircles
+        .filter((d) => d.data.sentences.includes(currentReferenceSentence))
+        .attr("opacity", 1)
+        .attr("stroke", function (d: any) {
+          const fillColor = d3.select(this).attr("fill");
+          const color = d3.hsl(fillColor);
+
+          if (!color.displayable()) return "#333";
+
+          color.l = Math.max(0, color.l * 0.7);
+          return color.toString();
+        })
+        .attr("stroke-width", 3);
     };
 
     const handleHoverSentence = () => {
@@ -786,42 +820,17 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         });
     };
 
-    // Handle selection state when no hovering
-    const handleSelection = () => {
-      // console.log("Selected feedbacks", currentSelectedItems);
-      fillCircles
-        .transition()
-        .duration(300)
-        .attr("fill", (d) =>
-          currentSelectedItems.includes(d.data.id) ||
-          currentRevision?.feedback?.includes(d.data.id)
-            ? "#e5e6e6"
-            : getColor(colorDimension)(d.data.color as never),
-        )
-        .attr("stroke", (d) =>
-          currentSelectedItems.includes(d.data.id) ||
-          currentRevision?.feedback?.includes(d.data.id)
-            ? "#a1a1aa"
-            : null,
-        )
-        .attr("stroke-width", (d) =>
-          currentSelectedItems.includes(d.data.id) ||
-          currentRevision?.feedback?.includes(d.data.id)
-            ? 3
-            : 0,
-        );
-    };
-
     // Execute main logic flow
     resetStyles();
-    handleSelection();
     hoveredItem
       ? handleHoverItem()
       : hoveredSentence
         ? handleHoverSentence()
         : hoveredProvider
           ? handleHoverProvider()
-          : null;
+          : currentReferenceSentence !== null
+            ? handleCurrentReferenceSentence()
+            : null;
   }, [
     hoveredSentence,
     hoveredProvider,
@@ -830,6 +839,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     allFeedback,
     currentSelectedItems,
     currentRevision?.feedback,
+    currentReferenceSentence,
   ]);
 
   return (
