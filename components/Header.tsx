@@ -35,7 +35,7 @@ const Header = ({}: HeaderProps) => {
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-[99999]"
             onClick={handleClose}
-          ></div>{" "}
+          ></div>
           <div className="fixed inset-0 flex justify-center items-center z-[100000]">
             <div className="bg-white p-6 rounded-lg shadow-lg space-y-4">
               <div className="flex flex-row items-center justify-between mb-4">

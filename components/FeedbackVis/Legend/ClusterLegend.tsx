@@ -31,7 +31,7 @@ const ClusterLegend = ({ colorDimension }: ClusterLegendProps) => {
   const getColorFn = getClusterColor(colorDimension);
 
   return (
-    <div className="flex flex-row justify-start items-center gap-3 max-w-48 flex-wrap">
+    <div className="flex flex-row justify-start items-center gap-3 max-w-[182px] flex-wrap">
       {groups.map((group) => (
         <div key={group} className="flex items-center space-x-1">
           <div

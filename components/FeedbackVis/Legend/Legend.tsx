@@ -29,7 +29,7 @@ const Legend = (props: LegendProps) => {
         isCollapsed ? "" : "pt-4 space-y-3",
       )}
     >
-      {(numericalDimension !== "none" || colorDimension !== "none") && (
+      {/* {(numericalDimension !== "none" || colorDimension !== "none") && (
         <div
           className={cn(
             "cursor-pointer flex justify-start items-start opacity-40 hover:opacity-100 transition-all duration-150 ease-in-out",
@@ -53,7 +53,7 @@ const Legend = (props: LegendProps) => {
             </div>
           )}
         </div>
-      )}
+      )} */}
 
       <div
         className={cn(
@@ -61,7 +61,7 @@ const Legend = (props: LegendProps) => {
           isCollapsed ? "space-y-2" : "space-y-3",
         )}
       >
-        {numericalDimension !== "none" && (
+        {/* {numericalDimension !== "none" && (
           <SizeLegend
             minR={props.minR}
             maxR={props.maxR}
@@ -70,7 +70,7 @@ const Legend = (props: LegendProps) => {
         )}
         {numericalDimension !== "none" && (
           <hr className={cn("border-dashed", isCollapsed ? "" : "")} />
-        )}
+        )} */}
         {colorDimension !== "none" && (
           <>
             {isSequential ? (
