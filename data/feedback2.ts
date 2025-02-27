@@ -3,7 +3,7 @@ import { FeedbackItem } from "@/lib/type";
 export const feedback: FeedbackItem[] = [
   {
     source: 1,
-    provider: "Jacky",
+    provider: "Alex",
     content:
       "This essay had some structure to it but I feel that it could've been more formal and included more evidence with statistics to build the argument.",
     type: "Evidence",
@@ -19,7 +19,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 1,
-    provider: "Jacky",
+    provider: "Alex",
     content:
       "The claims are easy to understand but I did not like the structure of the body paragraphs and felt it was not clear enough.",
     type: "Organization",
@@ -35,7 +35,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 1,
-    provider: "Jacky",
+    provider: "Alex",
     content:
       "The introduction claims that the disadvantages dont outweigh the advantages but the majority of the essay focuses on talking about the disadvantages. theres little to no discussion countering.",
     type: "Rebuttal",
@@ -51,7 +51,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 1,
-    provider: "Jacky",
+    provider: "Alex",
     content:
       'The evidence for claim section says "The author provides specific and convincing evidence for each claim, and most evidence is given through detailed personal examples, relevant direct quotations, or detailed examples from the provided reading. The source of the evidence is credible and acknowledged/cited where appropriate." i don\'t feel like the writer properly did this since there are no citations.',
     type: "Evidence",
@@ -67,7 +67,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 1,
-    provider: "Jacky",
+    provider: "Alex",
     content:
       "Also the use of i in the essay feels informal and not trustworthy.",
     type: "Word-usage",
@@ -179,7 +179,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 3,
-    provider: "Amy",
+    provider: "Jun",
     content:
       "The rubric related to grammar is so hideously abused here it is hard to get over.",
     type: "Orthography",
@@ -195,7 +195,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 3,
-    provider: "Amy",
+    provider: "Jun",
     content:
       "The issues are poorly described, and the reason behind the issue misunderstood. There are far more salient points to make on each of the sub-topics, and only a little research would have helped to see them.",
     type: "Evidence",
@@ -211,7 +211,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 3,
-    provider: "Amy",
+    provider: "Jun",
     content:
       "The suggestions for how to overcome the perceived issues were laissez-faire, generic and not proven or supported by any discussion of merit.",
     type: "Evidence",
@@ -227,7 +227,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 3,
-    provider: "Amy",
+    provider: "Jun",
     content:
       "As for fluidity, I suppose despite being largely oblique and unsupported, the essay enjoys a reasonable flow, and one poor point is followed smoothly to another poor point.",
     type: "Organization",
@@ -243,7 +243,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 3,
-    provider: "Amy",
+    provider: "Jun",
     content: "The language precision is dreadful.",
     type: "Word-usage",
     actionability: 0,
@@ -258,7 +258,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 3,
-    provider: "Amy",
+    provider: "Jun",
     content:
       "All word processors contain very easy to use spelling and grammar functions, and the student would be wise to spend the several minutes required to take advantage of them.",
     type: "Orthography",
@@ -274,7 +274,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 4,
-    provider: "Huang",
+    provider: "April",
     content:
       'The essay contains grammatical errors. The sentence "some students utilize their cell phones as an effective cheating tools..." should not have the word "an." The sentence "the mobile phone has become a dispensable multifunctional tools" should have singular "tool" instead of "tools.',
     type: "Orthography",
@@ -290,7 +290,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 4,
-    provider: "Huang",
+    provider: "April",
     content:
       "The writer gives specific examples to support their argument, such as when they explained how mobile phones can cause social issues. However, some of their points are vague and seem rushed. For example, they claim that the social problems and privacy concerns of mobile phone users can be solved, but they don't give any ideas on how to solve them.",
     type: "Evidence",
@@ -306,7 +306,7 @@ export const feedback: FeedbackItem[] = [
   },
   {
     source: 4,
-    provider: "Huang",
+    provider: "April",
     content:
       "The writer doesn't cite any sources to support this claim: \"It has been proved that overusing of the electronic devices including mobile phones could lead to higher possibility of suffering hearing loss and even cancers, although the further investigation are needed.",
     type: "Evidence",

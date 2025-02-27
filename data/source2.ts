@@ -5,7 +5,7 @@ export const feedbackSource: FeedbackSourceItem[] = [
     id: 1,
     content:
       'This essay had some structure to it but I feel that it could\'ve been more formal and included more evidence with statistics to build the argument. The claims are easy to understand but I did not like the structure of the body paragraphs and felt it was not clear enough. the first part of the rubric says "The author responds to all parts of the prompt and the entire essay is focused on the prompt." The introduction claims that the disadvantages dont outweigh the advantages but the majority of the essay focuses on talking about the disadvantages. theres little to no discussion countering. the evidence for claim section says "The author provides specific and convincing evidence for each claim, and most evidence is given through detailed personal examples, relevant direct quotations, or detailed examples from the provided reading. The source of the evidence is credible and acknowledged/cited where appropriate." i don\'t feel like the writer properly did this since there are no citations. also the use of i in the essay feels informal and not trustworthy.',
-    provider: "Jacky",
+    provider: "Alex",
   },
   {
     id: 2,
@@ -17,13 +17,13 @@ export const feedbackSource: FeedbackSourceItem[] = [
     id: 3,
     content:
       "Egad! First of all, the rubric related to grammar is so hideously abused here it is hard to get over. There, I have said that, and I will not linger on it, but really?\n The structure and organization is not bad. The student stated the issue, let us know they disagreed with the premises, broke their argument down into useful subsets, and addressed what they thought the issue was and why they believed it was possible to overcome each issue. They also provided a conclusion. This is the only plus, but it should have some weight, since so many cannot muster it.\n The issues are poorly described, and the reason behind the issue misunderstood. There are far more salient points to make on each of the sub-topics, and only a little research would have helped to see them.\n The suggestions for how to overcome the perceived issues were laissez-faire, generic and not proven or supported by any discussion of merit.\n As for fluidity, I suppose despite being largely oblique and unsupported, the essay enjoys a reasonable flow, and one poor point is followed smoothly to another poor point.\n The language precision is dreadful.\n I would love to edit this with this student and push them to work a little harder and research much more, since the bones are there. All word processors contain very easy to use spelling and grammar functions, and the student would be wise to spend the several minutes required to take advantage of them.",
-    provider: "Amy",
+    provider: "Jun",
   },
   {
     id: 4,
     content:
       'The essay contains grammatical errors. The sentence "some students utilize their cell phones as an effective cheating tools..." should not have the word "an." The sentence "the mobile phone has become a dispensable multifunctional tools" should have singular "tool" instead of "tools."\n The writer gives specific examples to support their argument, such as when they explained how mobile phones can cause social issues. However, some of their points are vague and seem rushed. For example, they claim that the social problems and privacy concerns of mobile phone users can be solved, but they don\'t give any ideas on how to solve them.\n The writer doesn\'t cite any sources to support this claim: "It has been proved that overusing of the electronic devices including mobile phones could lead to higher possibility of suffering hearing loss and even cancers, although the further investigation are needed."',
-    provider: "Huang",
+    provider: "April",
   },
   {
     id: 5,

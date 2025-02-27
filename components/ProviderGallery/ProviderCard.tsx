@@ -65,6 +65,21 @@ export const ProviderCard = (props: ProviderCardProps) => {
   ): JSX.Element[] => {
     const newContentSentences = newContent.split(/(?<=[.?!])\s+/);
     const originalContentSentences = originalContent.split(/(?<=[.?!])\s+/);
+
+    const allFeedbackItems = useFeedbackStore.getState().feedback;
+    const currentSelectedItems =
+      useSharedConfigStore.getState().currentSelectedItems;
+    const { currentRevisionItem } = useSharedConfigStore.getState();
+    const { revisionList } = useRevisionListStore.getState();
+    const currentRevision = revisionList?.find(
+      (item) => item.id === currentRevisionItem,
+    );
+
+    const selectedFeedbackItems = allFeedbackItems.filter(
+      (item) =>
+        currentSelectedItems.includes(item.id) ||
+        currentRevision?.feedback?.includes(item.id),
+    );
     const allSelectedSentences = selectedFeedbackItems
       .map((item) => item.content)
       .join(" ")
@@ -105,6 +120,20 @@ export const ProviderCard = (props: ProviderCardProps) => {
 
   const renderContentWithBgColor = (newContent: string): JSX.Element[] => {
     const newContentSentences = newContent.split(/(?<=[.?!])\s+/);
+    const allFeedbackItems = useFeedbackStore.getState().feedback;
+    const currentSelectedItems =
+      useSharedConfigStore.getState().currentSelectedItems;
+    const { currentRevisionItem } = useSharedConfigStore.getState();
+    const { revisionList } = useRevisionListStore.getState();
+    const currentRevision = revisionList?.find(
+      (item) => item.id === currentRevisionItem,
+    );
+
+    const selectedFeedbackItems = allFeedbackItems.filter(
+      (item) =>
+        currentSelectedItems.includes(item.id) ||
+        currentRevision?.feedback?.includes(item.id),
+    );
     const allSelectedSentences = selectedFeedbackItems
       .map((item) => item.content)
       .join(" ")

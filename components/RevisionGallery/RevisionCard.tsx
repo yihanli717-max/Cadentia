@@ -58,7 +58,7 @@ const RevisionCard = (props: RevisionCardProps) => {
     <div
       className={cn(
         props.classes,
-        "p-3 border-2 rounded-lg bg-white flex flex-col justify-between hover:ring-success hover:ring-3 hover:scale-[1.01] transition-all duration-150 ease-in-out cursor-pointer w-[310px]",
+        "p-3 border-2 rounded-lg bg-white flex flex-col justify-between hover:ring-success hover:ring-3 hover:scale-[1.01] transition-all duration-150 ease-in-out cursor-pointer w-[320px]",
         currentRevisionItem === props.id ? "ring-success ring-3" : "",
       )}
       onClick={() => {

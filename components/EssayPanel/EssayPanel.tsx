@@ -119,9 +119,11 @@ const EssayPanel = (props: EssayPanelProps) => {
           ([paragraph, sections], index, array) => (
             <div
               key={paragraph}
-              className={
-                (index < array.length - 1 ? "mb-6 " : "") + "cursor-pointer"
-              }
+              className={cn(
+                (index < array.length - 1 ? "mb-6 " : "") + "cursor-pointer",
+                // if the last one, add margin bottom
+                index === array.length - 1 ? "mb-56" : "",
+              )}
             >
               {sections.map((section) => (
                 <React.Fragment key={`section-${section.id}`}>

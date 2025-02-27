@@ -200,12 +200,14 @@ export async function Regenerate(
 }
 
 export async function generateRevision(
+  prompt: string,
   essay: Sentence[],
   feedbackList: string[],
   sentenceList: string[],
 ) {
   const payload = {
     // apiKey: useOpenAIAPI.getState().API,
+    prompt: prompt,
     essay: essay,
     feedbackList: feedbackList,
     sentenceList: sentenceList,

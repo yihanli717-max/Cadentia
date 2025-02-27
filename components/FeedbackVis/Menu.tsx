@@ -16,6 +16,7 @@ const Menu = (props: MenuProps) => {
   const essay = useEssayStore((state) => state.essay);
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const [searchedText, setSearchedText] = useState("");
+  const [prompt, setPrompt] = useState("");
 
   const [
     clusterDimension,
@@ -201,7 +202,7 @@ const Menu = (props: MenuProps) => {
           </div>
         </div>
         <div className="flex flex-row items-center gap-2">
-          <label className="input input-bordered flex items-center gap-2 text-2xs font-medium h-12 ml-2 p-3 rounded-md">
+          <label className="input input-bordered flex items-center gap-2 text-xs font-medium h-12 ml-2 p-3 rounded-md">
             <input
               type="text"
               value={searchedText}
@@ -257,9 +258,18 @@ const Menu = (props: MenuProps) => {
           </div> */}
         </div>
       </div>
-      <div className="absolute right-3 bottom-2 z-50 select-none">
+      <div className="absolute right-3 bottom-2 z-50 select-none flex gap-3">
+        <label className="input input-bordered flex items-center gap-2 text-xs font-medium h-12 ml-2 p-3 rounded-md">
+          <input
+            type="text"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            className="grow w-60 2xl:w-96"
+            placeholder="Your prompt along with the feedback ..."
+          />
+        </label>
         <button
-          className="btn rounded-md btn-neutral text-2xs btn-sm"
+          className="btn rounded-md btn-neutral text-xs"
           onClick={() => {
             // concatenate currentSelectedItems and feedback list in currentRevisionItem
             const reivisonList = useRevisionListStore.getState().revisionList;
@@ -329,11 +339,13 @@ const Menu = (props: MenuProps) => {
 
             // Generate the revision
             generateRevision(
+              prompt,
               essay,
               selectedFeedbacks,
               Array.from(sentences),
             ).then((revision) => {
               setLoading(false);
+              setPrompt("");
               if (revision) {
                 setCurrentSelectedItems([]);
                 const response = JSON.parse(revision.response);

@@ -51,7 +51,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     const updateDimensions = () => {
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
-        setDimensions({ width: width - 40, height: height - 100 });
+        setDimensions({ width: width - 40, height: height - 115 });
       }
     };
 
@@ -840,7 +840,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           ref={svgRef}
           width={dimensions.width}
           height={dimensions.height}
-          className="cursor-pointer absolute bottom-6 z-50"
+          className="cursor-pointer absolute bottom-12 z-50"
         ></svg>
       )}
       <Menu classes="absolute top-0 left-1" />

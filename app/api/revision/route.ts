@@ -24,7 +24,7 @@ interface Sentence {
 
 export async function POST(req: Request) {
   try {
-    const { essay, feedbackList, sentenceList } = await req.json();
+    const { prompt, essay, feedbackList, sentenceList } = await req.json();
 
     // Validate required parameters
     if (!essay || !feedbackList || !sentenceList) {
@@ -59,6 +59,8 @@ export async function POST(req: Request) {
       {
         role: "user",
         content:
+          prompt +
+          "\n\n" +
           "--------Feedback--------\n" +
           feedbackList.join("\n") +
           "\n------------------------------\n\n" +
@@ -70,7 +72,7 @@ export async function POST(req: Request) {
 
     // Call OpenAI API
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4o-mini",
       messages,
       temperature: 0.7,
       response_format: zodResponseFormat(Revision, "revision"),

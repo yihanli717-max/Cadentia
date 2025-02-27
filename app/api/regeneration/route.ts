@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 
     // Call OpenAI API
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4o-mini",
       messages,
       temperature: 0.7,
       response_format: zodResponseFormat(Revision, "revision"),
