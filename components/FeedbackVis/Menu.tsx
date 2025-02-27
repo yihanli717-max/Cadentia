@@ -321,13 +321,6 @@ const Menu = (props: MenuProps) => {
 
             setLoading(true);
 
-            eventTracker({
-              action: "apply feedback",
-              data: {
-                feedback: currentSelectedItems,
-              },
-            });
-
             // Generate the revision
             generateRevision(
               prompt,
@@ -335,6 +328,15 @@ const Menu = (props: MenuProps) => {
               selectedFeedbacks,
               Array.from(sentences),
             ).then((revision) => {
+              eventTracker({
+                action: "apply feedback",
+                data: {
+                  prompt: prompt,
+                  feedback: selectedFeedbacks,
+                  sentences: Array.from(sentences),
+                },
+              });
+
               setLoading(false);
               setPrompt("");
               if (revision) {
