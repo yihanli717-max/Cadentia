@@ -54,11 +54,12 @@ export async function POST(req: Request) {
     const messages: OpenAI.ChatCompletionMessageParam[] = [
       {
         role: "system",
-        content: `As a professional writer, you have received feedback on your essay and have been asked to revise specific sentences that need improvement. Your task is to carefully revise the given sentences based on the feedback received, ensuring that the original meaning is maintained and considering the context of the sentences in the essay.\nEssay: '${concatenatedEssay}'`,
+        content: `As a professional writer, you have received feedback on your essay and have been asked to revise specific sentences that need improvement. Your task is to carefully revise the given sentences based on the feedback received, ensuring that the original meaning is maintained while considering the context of the sentences in the essay. You may receive additional instructions from the user. Please consider both the instructions and all feedback provided before revising the sentences.\n\nEssay: '${concatenatedEssay}'`,
       },
       {
         role: "user",
         content:
+          "Additional instruction: " +
           prompt +
           "\n\n" +
           "--------Feedback--------\n" +

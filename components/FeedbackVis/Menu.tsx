@@ -13,7 +13,6 @@ interface MenuProps {
 }
 
 const Menu = (props: MenuProps) => {
-  const essay = useEssayStore((state) => state.essay);
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const [searchedText, setSearchedText] = useState("");
   const [prompt, setPrompt] = useState("");
@@ -49,6 +48,11 @@ const Menu = (props: MenuProps) => {
     state.setLoading,
     state.setCurrentSelectedItems,
   ]);
+
+  const { revisionList } = useRevisionListStore();
+  const currentRevision = revisionList.find(
+    (item) => item.id === currentRevisionItem,
+  );
 
   useEffect(() => {
     setSearchedEmbeddings(undefined);
@@ -365,7 +369,9 @@ const Menu = (props: MenuProps) => {
             });
           }}
         >
-          Apply
+          {currentRevision && currentRevision?.revision.length > 0
+            ? "Regenerate"
+            : "Apply"}
         </button>
       </div>
     </>

@@ -38,10 +38,14 @@ const Legend = (props: LegendProps) => {
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           {isCollapsed ? (
-            <div className="flex flex-row gap-1 items-center">
-              <TbLayoutBottombarExpandFilled size={18} />
-              <p className="text-2xs font-medium">Click to show full legend</p>
-            </div>
+            numericalDimension !== "none" && (
+              <div className="flex flex-row gap-1 items-center">
+                <TbLayoutBottombarExpandFilled size={18} />
+                <p className="text-2xs font-medium">
+                  Click to show full legend
+                </p>
+              </div>
+            )
           ) : (
             <div className="flex flex-row gap-1 items-center">
               <TbLayoutBottombarCollapseFilled size={18} />
@@ -53,7 +57,7 @@ const Legend = (props: LegendProps) => {
 
       <div
         className={cn(
-          "transition-all duration-300 ease-in-out flex flex-col ",
+          "transition-all duration-300 ease-in-out flex flex-col",
           isCollapsed ? "space-y-2" : "space-y-3",
         )}
       >
@@ -64,7 +68,9 @@ const Legend = (props: LegendProps) => {
             classes={isCollapsed ? "hidden" : "flex relative"}
           />
         )}
-        <hr className={cn("border-dashed", isCollapsed ? "" : "")} />
+        {numericalDimension !== "none" && (
+          <hr className={cn("border-dashed", isCollapsed ? "" : "")} />
+        )}
         {colorDimension !== "none" && (
           <>
             {isSequential ? (

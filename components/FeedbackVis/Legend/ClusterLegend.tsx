@@ -31,14 +31,14 @@ const ClusterLegend = ({ colorDimension }: ClusterLegendProps) => {
   const getColorFn = getClusterColor(colorDimension);
 
   return (
-    <div className="flex flex-row justify-center items-center gap-3">
+    <div className="flex flex-row justify-start items-center gap-3 max-w-48 flex-wrap">
       {groups.map((group) => (
         <div key={group} className="flex items-center space-x-1">
           <div
             className="w-4 h-4 rounded-full"
             style={{ backgroundColor: getColorFn(group) }}
           />
-          <span className="text-2xs text-center font-medium">
+          <span className="text-2xs text-center font-medium min-w-4">
             {typeMap[group.toLowerCase() as keyof typeof typeMap]}
           </span>
         </div>
