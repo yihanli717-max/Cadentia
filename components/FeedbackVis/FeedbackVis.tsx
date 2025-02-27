@@ -177,7 +177,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("r", (d) => d.r + 4)
         .attr("fill", "none")
         .attr("stroke", "transparent")
-        .attr("stroke-width", 4)
+        .attr("stroke-width", 3)
         .attr("stroke-linecap", "round")
         .each(function (d) {
           const circumference = 2 * Math.PI * (d.r + 4);
@@ -215,12 +215,12 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           })
           .map((item) => item.id);
 
-        const { currentSelectedItems, setCurrentSelectedItems } =
+        const { currentSelectedItems, updateCurrentSelectedItems } =
           useSharedConfigStore.getState();
         const combinedIds = Array.from(
           new Set([...currentSelectedItems, ...matchedIds]),
         );
-        setCurrentSelectedItems(combinedIds);
+        updateCurrentSelectedItems(combinedIds);
 
         eventTracker({
           action: "add all similar feedback to prepstation",
@@ -232,59 +232,32 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         return;
       }
 
-      const { currentRevisionItem } = useSharedConfigStore.getState();
-      const { revisionList, updateRevision } = useRevisionListStore.getState();
-      const currentRevision = revisionList?.find(
-        (item) => item.id === currentRevisionItem,
-      );
-      // console.log(currentRevision);
+      // console.log("Add feedback to selected feedback");
+      const { currentSelectedItems, updateCurrentSelectedItems } =
+        useSharedConfigStore.getState();
 
-      if (currentRevision?.feedback?.includes(d.data.id)) {
-        // console.log("Remove feedback from revision");
-        const newRevisionFeedback = currentRevision.feedback.filter(
-          (id) => id !== d.data.id,
-        );
-        updateRevision({
-          id: currentRevisionItem,
-          feedback: newRevisionFeedback || [],
-          conversation: currentRevision?.conversation || [],
-          revision: currentRevision?.revision || [],
-        });
-
+      if (currentSelectedItems.includes(d.data.id)) {
         eventTracker({
-          action: "remove feedback from applied feedback",
+          action: "remove feedback from prepstation",
           data: {
             feedbackID: d.data.id,
           },
         });
       } else {
-        // console.log("Add feedback to selected feedback");
-        const { currentSelectedItems, setCurrentSelectedItems } =
-          useSharedConfigStore.getState();
-
-        if (currentSelectedItems.includes(d.data.id)) {
-          eventTracker({
-            action: "remove feedback from prepstation",
-            data: {
-              feedbackID: d.data.id,
-            },
-          });
-        } else {
-          eventTracker({
-            action: "add feedback to prepstation",
-            data: {
-              feedbackID: d.data.id,
-            },
-          });
-        }
-
-        const newSelectedFeedbacks = currentSelectedItems.includes(d.data.id)
-          ? currentSelectedItems.filter((id) => id !== d.data.id)
-          : [...currentSelectedItems, d.data.id];
-
-        setCurrentSelectedItems(newSelectedFeedbacks);
-        // console.log(newSelectedFeedbacks);
+        eventTracker({
+          action: "add feedback to prepstation",
+          data: {
+            feedbackID: d.data.id,
+          },
+        });
       }
+
+      const newSelectedFeedbacks = currentSelectedItems.includes(d.data.id)
+        ? currentSelectedItems.filter((id) => id !== d.data.id)
+        : [...currentSelectedItems, d.data.id];
+
+      updateCurrentSelectedItems(newSelectedFeedbacks);
+      // console.log(newSelectedFeedbacks);
     };
 
     // Handle mouse over event
@@ -340,22 +313,15 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     // Get stroke color based on selection state
     const getStrokeColor = (d: any) =>
-      currentSelectedItems.includes(d.data.id) ||
-      currentRevision?.feedback?.includes(d.data.id)
-        ? "#a1a1aa"
-        : null;
+      currentSelectedItems.includes(d.data.id) ? "#a1a1aa" : null;
 
     // Get circle opacity based on selection state
     const getCircleOpacity = (d: any) =>
-      currentSelectedItems.includes(d.data.id) ||
-      currentRevision?.feedback?.includes(d.data.id)
-        ? 1
-        : 0.8;
+      currentSelectedItems.includes(d.data.id) ? 1 : 0.8;
 
     // Get cilcle fill color based on categorical dimension
     const getFillColor = (d: any) =>
-      currentSelectedItems.includes(d.data.id) ||
-      currentRevision?.feedback?.includes(d.data.id)
+      currentSelectedItems.includes(d.data.id)
         ? "#e5e6e6"
         : getColor(colorDimension)(d.data.color as never);
 
@@ -551,22 +517,15 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("filter", null)
         .attr("opacity", 0.8)
         .attr("fill", (d) =>
-          currentSelectedItems.includes(d.data.id) ||
-          currentRevision?.feedback?.includes(d.data.id)
+          currentSelectedItems.includes(d.data.id)
             ? "#e5e6e6"
             : getColor(colorDimension)(d.data.color as never),
         )
         .attr("stroke", (d) =>
-          currentSelectedItems.includes(d.data.id) ||
-          currentRevision?.feedback?.includes(d.data.id)
-            ? "#a1a1aa"
-            : null,
+          currentSelectedItems.includes(d.data.id) ? "#a1a1aa" : null,
         )
         .attr("stroke-width", (d) =>
-          currentSelectedItems.includes(d.data.id) ||
-          currentRevision?.feedback?.includes(d.data.id)
-            ? 3
-            : 0,
+          currentSelectedItems.includes(d.data.id) ? 3 : 0,
         );
 
       barCircles.interrupt().attr("filter", null);
@@ -625,9 +584,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
           selection
             .attr("opacity", (d: any) =>
               cosineSimilarity(hoveredEmbeddings, d.data.embeddings) >
-                similarityThreshold ||
-              currentSelectedItems.includes(d.data.id) ||
-              currentRevision?.feedback?.includes(d.data.id)
+                similarityThreshold || currentSelectedItems.includes(d.data.id)
                 ? 1
                 : 0.8,
             )
@@ -662,9 +619,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .call((selection) => {
           selection.attr("opacity", (d: any) =>
             cosineSimilarity(hoveredEmbeddings, d.data.embeddings) >
-              similarityThreshold ||
-            currentSelectedItems.includes(d.data.id) ||
-            currentRevision?.feedback?.includes(d.data.id)
+              similarityThreshold || currentSelectedItems.includes(d.data.id)
               ? 1
               : 0.8,
           );
@@ -838,7 +793,6 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     similarityThreshold,
     allFeedback,
     currentSelectedItems,
-    currentRevision?.feedback,
     currentReferenceSentence,
   ]);
 

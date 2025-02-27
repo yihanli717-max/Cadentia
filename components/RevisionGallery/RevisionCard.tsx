@@ -11,6 +11,7 @@ import {
   countWordChanges,
   eventTracker,
 } from "@/lib/utils";
+import { set } from "firebase/database";
 
 const typeMap = {
   claim: "Claims/Ideas",
@@ -38,6 +39,9 @@ const RevisionCard = (props: RevisionCardProps) => {
     hoveredItem,
     setHoveredItem,
     setCurrentRevisionItem,
+    setClusterDimension,
+    setColorDimension,
+    setNumericalDimension,
   ] = useSharedConfigStore((state) => [
     state.colorDimension,
     state.clusterDimension,
@@ -46,6 +50,9 @@ const RevisionCard = (props: RevisionCardProps) => {
     state.hoveredItem,
     state.setHoveredItem,
     state.setCurrentRevisionItem,
+    state.setClusterDimension,
+    state.setColorDimension,
+    state.setNumericalDimension,
   ]);
 
   const revisionList = useRevisionListStore((state) => state.revisionList);
@@ -64,7 +71,10 @@ const RevisionCard = (props: RevisionCardProps) => {
       onClick={() => {
         setCurrentRevisionItem(props.id);
         setHoveredItem(null);
-        setCurrentSelectedItems([]);
+        setCurrentSelectedItems(thisRevision?.feedback || []);
+        setClusterDimension(thisRevision?.clusterDimension || "provider");
+        setColorDimension(thisRevision?.colorDimension || "none");
+        setNumericalDimension(thisRevision?.numericalDimension || "none");
         eventTracker({
           action: "click on revision card",
           data: {

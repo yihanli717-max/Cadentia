@@ -132,11 +132,6 @@ const EssayPanel = (props: EssayPanelProps) => {
                   <span
                     id={section.id.toString()}
                     className={cn(
-                      currentSelectedSentences.includes(section.id) &&
-                        "bg-sky-100",
-                      revisionObject?.revision.find(
-                        (item) => item.original === section.content,
-                      ) && "bg-green-100",
                       "transition-all duration-150 ease-in-out",
                       hoveredSentence === section.id ||
                         allFeedback
@@ -150,6 +145,14 @@ const EssayPanel = (props: EssayPanelProps) => {
                       currentReferenceSentence === section.id
                         ? "underline"
                         : "",
+                      currentSelectedSentences.includes(section.id) &&
+                        "bg-sky-100",
+                      currentSelectedSentences.includes(section.id) &&
+                        "bg-sky-100" &&
+                        revisionObject?.revision.find(
+                          (item) => item.original === section.content,
+                        ) &&
+                        "bg-green-100",
                     )}
                     onMouseEnter={() => {
                       setHoveredSentence(section.id);

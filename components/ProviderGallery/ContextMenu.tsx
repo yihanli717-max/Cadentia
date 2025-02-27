@@ -13,7 +13,7 @@ interface ContextMenuProps {
 
 const ContextMenu = (props: ContextMenuProps) => {
   const allFeedback = useFeedbackStore((state) => state.feedback);
-  const { setCurrentSelectedItems, setHoveredProvider } =
+  const { updateCurrentSelectedItems, setHoveredProvider } =
     useSharedConfigStore();
 
   const handleItemClick = (args: any) => {
@@ -38,7 +38,7 @@ const ContextMenu = (props: ContextMenuProps) => {
         const mergedItems = Array.from(
           new Set([...currentSelectedItems, ...feedbackIDs]),
         );
-        setCurrentSelectedItems(mergedItems);
+        updateCurrentSelectedItems(mergedItems);
         eventTracker({
           action: "select all relevant feedback for provider",
           data: {
@@ -51,7 +51,7 @@ const ContextMenu = (props: ContextMenuProps) => {
         const filteredItems = currentSelectedItems.filter(
           (id) => !feedbackIDs.includes(id),
         );
-        setCurrentSelectedItems(filteredItems);
+        updateCurrentSelectedItems(filteredItems);
         eventTracker({
           action: "remove all relevant feedback for provider",
           data: {

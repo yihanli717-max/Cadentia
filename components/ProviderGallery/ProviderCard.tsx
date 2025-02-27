@@ -188,12 +188,12 @@ export const ProviderCard = (props: ProviderCardProps) => {
         })
         .map((item) => item.id);
 
-      const { currentSelectedItems, setCurrentSelectedItems } =
+      const { currentSelectedItems, updateCurrentSelectedItems } =
         useSharedConfigStore.getState();
       const combinedIds = Array.from(
         new Set([...currentSelectedItems, ...matchedIds]),
       );
-      setCurrentSelectedItems(combinedIds);
+      updateCurrentSelectedItems(combinedIds);
 
       eventTracker({
         action: "add all similar feedback to prepstation",
@@ -204,66 +204,12 @@ export const ProviderCard = (props: ProviderCardProps) => {
       });
       return;
     }
-
-    const { currentRevisionItem } = useSharedConfigStore.getState();
-    const { revisionList, updateRevision } = useRevisionListStore.getState();
-    const currentRevision = revisionList?.find(
-      (item) => item.id === currentRevisionItem,
-    );
-    // console.log(currentRevision);
-
-    if (currentRevision?.feedback?.includes(d.data.id)) {
-      // console.log("Remove feedback from revision");
-      const newRevisionFeedback = currentRevision.feedback.filter(
-        (id) => id !== d.data.id,
-      );
-      updateRevision({
-        id: currentRevisionItem,
-        feedback: newRevisionFeedback || [],
-        conversation: currentRevision?.conversation || [],
-        revision: currentRevision?.revision || [],
-      });
-
-      eventTracker({
-        action: "remove feedback from applied feedback",
-        data: {
-          feedbackID: d.data.id,
-        },
-      });
-    } else {
-      // console.log("Add feedback to selected feedback");
-      const { currentSelectedItems, setCurrentSelectedItems } =
-        useSharedConfigStore.getState();
-
-      if (currentSelectedItems.includes(d.data.id)) {
-        eventTracker({
-          action: "remove feedback from prepstation",
-          data: {
-            feedbackID: d.data.id,
-          },
-        });
-      } else {
-        eventTracker({
-          action: "add feedback to prepstation",
-          data: {
-            feedbackID: d.data.id,
-          },
-        });
-      }
-
-      const newSelectedFeedbacks = currentSelectedItems.includes(d.data.id)
-        ? currentSelectedItems.filter((id) => id !== d.data.id)
-        : [...currentSelectedItems, d.data.id];
-
-      setCurrentSelectedItems(newSelectedFeedbacks);
-      // console.log(newSelectedFeedbacks);
-    }
   };
 
   // Get cilcle fill color based on categorical dimension
   const getFillColor = (id: number, text: string) => {
     const { currentRevisionItem } = useSharedConfigStore.getState();
-    const { revisionList, updateRevision } = useRevisionListStore.getState();
+    const { revisionList } = useRevisionListStore.getState();
     const currentRevision = revisionList?.find(
       (item) => item.id === currentRevisionItem,
     );

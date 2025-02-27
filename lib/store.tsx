@@ -8,6 +8,7 @@ import {
   RevisionItem,
 } from "@/lib/type";
 import { eventTracker } from "@/lib/utils";
+import { cluster } from "d3";
 
 // export type OpenAIAPIState = {
 //   API: string;
@@ -110,14 +111,19 @@ export type SharedConfigState = {
 
 export type SharedConfigActions = {
   setLoading: (loading: boolean) => void;
-  setClusterDimension: (dimension: string) => void;
-  setNumericalDimension: (dimension: string) => void;
-  setColorDimension: (dimension: string) => void;
+  setClusterDimension: (dimension: "type" | "provider") => void;
+  setNumericalDimension: (
+    dimension: "none" | "actionability" | "specificity" | "length",
+  ) => void;
+  setColorDimension: (
+    dimension: "none" | "type" | "provider" | "justification" | "sentiment",
+  ) => void;
   setHoveredProvider: (id: number | null) => void;
   setHoveredItem: (id: number | null) => void;
   setHoveredSentence: (id: number | null) => void;
   setSearchedEmbeddings: (embeddings: number[] | undefined) => void;
   setSimilarityThreshold: (threshold: number) => void;
+  updateCurrentSelectedItems: (feedbacks: number[]) => void;
   setCurrentSelectedItems: (feedbacks: number[]) => void;
   setCurrentRevisionItem: (id: number) => void;
   setCurrentSelectedSentences: (sentences: number[]) => void;
@@ -154,7 +160,7 @@ export const useSharedConfigStore = create<
             state.isLoading = loading;
           }),
         ),
-      setClusterDimension: (dimension: string) =>
+      setClusterDimension: (dimension: "type" | "provider") =>
         set(
           produce((state) => {
             state.clusterDimension = dimension;
@@ -165,9 +171,25 @@ export const useSharedConfigStore = create<
                 dimension: dimension,
               },
             });
+
+            const currentRevisionItem =
+              useSharedConfigStore.getState().currentRevisionItem;
+            const revisionList = useRevisionListStore.getState().revisionList;
+            const currentRevision = revisionList.find(
+              (item) => item.id === currentRevisionItem,
+            );
+            const { updateRevision } = useRevisionListStore.getState();
+            if (currentRevision) {
+              updateRevision({
+                ...currentRevision,
+                clusterDimension: dimension,
+              });
+            }
           }),
         ),
-      setNumericalDimension: (dimension: string) =>
+      setNumericalDimension: (
+        dimension: "none" | "actionability" | "specificity" | "length",
+      ) =>
         set(
           produce((state) => {
             state.numericalDimension = dimension;
@@ -178,9 +200,25 @@ export const useSharedConfigStore = create<
                 dimension: dimension,
               },
             });
+
+            const currentRevisionItem =
+              useSharedConfigStore.getState().currentRevisionItem;
+            const revisionList = useRevisionListStore.getState().revisionList;
+            const currentRevision = revisionList.find(
+              (item) => item.id === currentRevisionItem,
+            );
+            const { updateRevision } = useRevisionListStore.getState();
+            if (currentRevision) {
+              updateRevision({
+                ...currentRevision,
+                numericalDimension: dimension,
+              });
+            }
           }),
         ),
-      setColorDimension: (dimension: string) =>
+      setColorDimension: (
+        dimension: "none" | "type" | "provider" | "justification" | "sentiment",
+      ) =>
         set(
           produce((state) => {
             state.colorDimension = dimension;
@@ -191,6 +229,20 @@ export const useSharedConfigStore = create<
                 dimension: dimension,
               },
             });
+
+            const currentRevisionItem =
+              useSharedConfigStore.getState().currentRevisionItem;
+            const revisionList = useRevisionListStore.getState().revisionList;
+            const currentRevision = revisionList.find(
+              (item) => item.id === currentRevisionItem,
+            );
+            const { updateRevision } = useRevisionListStore.getState();
+            if (currentRevision) {
+              updateRevision({
+                ...currentRevision,
+                colorDimension: dimension,
+              });
+            }
           }),
         ),
       setHoveredProvider: (id: number | null) =>
@@ -233,10 +285,11 @@ export const useSharedConfigStore = create<
       setCurrentSelectedItems: (feedbacks: number[]) =>
         set(
           produce((state) => {
+            console.log("set current selected items");
             state.currentSelectedItems = feedbacks;
 
             eventTracker({
-              action: "track selected feedback",
+              action: "set selected feedback",
               data: {
                 feedbacks: feedbacks,
               },
@@ -255,7 +308,89 @@ export const useSharedConfigStore = create<
                 feedback.detection?.forEach((id) => sentenceIds.add(id));
               });
 
+            console.log("sentenceIds", sentenceIds);
             state.currentSelectedSentences = Array.from(sentenceIds);
+          }),
+        ),
+      updateCurrentSelectedItems: (feedbacks: number[]) =>
+        set(
+          produce((state) => {
+            console.log("update current selected items");
+            // Find added and removed feedback items
+            const oldSelectedItems = state.currentSelectedItems;
+            const addedItems = feedbacks.filter(
+              (id: number) => !oldSelectedItems.includes(id),
+            );
+            const removedItems = oldSelectedItems.filter(
+              (id: number) => !feedbacks.includes(id),
+            );
+
+            console.log("addedItems", addedItems);
+            console.log("removedItems", removedItems);
+
+            // Update currentSelectedItems
+            state.currentSelectedItems = feedbacks;
+
+            // Track the event
+            eventTracker({
+              action: "update selected feedback",
+              data: {
+                feedbacks: feedbacks,
+              },
+            });
+
+            const allFeedback = useFeedbackStore.getState().feedback;
+
+            // If no changes, exit early
+            if (addedItems.length === 0 && removedItems.length === 0) {
+              return;
+            }
+
+            // If there are only additions (no removals), add their sentence IDs to the current set
+            if (addedItems.length > 0 && removedItems.length === 0) {
+              const currentSentenceIds = new Set(
+                state.currentSelectedSentences,
+              );
+
+              addedItems
+                .map((id) => allFeedback.find((item) => item.id === id))
+                .filter(
+                  (feedback): feedback is Exclude<typeof feedback, undefined> =>
+                    !!feedback,
+                )
+                .forEach((feedback) => {
+                  feedback.detection?.forEach((id) =>
+                    currentSentenceIds.add(id),
+                  );
+                });
+
+              state.currentSelectedSentences = Array.from(currentSentenceIds);
+            }
+            // If there are any removals, recalculate the entire set of sentence IDs
+            else if (removedItems.length > 0) {
+              const currentSentenceIds = new Set(
+                state.currentSelectedSentences,
+              );
+
+              removedItems
+                .map((id: number) => allFeedback.find((item) => item.id === id))
+                .filter(
+                  (
+                    feedback: FeedbackItem,
+                  ): feedback is Exclude<typeof feedback, undefined> =>
+                    !!feedback,
+                )
+                .forEach((feedback: FeedbackItem) => {
+                  feedback?.detection?.forEach((id) =>
+                    // remove the sentence from the set if it is already in the set
+                    currentSentenceIds.has(id)
+                      ? currentSentenceIds.delete(id)
+                      : null,
+                  );
+                });
+
+              state.currentSelectedSentences = Array.from(currentSentenceIds);
+            }
           }),
         ),
       setCurrentRevisionItem: (id: number) =>
@@ -339,6 +474,9 @@ export const useRevisionListStore = create<
                 conversation: [],
                 feedback: [],
                 revision: [],
+                clusterDimension: "provider",
+                numericalDimension: "none",
+                colorDimension: "none",
               });
             }),
           ),
@@ -357,6 +495,9 @@ export const useRevisionListStore = create<
                           feedback: target.feedback,
                           revision: target.revision,
                           conversation: target.conversation,
+                          clusterDimension: target.clusterDimension,
+                          numericalDimension: target.numericalDimension,
+                          colorDimension: target.colorDimension,
                         }
                       : item,
                 );
@@ -367,6 +508,9 @@ export const useRevisionListStore = create<
                   feedback: target.feedback,
                   revision: target.revision,
                   conversation: target.conversation,
+                  clusterDimension: target.clusterDimension,
+                  numericalDimension: target.numericalDimension,
+                  colorDimension: target.colorDimension,
                 });
               }
             }),

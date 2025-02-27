@@ -31,7 +31,7 @@ const Menu = (props: MenuProps) => {
     currentSelectedItems,
     currentRevisionItem,
     setLoading,
-    setCurrentSelectedItems,
+    updateCurrentSelectedItems,
   ] = useSharedConfigStore((state) => [
     state.clusterDimension,
     state.setClusterDimension,
@@ -46,7 +46,7 @@ const Menu = (props: MenuProps) => {
     state.currentSelectedItems,
     state.currentRevisionItem,
     state.setLoading,
-    state.setCurrentSelectedItems,
+    state.updateCurrentSelectedItems,
   ]);
 
   const { revisionList } = useRevisionListStore();
@@ -275,26 +275,27 @@ const Menu = (props: MenuProps) => {
         <button
           className="btn rounded-md btn-neutral text-xs"
           onClick={() => {
+            const clusterDimension =
+              useSharedConfigStore.getState().clusterDimension;
+            const numericalDimension =
+              useSharedConfigStore.getState().numericalDimension;
+            const colorDimension =
+              useSharedConfigStore.getState().colorDimension;
+
             // concatenate currentSelectedItems and feedback list in currentRevisionItem
             const reivisonList = useRevisionListStore.getState().revisionList;
-            const currentRevision = reivisonList.find(
-              (item) => item.id === currentRevisionItem,
-            );
             const currentSelectedItems =
               useSharedConfigStore.getState().currentSelectedItems;
-            const toAddressItems = currentSelectedItems.concat(
-              currentRevision?.feedback || [],
-            );
             // console.log("currentSelectedItems: ", currentSelectedItems);
-            console.log("Feedback IDs input to GPT: ", toAddressItems);
+            console.log("Feedback IDs input to GPT: ", currentSelectedItems);
 
-            if (!toAddressItems) {
+            if (!currentSelectedItems) {
               console.log("No feedback selected");
               return;
             }
 
             // Find the feedback content of the selected items from the feedback
-            const selectedFeedbacks = toAddressItems.map(
+            const selectedFeedbacks = currentSelectedItems.map(
               (id) => allFeedback.find((item) => item.id === id)?.content,
             ) as string[];
 
@@ -302,42 +303,28 @@ const Menu = (props: MenuProps) => {
             const essay = useEssayStore.getState().essay;
 
             // Find the target sentences from the selected feedback items
-            const sentences = new Set<string>();
-            toAddressItems
-              .map((id) => allFeedback.find((item) => item.id === id))
-              .forEach((feedback) => {
-                feedback?.detection.map((id) => {
-                  sentences.add(
-                    essay.find((item) => item.id === id)?.content || "",
-                  );
-                });
-              });
-
             const currentSelectedSentences =
               useSharedConfigStore.getState().currentSelectedSentences;
-            const currentRemovedSentences =
-              useSharedConfigStore.getState().currentRemovedSentences;
-
-            // Boolean sentences AND currentSelectedSentences
-            currentSelectedSentences.forEach((id) => {
-              sentences.add(
-                essay.find((item) => item.id === id)?.content || "",
-              );
+            // find the sentences from Essay based on the currentSelectedSentences id
+            const sentences = new Set<string>();
+            essay.forEach((sentence) => {
+              if (currentSelectedSentences.includes(sentence.id)) {
+                sentences.add(sentence.content);
+              }
             });
 
-            // Boolean sentences AND NOT currentRemovedSentences
-            currentRemovedSentences.forEach((id) => {
-              sentences.delete(
-                essay.find((item) => item.id === id)?.content || "",
-              );
-            });
+            console.log(
+              "Selected Sentences: ",
+              currentSelectedSentences,
+              sentences,
+            );
 
             setLoading(true);
 
             eventTracker({
               action: "apply feedback",
               data: {
-                feedback: toAddressItems,
+                feedback: currentSelectedItems,
               },
             });
 
@@ -351,7 +338,6 @@ const Menu = (props: MenuProps) => {
               setLoading(false);
               setPrompt("");
               if (revision) {
-                setCurrentSelectedItems([]);
                 const response = JSON.parse(revision.response);
                 const conversation = revision.conversation;
 
@@ -361,9 +347,12 @@ const Menu = (props: MenuProps) => {
                 // Update the revision list
                 updateRevision({
                   id: currentRevisionItem,
-                  feedback: toAddressItems,
+                  feedback: currentSelectedItems,
                   conversation: conversation,
                   revision: response.revision,
+                  clusterDimension: clusterDimension,
+                  numericalDimension: numericalDimension,
+                  colorDimension: colorDimension,
                 });
               }
             });

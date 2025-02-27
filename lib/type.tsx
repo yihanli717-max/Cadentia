@@ -44,6 +44,9 @@ export type RevisionItem = {
   id: number;
   feedback: number[];
   conversation: OpenAIType.ChatCompletionMessageParam[];
+  clusterDimension: "type" | "provider";
+  numericalDimension: "none" | "actionability" | "specificity" | "length";
+  colorDimension: "none" | "type" | "provider" | "justification" | "sentiment";
   revision: {
     original: string;
     revised: string;

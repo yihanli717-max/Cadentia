@@ -105,7 +105,7 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
       draggable={props.draggable}
       onDragStart={props.onDragStart}
       onClick={() => {
-        const { currentSelectedItems, setCurrentSelectedItems } =
+        const { currentSelectedItems, updateCurrentSelectedItems } =
           useSharedConfigStore.getState();
 
         const newSelectedFeedbacks = currentSelectedItems.includes(
@@ -114,7 +114,7 @@ export const FeedbackCard = (props: FeedbackCardProps) => {
           ? currentSelectedItems.filter((id) => id !== props.feedbackItem.id)
           : [...currentSelectedItems, props.feedbackItem.id];
 
-        setCurrentSelectedItems(newSelectedFeedbacks);
+        updateCurrentSelectedItems(newSelectedFeedbacks);
       }}
     >
       <div

@@ -65,8 +65,6 @@ const ProgressRing = ({
     }
   }, [isHovered, circumference, controls]);
 
-  const hoverTimerRef = useRef<NodeJS.Timeout | null>(null);
-
   return (
     <motion.circle
       cx="50%"
@@ -97,21 +95,14 @@ const ProgressRing = ({
           : undefined
       }
       onMouseOver={() => {
-        !currentRevision?.feedback.includes(thisId)
-          ? (hoverTimerRef.current = setTimeout(() => {
-              setHoveredItem(thisId);
-            }, 1500))
-          : setHoveredItem(thisId);
+        setHoveredItem(thisId);
         eventTracker({
           action: "hover on feedback in prepstation",
           data: { id: thisId },
         });
       }}
       onMouseLeave={() => {
-        if (hoverTimerRef.current) {
-          clearTimeout(hoverTimerRef.current);
-          hoverTimerRef.current = null;
-        }
+        setHoveredItem(null);
       }}
     />
   );
@@ -122,7 +113,7 @@ const PrepStation = () => {
   const {
     clusterDimension,
     currentSelectedItems,
-    setCurrentSelectedItems,
+    updateCurrentSelectedItems,
     colorDimension,
     setHoveredItem,
     hoveredItem,
@@ -161,10 +152,7 @@ const PrepStation = () => {
     setForceKey((prev) => prev + 1);
   }, [bubbleRadii]);
 
-  const allItems = currentSelectedItems
-    .slice()
-    .reverse()
-    .concat(currentRevision?.feedback || []);
+  const allItems = currentSelectedItems.slice().reverse();
   const selectedFeedbacks = allItems
     .map((id) => allFeedback.find((fb) => fb.id === id))
     .filter((fb) => fb !== undefined);
@@ -188,15 +176,10 @@ const PrepStation = () => {
   // console.log("cluseredFeedbacks", cluseredFeedbacks);
 
   const bubbleVariants = {
-    hidden: {
-      scale: 0.6,
-      opacity: 0,
-      transition: D3_TRANSITION,
-    },
+    // Removed the hidden state to prevent initial enter animation
     visible: {
       scale: 1,
       opacity: 1,
-      transition: D3_TRANSITION,
     },
     exit: {
       scale: 0.6,
@@ -228,31 +211,13 @@ const PrepStation = () => {
         },
       });
 
-      const { currentSelectedItems, currentRevisionItem, setHoveredItem } =
+      const { currentSelectedItems, setHoveredItem } =
         useSharedConfigStore.getState();
-      const { revisionList, updateRevision } = useRevisionListStore.getState();
-      const currentRevision = revisionList.find(
-        (item) => item.id === currentRevisionItem,
-      );
 
       if (currentSelectedItems.includes(id)) {
-        setCurrentSelectedItems(
+        updateCurrentSelectedItems(
           currentSelectedItems.filter((itemId) => itemId !== id),
         );
-        setHoveredItem(null);
-      }
-
-      if (currentRevision?.feedback.includes(id)) {
-        // console.log("Remove feedback from revision");
-        const newRevisionFeedback = currentRevision.feedback.filter(
-          (itemId) => itemId !== id,
-        );
-        updateRevision({
-          id: currentRevisionItem,
-          feedback: newRevisionFeedback || [],
-          conversation: currentRevision?.conversation || [],
-          revision: currentRevision?.revision || [],
-        });
         setHoveredItem(null);
       }
     }
@@ -330,7 +295,7 @@ const PrepStation = () => {
                       }}
                       key={fb.id + Math.random()}
                       layout
-                      initial="hidden"
+                      // Removed "initial" prop to prevent initial animation
                       animate="visible"
                       exit="exit"
                       variants={bubbleVariants}

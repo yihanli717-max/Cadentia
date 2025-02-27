@@ -15,7 +15,7 @@ const SentenceContextMenu = (props: SentenceContextMenuProps) => {
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const {
     setHoveredSentence,
-    setCurrentSelectedItems,
+    updateCurrentSelectedItems,
     currentSelectedSentences,
     setCurrentSelectedSentences,
     currentRemovedSentences,
@@ -43,7 +43,7 @@ const SentenceContextMenu = (props: SentenceContextMenuProps) => {
         const mergedItems = Array.from(
           new Set([...currentSelectedItems, ...feedbackIDs]),
         );
-        setCurrentSelectedItems(mergedItems);
+        updateCurrentSelectedItems(mergedItems);
         eventTracker({
           action: "select all relevant feedback for sentence",
           data: {
@@ -56,7 +56,7 @@ const SentenceContextMenu = (props: SentenceContextMenuProps) => {
         const filteredItems = currentSelectedItems.filter(
           (id) => !feedbackIDs.includes(id),
         );
-        setCurrentSelectedItems(filteredItems);
+        updateCurrentSelectedItems(filteredItems);
         eventTracker({
           action: "remove all relevant feedback for sentence",
           data: {
