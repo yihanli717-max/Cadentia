@@ -261,8 +261,8 @@ export const ProviderCard = (props: ProviderCardProps) => {
         }}
       >
         <div className="flex flex-col gap-2 items-start select-none font-medium">
-          <div className="flex flex-row justify-between items-center w-full">
-            <div className="flex flex-row gap-1 items-center pt-3">
+          <div className="flex flex-row justify-between items-center w-full  pt-3">
+            <div className="flex flex-row gap-1 items-center">
               <h1 className={cn("text-sm font-semibold")}>
                 <span className="opacity-60">
                   Provider {props.feedbackSourceItem["id"]} /{" "}
@@ -270,6 +270,31 @@ export const ProviderCard = (props: ProviderCardProps) => {
                 {props.feedbackSourceItem["provider"]}
               </h1>
             </div>
+            <button
+              className="btn btn-xs text-2xs"
+              onClick={() => {
+                const allFeedback = useFeedbackStore.getState().feedback;
+                const updateCurrentSelectedItems =
+                  useSharedConfigStore.getState().updateCurrentSelectedItems;
+                const feedbackIDs = allFeedback
+                  .filter((item) => item.source === props.feedbackSourceItem.id)
+                  .map((item) => item.id);
+
+                const mergedItems = Array.from(
+                  new Set([...currentSelectedItems, ...feedbackIDs]),
+                );
+                updateCurrentSelectedItems(mergedItems);
+                eventTracker({
+                  action: "select all relevant feedback for provider",
+                  data: {
+                    feedbackIDs,
+                    providerID: props.feedbackSourceItem.id,
+                  },
+                });
+              }}
+            >
+              Select All
+            </button>
           </div>
         </div>
 
