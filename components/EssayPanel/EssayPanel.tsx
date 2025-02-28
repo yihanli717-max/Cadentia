@@ -124,7 +124,7 @@ const EssayPanel = (props: EssayPanelProps) => {
               className={cn(
                 (index < array.length - 1 ? "mb-6 " : "") + "cursor-pointer",
                 // if the last one, add margin bottom
-                index === array.length - 1 ? "mb-56" : "",
+                index === array.length - 1 ? "mb-96" : "",
               )}
             >
               {sections.map((section) => (

@@ -83,7 +83,7 @@ export const categoryColorMap: {
   Reasoning: categoryColor[2],
   Evidence: categoryColor[8],
   Rebuttal: categoryColor[5],
-  Others: categoryColor[9],
+  Others: categoryColor[7],
   Organization: categoryColor[0],
   "Word-usage": categoryColor[3],
   Orthography: categoryColor[6],

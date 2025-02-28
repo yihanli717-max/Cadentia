@@ -206,7 +206,7 @@ const Menu = (props: MenuProps) => {
           </div>
         </div>
         <div className="flex flex-row items-center gap-2">
-          <label className="input input-bordered flex items-center gap-2 text-xs font-medium h-12 ml-2 p-3 rounded-md">
+          <label className="input input-bordered flex items-center gap-2 text-xs font-medium h-12 p-3 rounded-md">
             <input
               type="text"
               value={searchedText}
@@ -239,8 +239,8 @@ const Menu = (props: MenuProps) => {
                   setSearchedEmbeddings(embeddings);
                 }
               }}
-              className="grow w-60 2xl:w-96"
-              placeholder="Relevance to ..."
+              className="grow w-52 2xl:w-96"
+              placeholder="Search for feedback ..."
             />
             <kbd className="kbd kbd-sm">↵</kbd>
           </label>
@@ -268,7 +268,7 @@ const Menu = (props: MenuProps) => {
             type="text"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            className="grow w-60 2xl:w-96"
+            className="grow w-56 2xl:w-96"
             placeholder="Your prompt along with the feedback ..."
           />
         </label>

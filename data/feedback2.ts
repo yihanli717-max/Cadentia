@@ -499,7 +499,7 @@ export const feedback: FeedbackItem[] = [
     source: 6,
     provider: "EssayForum R1",
     content:
-      'Most devastatingly, either the conjunctions were chosen wrong, or they were misspelled with their opposite: "[in]dispensable multifunctional tools", "it has a number of problems that should [could?] be well handled.',
+      'Most devastatingly, either the conjunctions were chosen wrong, or they were misspelled with their opposite: "[in]dispensable multifunctional tools", "it has a number of problems that should [could?] be well handled."',
     type: "Orthography",
     actionability: 1,
     specificity: 0.4611111111111111,

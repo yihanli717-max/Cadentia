@@ -31,7 +31,7 @@ const Page = () => {
                 <FeedbackVis classes="w-full flex-1 min-h-0" />
               </div>
             </div>
-            <ProviderGallery classes="flex-none h-screen overflow-auto pt-[3rem] w-[300px] sticky top-0 z-[10001]" />
+            <ProviderGallery classes="flex-none h-screen overflow-auto pt-[3rem] w-[320px] sticky top-0 z-[10001]" />
           </div>
         </div>
       )}

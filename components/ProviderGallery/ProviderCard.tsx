@@ -9,6 +9,7 @@ import {
 } from "@/lib/store";
 import { noto_serif } from "@/app/fonts";
 import { cosineSimilarity } from "fast-cosine-similarity";
+import { set } from "firebase/database";
 
 const typeMap = {
   claim: "Claims/Ideas",
@@ -30,6 +31,7 @@ type ProviderCardProps = {
 };
 
 export const ProviderCard = (props: ProviderCardProps) => {
+  const [selectBtn, setSelectBtn] = useState("Select All");
   const revisionList = useRevisionListStore((state) => state.revisionList);
   const [isExpanded, setIsExpanded] = useState(false);
   const allFeedbackItems = useFeedbackStore((state) => state.feedback);
@@ -180,9 +182,8 @@ export const ProviderCard = (props: ProviderCardProps) => {
       const matchedIds = allFeedbackItems
         .filter((item) => {
           if (!item.embeddings) return false;
-          const similarity = cosineSimilarity(
-            clickedEmbeddings,
-            item.embeddings,
+          const similarity = Math.abs(
+            cosineSimilarity(clickedEmbeddings, item.embeddings),
           );
           return similarity > similarityThreshold;
         })
@@ -219,6 +220,18 @@ export const ProviderCard = (props: ProviderCardProps) => {
       ? "#e5e6e6"
       : getColor(colorDimension)(text as never);
   };
+
+  useEffect(() => {
+    const feedbackIDs = relatedFeedbacks.map((item) => item.id);
+    const overlapedItemIDs = currentSelectedItems.filter((id) =>
+      feedbackIDs.includes(id),
+    );
+    if (overlapedItemIDs.length === feedbackIDs.length) {
+      setSelectBtn("Deselect All");
+    } else {
+      setSelectBtn("Select All");
+    }
+  }, [currentSelectedItems, relatedFeedbacks]);
 
   return (
     <div
@@ -279,21 +292,43 @@ export const ProviderCard = (props: ProviderCardProps) => {
                 const feedbackIDs = allFeedback
                   .filter((item) => item.source === props.feedbackSourceItem.id)
                   .map((item) => item.id);
+                const currentSelectedItems =
+                  useSharedConfigStore.getState().currentSelectedItems;
 
-                const mergedItems = Array.from(
-                  new Set([...currentSelectedItems, ...feedbackIDs]),
+                // If overlap with current selected items, remove them
+                const overlapedItemIDs = currentSelectedItems.filter((id) =>
+                  feedbackIDs.includes(id),
                 );
-                updateCurrentSelectedItems(mergedItems);
-                eventTracker({
-                  action: "select all relevant feedback for provider",
-                  data: {
-                    feedbackIDs,
-                    providerID: props.feedbackSourceItem.id,
-                  },
-                });
+                if (overlapedItemIDs.length === feedbackIDs.length) {
+                  // Remove all overlaped items
+                  const filteredItems = currentSelectedItems.filter(
+                    (id) => !feedbackIDs.includes(id),
+                  );
+                  updateCurrentSelectedItems(filteredItems);
+                  eventTracker({
+                    action: "remove all relevant feedback for provider",
+                    data: {
+                      removedFeedbackIDs: overlapedItemIDs,
+                      providerID: props.feedbackSourceItem.id,
+                    },
+                  });
+                  return;
+                } else {
+                  const mergedItems = Array.from(
+                    new Set([...currentSelectedItems, ...feedbackIDs]),
+                  );
+                  updateCurrentSelectedItems(mergedItems);
+                  eventTracker({
+                    action: "select all relevant feedback for provider",
+                    data: {
+                      addedFeedbackIDs: feedbackIDs,
+                      providerID: props.feedbackSourceItem.id,
+                    },
+                  });
+                }
               }}
             >
-              Select All
+              {selectBtn}
             </button>
           </div>
         </div>
@@ -325,9 +360,9 @@ export const ProviderCard = (props: ProviderCardProps) => {
                   });
                 }}
                 onMouseLeave={() => setHoveredItem(null)}
-                onClick={(event) =>
-                  handleClick(event, { data: { id: feedback.id } })
-                }
+                // onClick={(event) =>
+                //   handleClick(event, { data: { id: feedback.id } })
+                // }
               >
                 <div
                   className={cn(

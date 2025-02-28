@@ -43,6 +43,15 @@ const ClusterLegend = ({ colorDimension }: ClusterLegendProps) => {
           </span>
         </div>
       ))}
+      <div className="flex items-center space-x-1">
+        <div
+          className="w-4 h-4 rounded-full"
+          style={{ backgroundColor: "#e5e6e6" }}
+        />
+        <span className="text-2xs text-center font-medium min-w-4">
+          Selected
+        </span>
+      </div>
     </div>
   );
 };

@@ -174,13 +174,13 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("class", "progress-circle")
         .attr("cx", (d) => d.x!)
         .attr("cy", (d) => d.y!)
-        .attr("r", (d) => d.r + 4)
+        .attr("r", (d) => d.r + 3)
         .attr("fill", "none")
         .attr("stroke", "transparent")
         .attr("stroke-width", 3)
         .attr("stroke-linecap", "round")
         .each(function (d) {
-          const circumference = 2 * Math.PI * (d.r + 4);
+          const circumference = 2 * Math.PI * (d.r + 3);
           d3.select(this)
             .attr("stroke-dasharray", circumference)
             .attr("stroke-dashoffset", circumference);
@@ -207,9 +207,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         const matchedIds = allFeedback
           .filter((item) => {
             if (!item.embeddings) return false;
-            const similarity = cosineSimilarity(
-              clickedEmbeddings,
-              item.embeddings,
+            const similarity = Math.abs(
+              cosineSimilarity(clickedEmbeddings, item.embeddings),
             );
             return similarity > similarityThreshold;
           })
@@ -279,7 +278,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       // Reset progress circle
       progressCircle
         .interrupt()
-        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 4))
+        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 3))
         .attr("stroke", "#00b5ff")
         .attr("stroke-opacity", 0);
 
@@ -300,13 +299,13 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       );
       const progressCircle = group
         .select<SVGCircleElement>(".progress-circle")
-        .attr("r", (d: any) => d.r + 4);
+        .attr("r", (d: any) => d.r + 3);
 
       // Stop animation and reset progress circle
       progressCircle
         .interrupt()
         .attr("stroke", "transparent")
-        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 4));
+        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 3));
 
       setHoveredItem(null);
     };
@@ -453,8 +452,8 @@ const FeedbackVis = (props: FeedbackVisProps) => {
     svg
       .selectAll<SVGGElement, d3.HierarchyCircularNode<any>>("g")
       .select(".progress-circle")
-      .attr("r", (d) => d.r + 4)
-      .attr("stroke-dasharray", (d: any) => 2 * Math.PI * (d.r + 4));
+      .attr("r", (d) => d.r + 3)
+      .attr("stroke-dasharray", (d: any) => 2 * Math.PI * (d.r + 3));
   }, [numericalDimension]);
 
   useEffect(() => {
@@ -484,7 +483,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       .attr("stroke", (d) => (searchedEmeddings ? "#ffffff" : null))
       .attr("stroke-dasharray", (d) =>
         searchedEmeddings
-          ? `${2 * Math.PI * d.r * cosineSimilarity(searchedEmeddings, d.data.embeddings)} ${
+          ? `${2 * Math.PI * d.r * Math.abs(cosineSimilarity(searchedEmeddings, d.data.embeddings))} ${
               2 * Math.PI * d.r
             }`
           : `0 ${2 * Math.PI * d.r}`,
@@ -533,7 +532,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
       progressCircle
         .interrupt()
-        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 4))
+        .attr("stroke-dashoffset", (d: any) => 2 * Math.PI * (d.r + 3))
         .attr("stroke", "#00b5ff")
         .attr("stroke-opacity", 0);
     };
@@ -567,7 +566,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       // Reusable similarity effect applicator
       const applySimilarityEffects = (selection: any) => {
         selection.attr("filter", (d: any) =>
-          cosineSimilarity(hoveredEmbeddings, d.data.embeddings) <
+          Math.abs(cosineSimilarity(hoveredEmbeddings, d.data.embeddings)) <
           similarityThreshold
             ? "url(#glow)"
             : null,
@@ -583,15 +582,16 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .call((selection) => {
           selection
             .attr("opacity", (d: any) =>
-              cosineSimilarity(hoveredEmbeddings, d.data.embeddings) >
+              Math.abs(cosineSimilarity(hoveredEmbeddings, d.data.embeddings)) >
                 similarityThreshold || currentSelectedItems.includes(d.data.id)
                 ? 1
                 : 0.8,
             )
             .attr("stroke", function (d: any) {
               if (
-                cosineSimilarity(hoveredEmbeddings, d.data.embeddings) >
-                similarityThreshold
+                Math.abs(
+                  cosineSimilarity(hoveredEmbeddings, d.data.embeddings),
+                ) > similarityThreshold
               ) {
                 const fillColor = d3.select(this).attr("fill");
                 const color = d3.hsl(fillColor);
@@ -604,7 +604,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
               return null;
             })
             .attr("stroke-width", (d: any) =>
-              cosineSimilarity(hoveredEmbeddings, d.data.embeddings) >
+              Math.abs(cosineSimilarity(hoveredEmbeddings, d.data.embeddings)) >
               similarityThreshold
                 ? 3
                 : 0,
@@ -618,7 +618,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .call(applySimilarityEffects)
         .call((selection) => {
           selection.attr("opacity", (d: any) =>
-            cosineSimilarity(hoveredEmbeddings, d.data.embeddings) >
+            Math.abs(cosineSimilarity(hoveredEmbeddings, d.data.embeddings)) >
               similarityThreshold || currentSelectedItems.includes(d.data.id)
               ? 1
               : 0.8,
