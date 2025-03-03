@@ -32,9 +32,8 @@ interface EntryPanelProps {
 const EntryPanel = (props: EntryPanelProps) => {
   // const [inputAPI, setIuptAPI] = useState("");
   const [inputID, setInputID] = useState("");
-  const [dataset, setDataset] = useState("Dataset #0");
 
-  const setUser = useStudyManagerStore((state) => state.setUser);
+  const { setUser, dataset, setDataset } = useStudyManagerStore();
   // const setAPI = useOpenAIAPI((state) => state.setAPI);
   const setLoading = useSharedConfigStore((state) => state.setLoading);
 
@@ -49,27 +48,18 @@ const EntryPanel = (props: EntryPanelProps) => {
 
   const loadDefaultData = async () => {
     const embeddingsMap =
-      dataset === "Dataset #0"
+      dataset === 0
         ? await loadEmbeddings("embeddings0.json")
-        : dataset === "Dataset #1"
+        : dataset === 1
           ? await loadEmbeddings("embeddings1.json")
           : await loadEmbeddings("embeddings2.json");
-    const essay =
-      dataset === "Dataset #0"
-        ? essay0
-        : dataset === "Dataset #1"
-          ? essay1
-          : essay2;
+    const essay = dataset === 0 ? essay0 : dataset === 1 ? essay1 : essay2;
     const feedback =
-      dataset === "Dataset #0"
-        ? feedback0
-        : dataset === "Dataset #1"
-          ? feedback1
-          : feedback2;
+      dataset === 0 ? feedback0 : dataset === 1 ? feedback1 : feedback2;
     const feedbackSource =
-      dataset === "Dataset #0"
+      dataset === 0
         ? feedbackSource0
-        : dataset === "Dataset #1"
+        : dataset === 1
           ? feedbackSource1
           : feedbackSource2;
 
@@ -145,24 +135,24 @@ const EntryPanel = (props: EntryPanelProps) => {
               >
                 <li>
                   <a
-                    onClick={() => setDataset("Dataset #0")}
-                    className={dataset === "Dataset #0" ? "active" : ""}
+                    onClick={() => setDataset(0)}
+                    className={dataset === 0 ? "active" : ""}
                   >
                     Dataset #0
                   </a>
                 </li>
                 <li>
                   <a
-                    onClick={() => setDataset("Dataset #1")}
-                    className={dataset === "Dataset #1" ? "active" : ""}
+                    onClick={() => setDataset(1)}
+                    className={dataset === 1 ? "active" : ""}
                   >
                     Dataset #1
                   </a>
                 </li>
                 <li title="Justification is whether the feedback is justified with reasons.">
                   <a
-                    onClick={() => setDataset("Dataset #2")}
-                    className={dataset === "Dataset #2" ? "active" : ""}
+                    onClick={() => setDataset(2)}
+                    className={dataset === 2 ? "active" : ""}
                   >
                     Dataset #2
                   </a>
