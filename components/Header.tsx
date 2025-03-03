@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { noto_serif } from "@/app/fonts";
 import Link from "next/link";
 import { TbX, TbInfoCircleFilled } from "react-icons/tb";
+import { eventTracker } from "@/lib/utils";
 
 type HeaderProps = {};
 
@@ -23,6 +24,17 @@ const Header = ({}: HeaderProps) => {
         <Link href="/">Synthia</Link>
       </h1>
       <div className="flex flex-row gap-4 justify-center items-center">
+        <button
+          className="btn btn-sm text-xs text-gray-500"
+          onClick={() => {
+            eventTracker({
+              action: "end study",
+              data: {},
+            });
+          }}
+        >
+          Task End
+        </button>
         <TbInfoCircleFilled
           size={24}
           className="text-base-300 hover:text-neutral cursor-pointer"
