@@ -17,7 +17,7 @@ import {
   useSharedConfigStore,
   useStudyManagerStore,
 } from "@/lib/store";
-import { cn, countWords, getEmbedding } from "@/lib/utils";
+import { cn, countWords, eventTracker } from "@/lib/utils";
 import { noto_serif } from "@/app/fonts";
 
 interface EmbeddingData {
@@ -127,7 +127,7 @@ const EntryPanel = (props: EntryPanelProps) => {
                 className="btn rounded-md text-xs flex flex-row gap-2 shadow-none w-28"
               >
                 {/* <span className="opacity-40">Color by</span> */}
-                <span className="capitalize">{dataset}</span>
+                <span className="capitalize">Dataset #{dataset}</span>
               </div>
               <ul
                 tabIndex={0}
@@ -165,6 +165,13 @@ const EntryPanel = (props: EntryPanelProps) => {
                 // setAPI(inputAPI);
                 setUser(inputID);
                 loadDefaultData();
+                eventTracker({
+                  action: "start study",
+                  data: {
+                    id: inputID,
+                    dataset: dataset,
+                  },
+                });
               }}
             >
               Confirm
