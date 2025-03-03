@@ -97,7 +97,7 @@ const EssayPanel = (props: EssayPanelProps) => {
         <div className="form-control">
           <label className="label cursor-pointer space-x-2">
             <span className="label-text text-xs ">
-              Compare to Orginal Essay
+              Compare to Original Essay
             </span>
             <input
               type="checkbox"
@@ -116,7 +116,7 @@ const EssayPanel = (props: EssayPanelProps) => {
           </label>
         </div>
       </div>
-      <div className="text-xs leading-relaxed p-4 pt-24 overflow-y-auto relative grow">
+      <div className="text-sm leading-relaxed p-4 pt-24 overflow-y-auto relative grow">
         {Object.entries(paragraphs).map(
           ([paragraph, sections], index, array) => (
             <div

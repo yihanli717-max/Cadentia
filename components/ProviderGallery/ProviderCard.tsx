@@ -93,7 +93,7 @@ export const ProviderCard = (props: ProviderCardProps) => {
           <span
             key={index}
             className={cn(
-              "font-medium text-xs",
+              "font-medium text-sm",
               allSelectedSentences.includes(sentence)
                 ? "underline bg-sky-50"
                 : "",
@@ -417,7 +417,7 @@ export const ProviderCard = (props: ProviderCardProps) => {
 
         <div
           className={cn(
-            "text-2xs leading-relaxed overflow-y-auto transition-all duration-1000",
+            "text-xs leading-relaxed overflow-y-auto transition-all duration-1000",
             {
               "line-clamp-3 max-h-[60px]": !shouldExpand,
               "max-h-[1000px]": shouldExpand,
