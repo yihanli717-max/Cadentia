@@ -100,7 +100,7 @@ const RegenerateContextMenu = (props: RegenerateContextMenuProps) => {
       >
         <textarea
           value={inputValue}
-          placeholder="Type here"
+          placeholder="Type your prompt here..."
           className="textarea textarea-bordered text-2xs w-full rounded p-2 h-24"
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={(e) => {
@@ -109,9 +109,16 @@ const RegenerateContextMenu = (props: RegenerateContextMenuProps) => {
         />
 
         {output && (
-          <div className="bg-blue-100 text-blue-800 text-2xs px-2 py-2 rounded  w-full max-h-32 overflow-y-auto no-scrollbar">
-            <span className="font-medium">Output:</span> {output}
-          </div>
+          <textarea
+            className="textarea textarea-bordered bg-blue-100 text-blue-800 text-2xs px-2 py-2 rounded  w-full h-32 overflow-y-auto no-scrollbar"
+            value={output}
+            onChange={(e) => setOutput(e.target.value)}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            {/* <span className="font-medium">Output:</span> */}
+          </textarea>
         )}
 
         {isGenerating && (

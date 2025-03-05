@@ -242,7 +242,37 @@ const Menu = (props: MenuProps) => {
               className="grow w-52 2xl:w-96"
               placeholder="Search for feedback ..."
             />
-            <kbd className="kbd kbd-sm">↵</kbd>
+            <kbd
+              className="kbd kbd-sm cursor-pointer"
+              onClick={async () => {
+                if (!searchedText) {
+                  console.log("No search text");
+                  setSearchedEmbeddings(undefined);
+                  return;
+                }
+
+                // Remove stopwords
+                const searchedTextWithoutStopwords = removeStopwords(
+                  searchedText.split(" "),
+                ).join(" ");
+                // console.log(
+                //   "Searched text without stopwords: ",
+                //   searchedTextWithoutStopwords,
+                // );
+                const embeddings = await getEmbedding(
+                  searchedTextWithoutStopwords,
+                );
+                eventTracker({
+                  action: "search",
+                  data: {
+                    text: searchedText,
+                  },
+                });
+                setSearchedEmbeddings(embeddings);
+              }}
+            >
+              ↵
+            </kbd>
           </label>
           {/* <div className="ml-2 flex flex-col gap-1 w-52">
             <p className="text-2xs">
