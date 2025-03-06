@@ -44,7 +44,7 @@ const EditContextMenu = (props: EditContextMenuProps) => {
     updateRevisedSentence(
       currentRevisionItem,
       props.sentence,
-      inputValue || "",
+      inputValue || " ",
     );
     hideAll();
   };
