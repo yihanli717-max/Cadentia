@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { noto_serif } from "@/app/fonts";
 import Link from "next/link";
 import { TbX, TbInfoCircleFilled } from "react-icons/tb";
-import { eventTracker } from "@/lib/utils";
+import { eventTracker, getClusterColor } from "@/lib/utils";
 
 type HeaderProps = {};
 
@@ -83,46 +83,98 @@ const Header = ({}: HeaderProps) => {
               <p className="font-semibold">📑 Feedback Category</p>
               <ul className="text-sm flex flex-col gap-2 my-2">
                 <li className="flex flex-row items-center gap-2">
-                  <span className="font-semibold">Claims/Ideas</span> feedback
-                  critiques the position or claim being argued for.
+                  <span
+                    className="font-semibold"
+                    style={{
+                      color: getClusterColor("type")("Claim"),
+                    }}
+                  >
+                    Claims/Ideas (CL)
+                  </span>{" "}
+                  feedback critiques the position or claim being argued for.
                 </li>
                 <li className="flex flex-row items-center gap-2">
-                  <span className="font-semibold">
-                    Warrant/Reasoning/Backing
+                  <span
+                    className="font-semibold"
+                    style={{
+                      color: getClusterColor("type")("Reasoning"),
+                    }}
+                  >
+                    Warrant/Reasoning/Backing (WA)
                   </span>{" "}
                   feedback focuses on the principle or reasoning of the claim.
                 </li>
                 <li className="flex flex-row items-center gap-2">
-                  <span className="font-semibold">Evidence</span> feedback
-                  critiques facts, theorems, or citations for supporting
-                  claims/ideas.
+                  <span
+                    className="font-semibold"
+                    style={{
+                      color: getClusterColor("type")("Evidence"),
+                    }}
+                  >
+                    Evidence (EV)
+                  </span>{" "}
+                  feedback critiques facts, theorems, or citations for
+                  supporting claims/ideas.
                 </li>
                 <li className="flex flex-row items-center gap-2">
-                  <span className="font-semibold">Rebuttal/Reservation</span>{" "}
+                  <span
+                    className="font-semibold"
+                    style={{
+                      color: getClusterColor("type")("Rebuttal"),
+                    }}
+                  >
+                    Rebuttal/Reservation (RE)
+                  </span>{" "}
                   feedback focuses on the development of content that rebuts
                   current claims/ideas.
                 </li>
                 <li className="flex flex-row items-center gap-2">
-                  <span className="font-semibold">General Content</span>{" "}
-                  feedback critique content that does not directly support or
-                  rebut claims/ideas.
-                </li>
-                <li className="flex flex-row items-center gap-2">
-                  <span className="font-semibold">
-                    Conventions/Grammar/Spelling
+                  <span
+                    className="font-semibold"
+                    style={{
+                      color: getClusterColor("type")("Orthography"),
+                    }}
+                  >
+                    Conventions/Grammar/Spelling (CO)
                   </span>{" "}
                   feedback targets spelling or grammar errors, misusage of
                   punctuation or to follow the organizational conventions of
                   academic writing.
                 </li>
                 <li className="flex flex-row items-center gap-2">
-                  <span className="font-semibold">Organization</span> feedback
-                  help the author get a better ﬂow of the paper.
+                  <span
+                    className="font-semibold"
+                    style={{
+                      color: getClusterColor("type")("Organization"),
+                    }}
+                  >
+                    Organization (OR)
+                  </span>{" "}
+                  feedback help the author get a better ﬂow of the paper.
                 </li>
                 <li className="flex flex-row items-center gap-2">
-                  <span className="font-semibold">Word Usage/Clarity</span>{" "}
+                  <span
+                    className="font-semibold"
+                    style={{
+                      color: getClusterColor("type")("Word-usage"),
+                    }}
+                  >
+                    Word Usage/Clarity (WO)
+                  </span>{" "}
                   feedback purports to improve the words or phrases for better
                   representation of ideas.
+                </li>
+                <li className="flex flex-row items-center gap-2">
+                  <span
+                    className="font-semibold"
+                    style={{
+                      color: getClusterColor("type")("Others"),
+                    }}
+                  >
+                    General Content (GE)
+                  </span>{" "}
+                  feedback critique content that does not directly support or
+                  rebut claims/ideas.
                 </li>
               </ul>
             </div>
