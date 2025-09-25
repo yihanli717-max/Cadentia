@@ -167,9 +167,9 @@ export async function getEmbedding(
   text: string,
   model: string = "text-embedding-3-large",
 ): Promise<number[]> {
-  let embedding: number[] = [];
   const apiKey = useOpenAIAPI.getState().API;
-  console.log("111:", apiKey);
+
+  let embedding: number[] = [];
   try {
     const response = await fetch("/api/embeddings", {
       method: "POST",
@@ -204,7 +204,6 @@ export async function Regenerate(
   prompt: string,
 ) {
   const apiKey = useOpenAIAPI.getState().API;
-  console.log("111:", apiKey);
 
   const payload = {
     // apiKey: useOpenAIAPI.getState().API,
@@ -236,7 +235,6 @@ export async function generateRevision(
   sentenceList: string[],
 ) {
   const apiKey = useOpenAIAPI.getState().API;
-  console.log("111:", apiKey);
 
   const payload = {
     // apiKey: useOpenAIAPI.getState().API,
