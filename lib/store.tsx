@@ -10,23 +10,23 @@ import {
 import { eventTracker } from "@/lib/utils";
 import { cluster } from "d3";
 
-// export type OpenAIAPIState = {
-//   API: string;
-// };
+export type OpenAIAPIState = {
+  API: string;
+};
 
-// export type OpenAIAPIActions = {
-//   setAPI: (API: string) => void;
-// };
+export type OpenAIAPIActions = {
+  setAPI: (API: string) => void;
+};
 
-// export const useOpenAIAPI = create<OpenAIAPIState & OpenAIAPIActions>()(
-//   persist(
-//     (set) => ({
-//       API: process.env.OPENAI_API_KEY || "",
-//       setAPI: (API: string) => set({ API: API }),
-//     }),
-//     { name: "openai-api", skipHydration: true },
-//   ),
-// );
+export const useOpenAIAPI = create<OpenAIAPIState & OpenAIAPIActions>()(
+  persist(
+    (set) => ({
+      API: process.env.OPENAI_API_KEY || "",
+      setAPI: (API: string) => set({ API: API }),
+    }),
+    { name: "openai-api", skipHydration: true },
+  ),
+);
 
 export type EssayState = {
   essay: Sentence[];
@@ -560,12 +560,14 @@ export type studyManagerState = {
   user: string;
   condition: "synthia" | "test";
   dataset: number;
+  ifTracking: boolean;
 };
 
 export type studyManagerActions = {
   setUser: (user: string) => void;
   setCondition: (condition: string) => void;
   setDataset: (dataset: number) => void;
+  setTracking: (tracking: boolean) => void;
 };
 
 export const useStudyManagerStore = create<
@@ -575,7 +577,8 @@ export const useStudyManagerStore = create<
     (set) => ({
       user: "P0",
       condition: "synthia",
-      dataset: 0,
+      dataset: 1,
+      ifTracking: false,
       setUser: (user: string) =>
         set(
           produce((state) => {
@@ -592,6 +595,12 @@ export const useStudyManagerStore = create<
         set(
           produce((state) => {
             state.dataset = dataset;
+          }),
+        ),
+      setTracking: (tracking: boolean) =>
+        set(
+          produce((state) => {
+            state.ifTracking = tracking;
           }),
         ),
     }),

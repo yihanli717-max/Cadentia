@@ -3,10 +3,6 @@ import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 // Define Zod schema for response validation
 const Revision = z.object({
   revision: z.array(
@@ -24,7 +20,12 @@ interface Sentence {
 
 export async function POST(req: Request) {
   try {
-    const { prompt, essay, feedbackList, sentenceList } = await req.json();
+    const { prompt, essay, feedbackList, sentenceList, apiKey } =
+      await req.json();
+
+    const openai = new OpenAI({
+      apiKey: apiKey,
+    });
 
     // Validate required parameters
     if (!essay || !feedbackList || !sentenceList) {

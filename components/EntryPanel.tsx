@@ -10,7 +10,7 @@ import { essay as essay2 } from "@/data/essay2";
 import { feedback as feedback2 } from "@/data/feedback2";
 import { feedbackSource as feedbackSource2 } from "@/data/source2";
 import {
-  // useOpenAIAPI,
+  useOpenAIAPI,
   useEssayStore,
   useFeedbackStore,
   useFeedbackSourceStore,
@@ -30,11 +30,11 @@ interface EntryPanelProps {
 }
 
 const EntryPanel = (props: EntryPanelProps) => {
-  // const [inputAPI, setIuptAPI] = useState("");
-  const [inputID, setInputID] = useState("");
+  const [inputAPI, setIuptAPI] = useState("");
+  const [inputID, setInputID] = useState("annonymous");
 
   const { setUser, dataset, setDataset } = useStudyManagerStore();
-  // const setAPI = useOpenAIAPI((state) => state.setAPI);
+  const setAPI = useOpenAIAPI((state) => state.setAPI);
   const setLoading = useSharedConfigStore((state) => state.setLoading);
 
   const loadEmbeddings = async (
@@ -95,11 +95,11 @@ const EntryPanel = (props: EntryPanelProps) => {
 
   return (
     <div className="h-screen w-full flex items-center justify-center">
-      <div className="flex flex-col gap-2 p-8 bg-white rounded-lg border w-[512px] select-none">
+      <div className="flex flex-col gap-3 p-8 bg-white rounded-lg border w-[512px] select-none">
         <p className={noto_serif.className}>👋 Hi there! Welcome to Synthia!</p>
 
-        <div className="flex flex-col gap-2 w-full">
-          {/* <input
+        <div className="flex flex-col gap-3 w-full">
+          <input
             type="text"
             value={inputAPI}
             placeholder="Your OpenAI API Key..."
@@ -107,10 +107,10 @@ const EntryPanel = (props: EntryPanelProps) => {
               setIuptAPI(event.target.value);
             }}
             className="input input-bordered w-full text-xs rounded-md"
-          /> */}
+          />
 
-          <div className="flex flex-row gap-2 items-center">
-            <input
+          <div className="flex flex-col gap-2 items-center">
+            {/* <input
               type="text"
               value={inputID}
               placeholder="Participant ID..."
@@ -118,15 +118,14 @@ const EntryPanel = (props: EntryPanelProps) => {
                 setInputID(event.target.value);
               }}
               className="input input-bordered w-full text-xs"
-            />
+            /> */}
 
-            <div className="dropdown">
+            {/* <div className="dropdown">
               <div
                 tabIndex={0}
                 role="button"
                 className="btn rounded-md text-xs flex flex-row gap-2 shadow-none w-28"
               >
-                {/* <span className="opacity-40">Color by</span> */}
                 <span className="capitalize">Dataset #{dataset}</span>
               </div>
               <ul
@@ -158,13 +157,39 @@ const EntryPanel = (props: EntryPanelProps) => {
                   </a>
                 </li>
               </ul>
-            </div>
+            </div> */}
+
+            {/* <div className="w-full">
+              <div className="flex flex-row gap-2 items-center w-full">
+                <label htmlFor="file" className="label w-28">
+                  Essay
+                </label>
+                <input
+                  type="file"
+                  className="file-input file-input-bordered file-input-sm w-full "
+                />
+              </div>
+
+              <div className="flex flex-row gap-2 items-center w-full">
+                <label htmlFor="file" className="label w-28">
+                  Feedback
+                </label>
+                <input
+                  type="file"
+                  className="file-input file-input-bordered file-input-sm w-full "
+                  multiple
+                />
+              </div>
+            </div> */}
+
             <button
-              className="btn btn-neutral text-xs"
+              className="btn w-full"
               onClick={() => {
                 // setAPI(inputAPI);
                 setUser(inputID);
                 loadDefaultData();
+                setAPI(inputAPI);
+                console.log("start study", inputID, dataset, inputAPI);
                 eventTracker({
                   action: "start study",
                   data: {
@@ -174,7 +199,7 @@ const EntryPanel = (props: EntryPanelProps) => {
                 });
               }}
             >
-              Confirm
+              Enter
             </button>
           </div>
         </div>

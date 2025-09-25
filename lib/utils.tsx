@@ -3,32 +3,55 @@ import { twMerge } from "tailwind-merge";
 import type { OpenAI as OpenAIType } from "openai";
 import * as d3 from "d3";
 import { diffWords } from "diff";
-import { useStudyManagerStore } from "@/lib/store";
+import { useStudyManagerStore, useOpenAIAPI } from "@/lib/store";
 import { Sentence, RevisionItem } from "@/lib/type";
-import { push, ref, set } from "firebase/database";
+import {
+  push,
+  ref,
+  get,
+  query,
+  orderByChild,
+  equalTo,
+  limitToFirst,
+  startAfter,
+} from "firebase/database";
 import { database } from "@/app/firebaseConfig";
 
 export function eventTracker(event: {
   action: string;
   data: object | string | null;
 }) {
-  try {
-    const condition = useStudyManagerStore.getState().condition;
-    const dataset = useStudyManagerStore.getState().dataset;
-    const user = useStudyManagerStore.getState().user;
-    const refId = ref(
-      database,
-      "events/" + user + "/" + condition + "-" + dataset,
-    );
-    const newEvent = {
-      ...event,
-      timestamp: Date.now(),
-    };
+  const user = useStudyManagerStore.getState().user;
+  const ifTracking = useStudyManagerStore.getState().ifTracking;
+  if (
+    ifTracking &&
+    user !== "p0" &&
+    user !== "P0" &&
+    user !== "frank" &&
+    user !== "Frank" &&
+    user !== "grace" &&
+    user !== "Grace" &&
+    user !== "Phyllis" &&
+    user !== "phyllis" &&
+    user !== "annonymous"
+  ) {
+    try {
+      const condition = useStudyManagerStore.getState().condition;
+      const dataset = useStudyManagerStore.getState().dataset;
+      const refId = ref(
+        database,
+        "events/" + user + "/" + condition + "-" + dataset,
+      );
+      const newEvent = {
+        ...event,
+        timestamp: Date.now(),
+      };
 
-    push(refId, newEvent);
-  } catch (error) {
-    console.log("event:", event);
-    console.error("Error tracking event:", error);
+      push(refId, newEvent);
+    } catch (error) {
+      console.log("event:", event);
+      console.error("Error tracking event:", error);
+    }
   }
 }
 
@@ -145,6 +168,8 @@ export async function getEmbedding(
   model: string = "text-embedding-3-large",
 ): Promise<number[]> {
   let embedding: number[] = [];
+  const apiKey = useOpenAIAPI.getState().API;
+  console.log("111:", apiKey);
   try {
     const response = await fetch("/api/embeddings", {
       method: "POST",
@@ -155,6 +180,7 @@ export async function getEmbedding(
         // apiKey: useOpenAIAPI.getState().API,
         model: model,
         input: text,
+        apiKey: apiKey,
       }),
     });
 
@@ -177,10 +203,14 @@ export async function Regenerate(
   conversation: OpenAIType.ChatCompletionMessageParam[],
   prompt: string,
 ) {
+  const apiKey = useOpenAIAPI.getState().API;
+  console.log("111:", apiKey);
+
   const payload = {
     // apiKey: useOpenAIAPI.getState().API,
     conversation: conversation,
     prompt: prompt,
+    apiKey: apiKey,
   };
 
   try {
@@ -205,12 +235,16 @@ export async function generateRevision(
   feedbackList: string[],
   sentenceList: string[],
 ) {
+  const apiKey = useOpenAIAPI.getState().API;
+  console.log("111:", apiKey);
+
   const payload = {
     // apiKey: useOpenAIAPI.getState().API,
     prompt: prompt,
     essay: essay,
     feedbackList: feedbackList,
     sentenceList: sentenceList,
+    apiKey: apiKey,
   };
 
   try {

@@ -63,7 +63,7 @@ const Menu = (props: MenuProps) => {
       <div
         className={cn(
           props.classes,
-          "p-2 gap-3 flex flex-row items-start justify-between",
+          "p-2 gap-2 flex flex-row items-start justify-between",
         )}
       >
         <div className="flex-none flex flex-row gap-2 z-50">
@@ -80,20 +80,20 @@ const Menu = (props: MenuProps) => {
               tabIndex={0}
               className="dropdown-content menu bg-base-100 rounded-md z-[1] p-2 shadow text-2xs w-28 mt-1"
             >
-              <li title="Type is the target writing element of feedback.">
-                <a
-                  onClick={() => setClusterDimension("type")}
-                  className={clusterDimension === "type" ? "active" : ""}
-                >
-                  Type
-                </a>
-              </li>
               <li title="Provider is the source of the feedback.">
                 <a
                   onClick={() => setClusterDimension("provider")}
                   className={clusterDimension === "provider" ? "active" : ""}
                 >
                   Provider
+                </a>
+              </li>
+              <li title="Type is the target writing element of feedback.">
+                <a
+                  onClick={() => setClusterDimension("type")}
+                  className={clusterDimension === "type" ? "active" : ""}
+                >
+                  Type
                 </a>
               </li>
             </ul>
@@ -119,6 +119,22 @@ const Menu = (props: MenuProps) => {
                   None
                 </a>
               </li>
+              <li title="Provider is the source of the feedback.">
+                <a
+                  onClick={() => setColorDimension("provider")}
+                  className={colorDimension === "provider" ? "active" : ""}
+                >
+                  Provider
+                </a>
+              </li>
+              <li title="Type is the target writing element of feedback.">
+                <a
+                  onClick={() => setColorDimension("type")}
+                  className={colorDimension === "type" ? "active" : ""}
+                >
+                  Type
+                </a>
+              </li>
               <li title="Justification is whether the feedback is justified with reasons.">
                 <a
                   onClick={() => setColorDimension("justification")}
@@ -133,22 +149,6 @@ const Menu = (props: MenuProps) => {
                   className={colorDimension === "sentiment" ? "active" : ""}
                 >
                   Sentiment
-                </a>
-              </li>
-              <li title="Type is the target writing element of feedback.">
-                <a
-                  onClick={() => setColorDimension("type")}
-                  className={colorDimension === "type" ? "active" : ""}
-                >
-                  Type
-                </a>
-              </li>
-              <li title="Provider is the source of the feedback.">
-                <a
-                  onClick={() => setColorDimension("provider")}
-                  className={colorDimension === "provider" ? "active" : ""}
-                >
-                  Provider
                 </a>
               </li>
             </ul>
@@ -239,7 +239,7 @@ const Menu = (props: MenuProps) => {
                   setSearchedEmbeddings(embeddings);
                 }
               }}
-              className="grow w-52 2xl:w-96"
+              className="grow w-60 2xl:w-96"
               placeholder="Search for feedback ..."
             />
             <kbd
@@ -292,7 +292,7 @@ const Menu = (props: MenuProps) => {
           </div> */}
         </div>
       </div>
-      <div className="absolute right-3 bottom-2 z-50 select-none flex gap-3">
+      <div className="absolute right-3 bottom-2 z-50 select-none flex gap-2">
         <label className="input input-bordered flex items-center gap-2 text-xs font-medium h-12 ml-2 p-3 rounded-md">
           <input
             type="text"

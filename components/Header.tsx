@@ -24,7 +24,7 @@ const Header = ({}: HeaderProps) => {
         <Link href="/">Synthia</Link>
       </h1>
       <div className="flex flex-row gap-4 justify-center items-center">
-        <button
+        {/* <button
           className="btn btn-sm text-xs text-gray-500"
           onClick={() => {
             eventTracker({
@@ -34,7 +34,7 @@ const Header = ({}: HeaderProps) => {
           }}
         >
           Task End
-        </button>
+        </button> */}
         <TbInfoCircleFilled
           size={24}
           className="text-base-300 hover:text-neutral cursor-pointer"

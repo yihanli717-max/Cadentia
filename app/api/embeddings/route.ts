@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export async function POST(req: Request) {
   try {
-    const { model, input } = await req.json();
+    const { model, input, apiKey } = await req.json();
+
+    const openai = new OpenAI({
+      apiKey: apiKey,
+    });
 
     // Check for required parameters
     if (!model || !input) {
