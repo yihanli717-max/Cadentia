@@ -1,4 +1,4 @@
-Synthia: Visually Interpreting and Synthesizing Feedback for Writing Revision
+# Synthia: Visually Interpreting and Synthesizing Feedback for Writing Revision
 
 [**Link to UIST 2025 Paper**](https://doi.org/10.1145/3746059.3747703)
 
