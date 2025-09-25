@@ -1,18 +1,13 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Synthia: Visually Interpreting and Synthesizing Feedback for Writing Revision
 
-## Getting Started
+[**Link to UIST 2025 Paper**](https://doi.org/10.1145/3746059.3747703)
 
-First, install the dependencies:
+While recent advances in HCI and generative AI have improved authors' access to feedback on their work, the abundance of critiques can overwhelm writers and obscure actionable insights. We introduce Synthia, a system that visually scaffolds feedback-based writing revision with LLM-powered synthesis. Synthia helps authors strategize their revisions by breaking down large feedback collections into interactive visual bubbles that can be clustered, colored, and resized to reveal patterns and highlight valuable suggestions. Bidirectional highlighting links each feedback unit to its original context and relevant parts of the text. Writers can selectively combine feedback units to generate alternative drafts, enabling rapid, parallel exploration of revision possibilities. These interactions support feedback curation, interpretation, and experimentation throughout the revision process. A within-subjects study (N=12) showed that Synthia helped participants identify more helpful feedback, explore more diverse revisions, and revise with greater intentionality and transparency than a GPT-4-based writing interface.
 
-```bash
-npm install
-# or
-yarn install
-# or
-pnpm install
-```
+![](./public/teaser_figure.jpg)
 
-Then, run the development server:
+## Setup
+First, run the development server:
 
 ```bash
 npm run dev
@@ -24,21 +19,20 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## UIST 2025 Paper
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+**Synthia: Visually Interpreting and Synthesizing Feedback for Writing Revision**<br />
+Chao Zhang, Kexin Ju, Zhuolun Han, Yu-Chun Grace Yen, Jeffrey M. Rzeszotarski
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+**Please cite this paper if you used the code or prompts in this repository.**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+> Chao Zhang, Kexin Ju, Zhuolun Han, Yu-Chun Grace Yen, and Jeffrey M. Rzeszotarski. 2025. Synthia: Visually Interpreting and Synthesizing Feedback for Writing Revision. In The 38th Annual ACM Symposium on User Interface Software and Technology (UIST '25), September 28-October 1, 2025, Busan, Republic of Korea. ACM, New York, NY, USA, 16 pages. https://doi.org/10.1145/3746059.3747703
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```bibtex
+TBD
+```
 
-## Deploy on Vercel
+## Acknowledgements
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+We sincerely thank our participants for sharing their thoughts and suggestions on our system, and we are grateful to all reviewers for their valuable insights and feedback.
