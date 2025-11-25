@@ -482,7 +482,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       .attr("stroke-width", 3)
       .attr("stroke", (d) => (searchedEmeddings ? "#ffffff" : null))
       .attr("stroke-dasharray", (d) =>
-        searchedEmeddings
+        searchedEmeddings && d.data.embeddings
           ? `${2 * Math.PI * d.r * Math.abs(cosineSimilarity(searchedEmeddings, d.data.embeddings))} ${
               2 * Math.PI * d.r
             }`
@@ -563,14 +563,26 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         (item) => item.id === hoveredItem,
       )?.embeddings as number[];
 
+      // If hovered item has no embeddings, skip similarity effects
+      if (!hoveredEmbeddings) {
+        // Just highlight the hovered item without similarity effects
+        fillCircles.filter((d) => d.data.id === hoveredItem).attr("opacity", 1);
+        progressCircle
+          .filter((d) => d.data.id === hoveredItem)
+          .attr("stroke-opacity", 1)
+          .attr("stroke-dashoffset", 0);
+        return;
+      }
+
       // Reusable similarity effect applicator
       const applySimilarityEffects = (selection: any) => {
-        selection.attr("filter", (d: any) =>
-          Math.abs(cosineSimilarity(hoveredEmbeddings, d.data.embeddings)) <
-          similarityThreshold
+        selection.attr("filter", (d: any) => {
+          if (!d.data.embeddings) return null;
+          return Math.abs(cosineSimilarity(hoveredEmbeddings, d.data.embeddings)) <
+            similarityThreshold
             ? "url(#glow)"
-            : null,
-        );
+            : null;
+        });
       };
 
       // Apply effects to non-hovered items
@@ -581,13 +593,15 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .call(applySimilarityEffects)
         .call((selection) => {
           selection
-            .attr("opacity", (d: any) =>
-              Math.abs(cosineSimilarity(hoveredEmbeddings, d.data.embeddings)) >
+            .attr("opacity", (d: any) => {
+              if (!d.data.embeddings) return currentSelectedItems.includes(d.data.id) ? 1 : 0.8;
+              return Math.abs(cosineSimilarity(hoveredEmbeddings, d.data.embeddings)) >
                 similarityThreshold || currentSelectedItems.includes(d.data.id)
                 ? 1
-                : 0.8,
-            )
+                : 0.8;
+            })
             .attr("stroke", function (d: any) {
+              if (!d.data.embeddings) return null;
               if (
                 Math.abs(
                   cosineSimilarity(hoveredEmbeddings, d.data.embeddings),
@@ -603,12 +617,13 @@ const FeedbackVis = (props: FeedbackVisProps) => {
               }
               return null;
             })
-            .attr("stroke-width", (d: any) =>
-              Math.abs(cosineSimilarity(hoveredEmbeddings, d.data.embeddings)) >
+            .attr("stroke-width", (d: any) => {
+              if (!d.data.embeddings) return 0;
+              return Math.abs(cosineSimilarity(hoveredEmbeddings, d.data.embeddings)) >
               similarityThreshold
                 ? 3
-                : 0,
-            );
+                : 0;
+            });
         });
 
       barCircles
@@ -617,12 +632,13 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .duration(300)
         .call(applySimilarityEffects)
         .call((selection) => {
-          selection.attr("opacity", (d: any) =>
-            Math.abs(cosineSimilarity(hoveredEmbeddings, d.data.embeddings)) >
+          selection.attr("opacity", (d: any) => {
+            if (!d.data.embeddings) return currentSelectedItems.includes(d.data.id) ? 1 : 0.8;
+            return Math.abs(cosineSimilarity(hoveredEmbeddings, d.data.embeddings)) >
               similarityThreshold || currentSelectedItems.includes(d.data.id)
               ? 1
-              : 0.8,
-          );
+              : 0.8;
+          });
         });
 
       barContainerCircles
