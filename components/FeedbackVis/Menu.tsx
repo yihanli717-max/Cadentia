@@ -17,6 +17,84 @@ const Menu = (props: MenuProps) => {
   const [searchedText, setSearchedText] = useState("");
   const [prompt, setPrompt] = useState("");
 
+  // --- MODIFICATION START: Added state for FRES and loading ---
+  const [fres, setFres] = useState<number | null>(null);
+  const [asl, setAsl] = useState<number | null>(null);
+  const [asw, setAsw] = useState<number | null>(null);
+  const [readabilityLoading, setReadabilityLoading] = useState<boolean>(true); // Added loading state
+  // --- MODIFICATION END ---
+
+  // --- MODIFICATION START: Add state for suggestion and loading ---
+  const [readabilitySuggestion, setReadabilitySuggestion] = useState<string | null>(null);
+  const [suggestionLoading, setSuggestionLoading] = useState<boolean>(false);
+  // --- MODIFICATION END ---
+
+  // --- MODIFICATION START: Added essay store hook ---
+  const essay = useEssayStore((state) => state.essay); // Get the current essay from the store
+  // --- MODIFICATION END ---
+
+  async function loadFRES() {
+    setReadabilityLoading(true); // Start loading
+    try {
+      // Join the essay sentences into a single text string
+      const text = essay.map(s => s.content).join(' ');
+
+      const res = await fetch("/api/readability", {
+        method: "POST", // Use POST method
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text }), // Send the text in the request body
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("API Error:", errorData.error);
+        setFres(null);
+        setAsl(null);
+        setAsw(null);
+        return;
+      }
+
+      const data = await res.json();
+
+      // Check if the response structure matches the new POST API
+      if (data && data.success && typeof data.scores.FRES === "number" && typeof data.scores.ASL === "number" && typeof data.scores.ASW === "number") {
+        setFres(data.scores.FRES); // Access FRES from data.scores.FRES
+        setAsl(data.scores.ASL);   // Access ASL from data.scores.ASL
+        setAsw(data.scores.ASW);   // Access ASW from data.scores.ASW
+      } else {
+        setFres(null);
+        setAsl(null);
+        setAsw(null);
+      }
+    } catch (error) {
+      console.error("Failed to fetch FRES:", error);
+      setFres(null);
+      setAsl(null);
+      setAsw(null);
+    } finally {
+      setReadabilityLoading(false); // End loading
+    }
+  }
+  // --- MODIFICATION END ---
+
+  // --- MODIFICATION START: Updated useEffect hook ---
+  // Load FRES when the component mounts and whenever the essay changes
+  useEffect(() => {
+    if (essay && essay.length > 0) { // Ensure essay has data before loading
+      loadFRES();
+    } else {
+      setFres(null); // If essay is empty, clear the FRES
+      setAsl(null);  // If essay is empty, clear the ASL
+      setAsw(null); // If essay is empty, clear the ASW
+      setReadabilityLoading(false); // Also clear loading state
+    }
+  }, [essay]); // Dependency is the essay state
+  // --- MODIFICATION END ---
+
+  
+
   const [
     clusterDimension,
     setClusterDimension,
@@ -58,8 +136,87 @@ const Menu = (props: MenuProps) => {
     setSearchedEmbeddings(undefined);
   }, []);
 
+// --- MODIFICATION START: Add function to fetch suggestion ---
+const fetchReadabilitySuggestion = async () => {
+  if (!essay || essay.length === 0 || typeof fres !== 'number' || typeof asl !== 'number' || typeof asw !== 'number') {
+    console.warn("Cannot fetch suggestion: Missing text or metrics.");
+    setReadabilitySuggestion("Cannot generate suggestion: Text or metrics unavailable.");
+    return;
+  }
+
+  setSuggestionLoading(true);
+  setReadabilitySuggestion(null); // Clear previous suggestion
+
+  try {
+    const text = essay.map(s => s.content).join(' ');
+
+    const res = await fetch("/api/readability_suggestion", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ fres, asl, asw, text }), // Send metrics and text
+    });
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("Fetch Suggestion Error:", errorData);
+      setReadabilitySuggestion(`Error: ${errorData.error || 'Failed to fetch suggestion'}`);
+      return;
+    }
+
+    const data = await res.json();
+    setReadabilitySuggestion(data.suggestion);
+  } catch (error) {
+    console.error("Failed to fetch readability suggestion:", error);
+    setReadabilitySuggestion("Error: Failed to fetch suggestion.");
+  } finally {
+    setSuggestionLoading(false);
+  }
+};
+// --- MODIFICATION END ---
+
   return (
     <>
+      {/* --- MODIFICATION START: Updated Readability Display (show FRES, ASL, ASW, and formula) --- */}
+      <div
+        className="absolute right-4 top-4 bg-base-100 shadow-md rounded-md px-3 py-2 z-50"
+        style={{ border: "1px solid rgba(255,255,255,0.15)" }}
+      >
+        <span className="text-xs opacity-50">Readability</span>
+        <div className="text-sm ml-2">
+          {readabilityLoading ? (
+            <span>Calculating...</span>
+          ) : (
+            <>
+              {typeof fres === "number" && typeof asl === "number" && typeof asw === "number" ? (
+                <>
+                  <div className="text-base font-medium">FRES (Overall Readability Score): {fres.toFixed(1)}</div>
+                  <div>ASL (Average Sentence Length): {asl.toFixed(2)}</div>
+                  <div>ASW (Average Number of Syllables per Word): {asw.toFixed(2)}</div>                  
+                  <div className="text-xs opacity-75 mt-1">Formula: FRES = 206.835 - 1.015 * ASL - 84.6 * ASW</div>
+                  {/* Add button to get suggestion */}
+                  <button
+                    onClick={fetchReadabilitySuggestion}
+                    disabled={suggestionLoading} // Disable while loading
+                    className="mt-2 text-xs btn btn-xs btn-outline"
+                  >
+                    {suggestionLoading ? "Generating..." : "Get Suggestion"}
+                  </button>
+                  {/* Display suggestion */}
+                  {readabilitySuggestion && (
+                    <div className="mt-2 text-xs bg-base-200 p-1 rounded">
+                      <strong>Suggestion:</strong> {readabilitySuggestion}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <span>N/A</span>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+      {/* --- MODIFICATION END --- */}
       <div
         className={cn(
           props.classes,
