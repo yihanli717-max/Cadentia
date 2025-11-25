@@ -22,6 +22,8 @@ const typeMap = {
   others: "General Content",
 };
 
+const READABILITY_SOURCE_ID = 999;
+
 type ProviderCardProps = {
   feedbackSourceItem: FeedbackSourceItem;
   draggable?: boolean;
@@ -46,6 +48,8 @@ export const ProviderCard = (props: ProviderCardProps) => {
   const selectedFeedbackItems = allFeedbackItems.filter((item) =>
     currentSelectedItems.includes(item.id),
   );
+  const isReadabilityProvider =
+    props.feedbackSourceItem.id === READABILITY_SOURCE_ID;
 
   // Find the related feedback items
   const relatedFeedbacks = allFeedbackItems.filter(
@@ -155,6 +159,36 @@ export const ProviderCard = (props: ProviderCardProps) => {
         </span>
       );
     });
+  };
+
+  const renderReadabilitySuggestions = () => {
+    if (relatedFeedbacks.length === 0) {
+      return (
+        <span className="font-medium">
+          {renderContentWithBgColor(props.feedbackSourceItem.content)}
+        </span>
+      );
+    }
+
+    return (
+      <div className="flex flex-col gap-3">
+        {relatedFeedbacks.map((feedback) => (
+          <div
+            key={feedback.id}
+            className="rounded-lg border border-base-200 bg-base-50 px-3 py-2"
+          >
+            <p className="text-xs font-semibold text-neutral-700">
+              {feedback.content}
+            </p>
+            {feedback.revisedContent ? (
+              <p className="mt-1 text-xs text-neutral-600">
+                {feedback.revisedContent}
+              </p>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   useEffect(() => {
@@ -419,12 +453,15 @@ export const ProviderCard = (props: ProviderCardProps) => {
           className={cn(
             "text-xs leading-relaxed overflow-y-auto transition-all duration-1000",
             {
-              "line-clamp-3 max-h-[60px]": !shouldExpand,
-              "max-h-[1000px]": shouldExpand,
+              "line-clamp-3 max-h-[60px]":
+                !shouldExpand && !isReadabilityProvider,
+              "max-h-[1000px]": shouldExpand || isReadabilityProvider,
             },
           )}
         >
-          {shouldExpand && hoveredFeedback ? (
+          {isReadabilityProvider ? (
+            renderReadabilitySuggestions()
+          ) : shouldExpand && hoveredFeedback ? (
             <span>
               <span className={noto_serif.className}>&quot;</span>
               {renderContentWithHighlights(

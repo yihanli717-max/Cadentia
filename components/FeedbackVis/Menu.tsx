@@ -4,13 +4,20 @@ import {
   useFeedbackStore,
   useSharedConfigStore,
   useRevisionListStore,
+  useFeedbackSourceStore,
 } from "@/lib/store";
 import { cn, getEmbedding, generateRevision, eventTracker } from "@/lib/utils";
 import { removeStopwords } from "stopword";
+// --- MODIFICATION START: Import FeedbackItem ---
+import { FeedbackItem, FeedbackSourceItem } from "@/lib/type"; // Add this import
+// --- MODIFICATION END ---
 
 interface MenuProps {
   classes?: string;
 }
+
+const READABILITY_SOURCE_ID = 999;
+const READABILITY_PROVIDER_NAME = "Qwen-MAX (Readability)";
 
 const Menu = (props: MenuProps) => {
   const allFeedback = useFeedbackStore((state) => state.feedback);
@@ -27,6 +34,10 @@ const Menu = (props: MenuProps) => {
   // --- MODIFICATION START: Add state for suggestion and loading ---
   const [readabilitySuggestion, setReadabilitySuggestion] = useState<string | null>(null);
   const [suggestionLoading, setSuggestionLoading] = useState<boolean>(false);
+  // --- MODIFICATION END ---
+
+  // --- MODIFICATION START: Add state for parsed readability feedback ---
+  const [parsedReadabilityFeedback, setParsedReadabilityFeedback] = useState<FeedbackItem[] | null>(null);
   // --- MODIFICATION END ---
 
   // --- MODIFICATION START: Added essay store hook ---
@@ -136,44 +147,116 @@ const Menu = (props: MenuProps) => {
     setSearchedEmbeddings(undefined);
   }, []);
 
-// --- MODIFICATION START: Add function to fetch suggestion ---
-const fetchReadabilitySuggestion = async () => {
-  if (!essay || essay.length === 0 || typeof fres !== 'number' || typeof asl !== 'number' || typeof asw !== 'number') {
-    console.warn("Cannot fetch suggestion: Missing text or metrics.");
-    setReadabilitySuggestion("Cannot generate suggestion: Text or metrics unavailable.");
-    return;
-  }
-
-  setSuggestionLoading(true);
-  setReadabilitySuggestion(null); // Clear previous suggestion
-
-  try {
-    const text = essay.map(s => s.content).join(' ');
-
-    const res = await fetch("/api/readability_suggestion", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ fres, asl, asw, text }), // Send metrics and text
-    });
-    if (!res.ok) {
-      const errorData = await res.json();
-      console.error("Fetch Suggestion Error:", errorData);
-      setReadabilitySuggestion(`Error: ${errorData.error || 'Failed to fetch suggestion'}`);
+  // --- MODIFICATION START: Update fetchReadabilitySuggestion ---
+  const fetchReadabilitySuggestion = async () => {
+    if (!essay || essay.length === 0 || typeof fres !== 'number' || typeof asl !== 'number' || typeof asw !== 'number') {
+      console.warn("Cannot fetch suggestion: Missing text or metrics.");
+      setReadabilitySuggestion("Cannot generate suggestion: Text or metrics unavailable.");
       return;
     }
+    
+    setSuggestionLoading(true);
+    // Optional: Clear old readability suggestions UI state
+    setParsedReadabilityFeedback(null);
 
-    const data = await res.json();
-    setReadabilitySuggestion(data.suggestion);
-  } catch (error) {
-    console.error("Failed to fetch readability suggestion:", error);
-    setReadabilitySuggestion("Error: Failed to fetch suggestion.");
-  } finally {
-    setSuggestionLoading(false);
-  }
-};
-// --- MODIFICATION END ---
+    try {
+      const text = essay.map(s => s.content).join(' ');
+
+      const res = await fetch("/api/readability_suggestion", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ fres, asl, asw, text, essay }),
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Fetch Suggestion Error:", errorData);
+        setReadabilitySuggestion(`Error: ${errorData.message || 'Failed to fetch suggestion'}`);
+        return;
+      }
+
+      const data = await res.json();
+      if (data.success && Array.isArray(data.feedbackItems)) {
+        // --- MODIFICATION START: Update Global Feedback Store (Corrected) ---
+        // Get the *current* feedback list from the store
+        const currentFeedbackInStore = useFeedbackStore.getState().feedback; // <--- Get current feedback
+
+        // Filter out *old* readability suggestions from the current list (optional, to avoid duplicates on multiple clicks)
+        // Assuming readability suggestions have provider: "Qwen-MAX (Readability)" or source: 999
+        const nonReadabilityFeedback = currentFeedbackInStore.filter(f => f.provider !== "Qwen-MAX (Readability)" && f.source !== 999); // <--- Use the fetched list
+
+        // Combine the non-readability feedback with the *new* readability suggestions from the API
+        const updatedFeedbackList = [...nonReadabilityFeedback, ...data.feedbackItems]; // <--- Combine lists
+
+        // Update the global feedback store with the new combined list
+        useFeedbackStore.getState().setFeedback(updatedFeedbackList); // <--- Update the store state
+
+        // Also update the local state for UI display (if you still want to show them separately initially)
+        setParsedReadabilityFeedback(data.feedbackItems);
+        // --- MODIFICATION END ---
+
+        // --- NEW: ensure a provider card exists for readability suggestions ---
+        const { feedbackSource, setFeedbackSource } =
+          useFeedbackSourceStore.getState();
+
+        const readabilitySummary = data.feedbackItems
+          .map((item: FeedbackItem) => {
+            const originalSentence = item.detection
+              ?.map(
+                (sentenceId) =>
+                  essay.find((sentence) => sentence.id === sentenceId)
+                    ?.content,
+              )
+              .filter(Boolean)
+              .join(" ");
+
+            if (originalSentence && item.revisedContent) {
+              return `Original: "${originalSentence}"\nRevised: "${item.revisedContent}"`;
+            }
+
+            if (item.revisedContent) {
+              return `Revised: "${item.revisedContent}"`;
+            }
+
+            return item.content;
+          })
+          .join("\n\n");
+
+        const readabilityProviderCard: FeedbackSourceItem = {
+          id: READABILITY_SOURCE_ID,
+          provider: READABILITY_PROVIDER_NAME,
+          content:
+            readabilitySummary ||
+            "Readability suggestions generated via Qwen-MAX.",
+        };
+
+        if (
+          feedbackSource.some((source) => source.id === READABILITY_SOURCE_ID)
+        ) {
+          setFeedbackSource(
+            feedbackSource.map((source) =>
+              source.id === READABILITY_SOURCE_ID
+                ? readabilityProviderCard
+                : source,
+            ),
+          );
+        } else {
+          setFeedbackSource([...feedbackSource, readabilityProviderCard]);
+        }
+      } else {
+          console.error("API returned error or invalid data", data);
+          setReadabilitySuggestion(`Error: ${data.message || 'Received invalid data from API'}`);
+      }
+    } catch (error) {
+      console.error("Failed to fetch readability suggestion:", error);
+      setReadabilitySuggestion("Error: Failed to fetch suggestion.");
+    } finally {
+      setSuggestionLoading(false);
+    }
+  };
+  // --- MODIFICATION END ---
 
   return (
     <>
@@ -202,12 +285,7 @@ const fetchReadabilitySuggestion = async () => {
                   >
                     {suggestionLoading ? "Generating..." : "Get Suggestion"}
                   </button>
-                  {/* Display suggestion */}
-                  {readabilitySuggestion && (
-                    <div className="mt-2 text-xs bg-base-200 p-1 rounded">
-                      <strong>Suggestion:</strong> {readabilitySuggestion}
-                    </div>
-                  )}
+                  
                 </>
               ) : (
                 <span>N/A</span>
