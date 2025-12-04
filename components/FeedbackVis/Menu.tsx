@@ -40,6 +40,10 @@ const Menu = (props: MenuProps) => {
   const [parsedReadabilityFeedback, setParsedReadabilityFeedback] = useState<FeedbackItem[] | null>(null);
   // --- MODIFICATION END ---
 
+  // --- MODIFICATION START: Added state for user level selection ---
+  const [userLevel, setUserLevel] = useState<"simple" | "general" | "knowledgeable">("general");
+  // --- MODIFICATION END ---
+
   // --- MODIFICATION START: Added essay store hook ---
   const essay = useEssayStore((state) => state.essay); // Get the current essay from the store
   // --- MODIFICATION END ---
@@ -167,7 +171,7 @@ const Menu = (props: MenuProps) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ fres, asl, asw, text, essay }),
+        body: JSON.stringify({ fres, asl, asw, text, essay, userLevel }),
       });
       
       if (!res.ok) {
@@ -265,6 +269,39 @@ const Menu = (props: MenuProps) => {
         className="absolute right-4 top-4 bg-base-100 shadow-md rounded-md px-3 py-2 z-50"
         style={{ border: "1px solid rgba(255,255,255,0.15)" }}
       >
+        {/* User Level Selection */}
+        <div className="mb-3 pb-2 border-b border-base-300">
+          <span className="text-xs opacity-50 mb-1 block">Target Audience</span>
+          <div className="flex flex-row gap-1">
+            <button
+              onClick={() => setUserLevel("simple")}
+              className={cn(
+                "btn btn-xs text-2xs px-2 py-1",
+                userLevel === "simple" ? "btn-active" : "btn-ghost"
+              )}
+            >
+              Simple
+            </button>
+            <button
+              onClick={() => setUserLevel("general")}
+              className={cn(
+                "btn btn-xs text-2xs px-2 py-1",
+                userLevel === "general" ? "btn-active" : "btn-ghost"
+              )}
+            >
+              General
+            </button>
+            <button
+              onClick={() => setUserLevel("knowledgeable")}
+              className={cn(
+                "btn btn-xs text-2xs px-2 py-1",
+                userLevel === "knowledgeable" ? "btn-active" : "btn-ghost"
+              )}
+            >
+              Knowledgeable
+            </button>
+          </div>
+        </div>
         <span className="text-xs opacity-50">Readability</span>
         <div className="text-sm ml-2">
           {readabilityLoading ? (

@@ -6,12 +6,6 @@ const userLevelConfigs = {
   'knowledgeable': { MIN_TARGET: 30, MAX_TARGET: 50, ASL_BENCHMARK: 25, ASW_BENCHMARK: 1.7 },
 };
 
-// 根据当前用户选择配置
-const config = userLevelConfigs['general']; 
-
-// 此时，您的代码就可以使用 config.ASL_BENCHMARK 和 config.ASW_BENCHMARK 
-// 来代替之前写死的 20 和 1.4，实现动态调整。
-
 // 定义 FeedbackItem 的类型（确保与您的 lib/type.tsx 中定义一致）
 type FeedbackItem = {
   id: number; // 使用 number，以便前端沿用现有逻辑
@@ -44,7 +38,7 @@ type ReadabilitySuggestionResponse = {
 export async function POST(request: Request) {
   try {
     // 1. 接收前端发送的当前指标、文本和句子信息
-    const { fres, asl, asw, text, essay } = await request.json(); // <--- 添加 essay 参数
+    const { fres, asl, asw, text, essay, userLevel } = await request.json(); // <--- 添加 userLevel 参数
 
     const apiKey = process.env.DASHSCOPE_API_KEY;
 
@@ -61,6 +55,13 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    // 根据用户选择的级别获取对应的配置
+    type UserLevel = 'simple' | 'general' | 'knowledgeable';
+    const level: UserLevel = (userLevel === 'simple' || userLevel === 'general' || userLevel === 'knowledgeable') 
+      ? userLevel as UserLevel
+      : 'general'; // 默认使用 'general'
+    const config = userLevelConfigs[level];
 
     // 2. 创建独立的 Prompt 模板函数
     const createASLPrompt = (fres: number, asl: number, asw: number, text: string) => {
@@ -384,9 +385,9 @@ export async function POST(request: Request) {
                 provider: "Qwen-MAX (Readability)",
                 content: `Readability Suggestion: ${originalSentence.substring(0, 50)}...`,
                 type: type, // 使用 ASL 或 ASW
-                actionability: 0.8,
+                actionability: 0.7,
                 specificity: 1,
-                justification: 0.7,
+                justification: 0.8,
                 sentiment: 0,
                 detection: [detectionId], // 关键：将找到的原文 ID 放入数组
                 sentence_count: 1,
