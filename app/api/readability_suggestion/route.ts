@@ -1,5 +1,17 @@
 import { NextResponse } from "next/server";
 
+const userLevelConfigs = {
+  'simple': { MIN_TARGET: 80, MAX_TARGET: 90, ASL_BENCHMARK: 15, ASW_BENCHMARK: 1.3 },
+  'general': { MIN_TARGET: 60, MAX_TARGET: 70, ASL_BENCHMARK: 20, ASW_BENCHMARK: 1.5 },
+  'knowledgeable': { MIN_TARGET: 30, MAX_TARGET: 50, ASL_BENCHMARK: 25, ASW_BENCHMARK: 1.7 },
+};
+
+// 根据当前用户选择配置
+const config = userLevelConfigs['general']; 
+
+// 此时，您的代码就可以使用 config.ASL_BENCHMARK 和 config.ASW_BENCHMARK 
+// 来代替之前写死的 20 和 1.4，实现动态调整。
+
 // 定义 FeedbackItem 的类型（确保与您的 lib/type.tsx 中定义一致）
 type FeedbackItem = {
   id: number; // 使用 number，以便前端沿用现有逻辑
@@ -50,159 +62,354 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. 构建 Prompt (使用您之前重构的 Prompt)
-    const prompt = `
-You are an expert writing coach analyzing text readability using the Flesch Reading-Ease Score (FRES).
-
-The target FRES range for "Plain English" is 60 to 70.
-The FRES formula is: FRES = 206.835 - 1.015 * (Average Sentence Length) - 84.6 * (Average Syllables per Word).
-- Average Sentence Length (ASL) is the average number of words per sentence.
-- Average Syllables per Word (ASW) is the average number of syllables per word.
-
-For the provided text:
-- Current FRES: ${fres}
-- Current ASL: ${asl}
-- Current ASW: ${asw}
-
-The goal is to achieve a FRES between 60 and 70. Based on the current FRES and the values of ASL and ASW, identify the primary readability issue(s) and provide specific, actionable revision suggestions.
-
-- If FRES is too low (e.g., < 60), it indicates the text is difficult to read. Focus on whether ASL is too high (long sentences) or ASW is too high (complex words), or both, and suggest targeted changes (e.g., "Break sentence X into two shorter ones" or "Replace word 'Y' with simpler 'Z'").
-- If FRES is too high (e.g., > 70), it indicates the text is too simple. This is generally less common for improvement goals but could involve suggesting slightly more formal language if appropriate, though this is often not the primary concern.
-- If FRES is within 60-70, you can provide a positive note or suggest minor enhancements.
-
-Provide 3-5 specific, actionable suggestions to improve readability towards the target range, focusing on the most impactful changes based on ASL and ASW. For each suggestion, if possible, provide an example in the format:
-- **Original:** "[exact sentence from the original text]"
-- **Revised:** "[suggested revision of that sentence]"
-
-Original text:
-"${text}"
-
-Suggestions:
-1. ...
-2. ...
-3. ...
-...
+    // 2. 创建独立的 Prompt 模板函数
+    const createASLPrompt = (fres: number, asl: number, asw: number, text: string) => {
+      // 定义目标范围
+      const MIN_TARGET = config.MIN_TARGET;
+      const MAX_TARGET = config.MAX_TARGET;
+    
+      // 1. 确定优化方向和具体指令
+      let goalDescription = "";
+      let specificInstructions = "";
+    
+      if (fres < MIN_TARGET) {
+        // 场景 A：分数太低（太难），需要增加分数 -> 降低 ASL
+        goalDescription = `The current FRES (${fres}) is BELOW the target range (${MIN_TARGET}-${MAX_TARGET}). The text is too difficult to read. We need to **INCREASE** the score by **DECREASING** Average Sentence Length (ASL).`;
+        specificInstructions = `
+    - **Shorten sentences:** Break long, complex sentences into two or more shorter sentences.
+    - **Reduce complexity:** Remove unnecessary relative clauses or separate them into standalone sentences.
+    - **Simplify structure:** Avoid excessive use of semi-colons or conjunctions that string many ideas together.
+    - **Aim for clarity:** Make the text punchier and more direct.`;
+    
+      } else if (fres > MAX_TARGET) {
+        // 场景 B：分数太高（太简单），需要降低分数 -> 增加 ASL
+        goalDescription = `The current FRES (${fres}) is ABOVE the target range (${MIN_TARGET}-${MAX_TARGET}). The text is too simple or choppy. We need to **DECREASE** the score by **INCREASING** Average Sentence Length (ASL) to achieve a more professional or mature flow.`;
+        specificInstructions = `
+    - **Combine sentences:** Merge short, choppy sentences into compound or complex sentences using appropriate conjunctions (and, but, although, because).
+    - **Increase flow:** Use subordinating clauses to show relationships between ideas rather than listing them separately.
+    - **Vary sentence structure:** Introduce introductory phrases or dependent clauses to add rhythm and depth.
+    - **Avoid fragmentation:** Ensure the text reads as a cohesive narrative rather than a list of simple statements.`;
+    
+      } else {
+        // 场景 C：分数在范围内
+        goalDescription = `The current FRES (${fres}) is WITHIN the target range (${MIN_TARGET}-${MAX_TARGET}). The readability is generally good.`;
+        specificInstructions = `
+    - Focus on maintaining the current Average Sentence Length while ensuring sentence variety.
+    - Only suggest changes if a specific sentence is awkwardly long or monotonously short.
+    - Ensure the rhythm of the text is engaging.`;
+      }
+    
+      // 2. 生成最终 Prompt
+      return `
+    You are an expert writing coach analyzing text readability using the Flesch Reading-Ease Score (FRES).
+    
+    The target FRES range for "Plain English" is ${MIN_TARGET} to ${MAX_TARGET}.
+    The FRES formula is: FRES = 206.835 - 1.015 * (Average Sentence Length) - 84.6 * (Average Syllables per Word).
+    
+    **Current Statistics:**
+    - FRES: ${fres}
+    - ASL (Words per Sentence): ${asl}
+    - ASW (Syllables per Word): ${asw}
+    
+    **Goal:**
+    ${goalDescription}
+    
+    **Instructions:**
+    You MUST FOCUS ONLY on ASL (Average Sentence Length).
+    - Do NOT propose changes that primarily simplify or complicate word choice (ASW).
+    - Instead, apply the following strategies to adjust sentence length:
+    ${specificInstructions}
+    
+    **Output Requirement:**
+    Provide 3-5 specific, actionable suggestions. For each suggestion, provide an example in this format:
+    - **Original:** "[exact sentence(s) from text]"
+    - **Revised:** "[suggested revision]" (Make sure this revision reflects the goal of ${fres < MIN_TARGET ? "shortening" : "lengthening/combining"} sentences)
+    
+    Original text:
+    "${text}"
+    
+    Suggestions:
+    1. ...
+    2. ...
+    3. ...
+    4. ...
+    5. ...
     `.trim();
+    };
 
-    // 3. 调用 DashScope API (直接 HTTP 请求)
-    const response = await fetch("https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "qwen-max", // 选择合适的模型
-        input: {
-          messages: [
-            { role: "system", content: "You are a helpful assistant." }, // 可选
-            { role: "user", content: prompt }
-          ]
-        },
-        parameters: {
-            result_format: "message",
-            // temperature: 0.7, // 可选参数
-            // max_tokens: 500, // 可选参数，根据需要调整
+    const createASWPrompt = (fres: number, asl: number, asw: number, text: string) => {
+      const MIN_TARGET = config.MIN_TARGET;
+      const MAX_TARGET = config.MAX_TARGET;
+    
+      let goalDescription = "";
+      let specificInstructions = "";
+    
+      if (fres < MIN_TARGET) {
+        // 场景 A：分数太低（太难） -> 需要降低 ASW
+        goalDescription = `The current FRES (${fres}) is BELOW the target range (${MIN_TARGET}-${MAX_TARGET}). The vocabulary is likely too complex or academic. We need to **INCREASE** the score by **DECREASING** Average Syllables per Word (ASW).`;
+        specificInstructions = `
+    - **Simplify Vocabulary:** Replace long, multi-syllable words with shorter, simpler synonyms (e.g., use "buy" instead of "purchase", "use" instead of "utilize").
+    - **Remove Jargon:** Replace technical or bureaucratic jargon with plain English alternatives.
+    - **Explain Simply:** If a complex word is necessary, ensure it is the simplest version possible.
+    - **Aim for Accessibility:** Make the word choices understandable to a wider audience.`;
+    
+      } else if (fres > MAX_TARGET) {
+        // 场景 B：分数太高（太简单） -> 需要提高 ASW
+        goalDescription = `The current FRES (${fres}) is ABOVE the target range (${MIN_TARGET}-${MAX_TARGET}). The vocabulary may feel too childish, generic, or repetitive. We need to **DECREASE** the score by **INCREASING** Average Syllables per Word (ASW) to achieve a more professional tone.`;
+        specificInstructions = `
+    - **Enhance Precision:** Replace generic, single-syllable words with more precise, multi-syllable alternatives (e.g., use "demonstrate" instead of "show", "significant" instead of "big").
+    - **Elevate Tone:** Use more professional or sophisticated vocabulary suitable for a business or educated context.
+    - **Avoid Repetition:** Use varied synonyms to add depth to the writing.
+    - **Specific Terminology:** Use industry-appropriate terminology where it adds clarity and authority, even if the words are longer.`;
+    
+      } else {
+        // 场景 C：分数达标
+        goalDescription = `The current FRES (${fres}) is WITHIN the target range (${MIN_TARGET}-${MAX_TARGET}). The vocabulary level is appropriate.`;
+        specificInstructions = `
+    - Focus on maintaining the current complexity of word choice.
+    - Only suggest changes if a specific word is used incorrectly or repetitively.
+    - Ensure the tone remains consistent.`;
+      }
+    
+      return `
+    You are an expert writing coach analyzing text readability using the Flesch Reading-Ease Score (FRES).
+    
+    The target FRES range for "Plain English" is ${MIN_TARGET} to ${MAX_TARGET}.
+    The FRES formula is: FRES = 206.835 - 1.015 * (Average Sentence Length) - 84.6 * (Average Syllables per Word).
+    
+    **Current Statistics:**
+    - FRES: ${fres}
+    - ASL (Words per Sentence): ${asl}
+    - ASW (Syllables per Word): ${asw}
+    
+    **Goal:**
+    ${goalDescription}
+    
+    **Instructions:**
+    You MUST FOCUS ONLY on ASW (Average Syllables per Word).
+    - Do NOT propose changes that primarily shorten or lengthen sentences (ASL).
+    - Instead, apply the following strategies to adjust word choice:
+    ${specificInstructions}
+    
+    **Output Requirement:**
+    Provide 3-5 specific, actionable suggestions. For each suggestion, provide an example in this format:
+    - **Original:** "[exact sentence from the original text]"
+    - **Revised:** "[suggested revision of that sentence]" (Ensure the sentence structure remains mostly the same, but the vocabulary changes to reflect the goal of ${fres < MIN_TARGET ? "simplifying" : "elevating"} word choice)
+    
+    Original text:
+    "${text}"
+    
+    Suggestions:
+    1. ...
+    2. ...
+    3. ...
+    4. ...
+    5. ...
+    `.trim();
+    };
+
+    // 3. 改进的分流机制：基于“基准偏差”而非“扣分权重”
+
+    // --- 配置基准线 (根据 Plain English 标准设定) ---
+    const BENCHMARK_ASL = config.ASL_BENCHMARK;  // 理想最大句长
+    const BENCHMARK_ASW = config.ASW_BENCHMARK; // 理想最大音节密度 (1.4-1.5 是分水岭)
+
+    // --- 计算偏差率 (超出基准多少百分比) ---
+    // 如果小于基准，偏差为 0
+    const aslDeviation = asl > BENCHMARK_ASL ? (asl - BENCHMARK_ASL) / BENCHMARK_ASL : 0;
+    const aswDeviation = asw > BENCHMARK_ASW ? (asw - BENCHMARK_ASW) / BENCHMARK_ASW : 0;
+
+    // 决定调用哪些模板
+    let finalShouldCallASL = false;
+    let finalShouldCallASW = false;
+
+    // 逻辑分支
+    if (fres < 60) {
+        // === 情况 A: 文本太难 (需要大力度修正) ===
+        
+        // 1. 如果两者都没有显著偏差（罕见，可能是 FRES 计算边界），默认都开
+        if (aslDeviation === 0 && aswDeviation === 0) {
+            finalShouldCallASL = true;
+            finalShouldCallASW = true;
+        } 
+        // 2. 比较谁的问题更严重
+        else {
+            // 设置一个敏感度阈值，比如 0.1 (超标 10%)
+            // 如果 ASL 超标显著 (或者 ASL 问题比 ASW 更大)
+            if (aslDeviation > 0.1 || aslDeviation >= aswDeviation) {
+                finalShouldCallASL = true;
+            }
+            
+            // 如果 ASW 超标显著 (或者 ASW 问题比 ASL 更大)
+            if (aswDeviation > 0.1 || aswDeviation >= aslDeviation) {
+                finalShouldCallASW = true;
+            }
         }
-      }),
-    });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({})); // 防止解析错误
-      console.error("DashScope API Error:", response.status, response.statusText, errorData);
-      // --- MODIFICATION START: Use renamed field ---
-      return NextResponse.json<ReadabilitySuggestionResponse>(
-        { success: false, message: `DashScope API request failed: ${response.status} ${response.statusText}`, dashscopeErrorDetails: errorData }, // 使用新的字段名
-        { status: response.status }
-      );
-      // --- MODIFICATION END ---
-    }
-
-    const data = await response.json();
-    // console.log("DashScope Raw Response:", data); // For debugging
-
-    // 4. 解析 DashScope 响应
-    let suggestionText = "Unable to generate suggestion.";
-    if (data && data.output && data.output.choices && data.output.choices.length > 0) {
-        suggestionText = data.output.choices[0].message.content || "Received empty suggestion.";
+    } else if (fres >= 60 && fres <= 75) {
+        // === 情况 B: 文本适中 (黄金区间) ===
+        // 策略：不进行重度重写，节省 Token，或者仅进行“润色”
+        // 建议：此处可以不调用 ASL/ASW 专项修正，而是调用一个轻量级的 "Polish" 模板
+        // 或者仅当某一项极端异常时才介入
+        
+        if (aslDeviation > 0.2) finalShouldCallASL = true; // 即使总分及格，如果句子由于词简单而过长，也要修
+        if (aswDeviation > 0.2) finalShouldCallASW = true; // 同理
+        
     } else {
-        console.error("DashScope API response missing expected fields:", data);
-        return NextResponse.json<ReadabilitySuggestionResponse>(
-            { success: false, message: "DashScope API returned invalid response structure." },
-            { status: 500 }
-        );
+        // === 情况 C: 文本太简单 (FRES > 75) ===
+        // 通常不需要降维打击。除非用户明确要求“升维” (增加专业度)，否则跳过。
+        // 在这里保持 false
     }
 
-    // --- MODIFICATION START: Parse the suggestion text and match to essay ---
+    // 输出调试信息 (方便你观察逻辑)
+    console.log(`FRES: ${fres.toFixed(2)} | ASL Dev: ${(aslDeviation*100).toFixed(1)}% | ASW Dev: ${(aswDeviation*100).toFixed(1)}%`);
+    console.log(`Call ASL: ${finalShouldCallASL} | Call ASW: ${finalShouldCallASW}`);
+
+    // 4. 辅助函数：调用 DashScope API
+    const callDashScopeAPI = async (prompt: string): Promise<string> => {
+      const response = await fetch("https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "qwen-max",
+          input: {
+            messages: [
+              { role: "system", content: "You are a helpful assistant." },
+              { role: "user", content: prompt }
+            ]
+          },
+          parameters: {
+            result_format: "message",
+          }
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("DashScope API Error:", response.status, response.statusText, errorData);
+        throw new Error(`DashScope API request failed: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      if (data && data.output && data.output.choices && data.output.choices.length > 0) {
+        return data.output.choices[0].message.content || "Received empty suggestion.";
+      } else {
+        console.error("DashScope API response missing expected fields:", data);
+        throw new Error("DashScope API returned invalid response structure.");
+      }
+    };
+
+    // 5. 分别调用 API（如果需要）
+    const allSuggestionTexts: Array<{ text: string; type: "ASL" | "ASW" }> = [];
+
+    if (finalShouldCallASL) {
+      try {
+        const aslPrompt = createASLPrompt(fres, asl, asw, text);
+        const aslText = await callDashScopeAPI(aslPrompt);
+        if (aslText && aslText.trim().length > 50) { // 确保有实际内容
+          allSuggestionTexts.push({ text: aslText, type: "ASL" });
+        }
+      } catch (error) {
+        console.error("Failed to fetch ASL suggestions:", error);
+        // 继续处理其他请求，不中断
+      }
+    }
+
+    if (finalShouldCallASW) {
+      try {
+        const aswPrompt = createASWPrompt(fres, asl, asw, text);
+        const aswText = await callDashScopeAPI(aswPrompt);
+        if (aswText && aswText.trim().length > 50) { // 确保有实际内容
+          allSuggestionTexts.push({ text: aswText, type: "ASW" });
+        }
+      } catch (error) {
+        console.error("Failed to fetch ASW suggestions:", error);
+        // 继续处理其他请求，不中断
+      }
+    }
+
+    // 如果没有任何建议生成，返回错误
+    if (allSuggestionTexts.length === 0) {
+      return NextResponse.json<ReadabilitySuggestionResponse>(
+        { success: false, message: "Failed to generate any readability suggestions. Please check the API response." },
+        { status: 500 }
+      );
+    }
+
+    // 6. 解析所有 suggestion texts 并创建 FeedbackItems
     const feedbackItems: FeedbackItem[] = [];
     const readabilityFeedbackIdBase = 999000;
-    const lines = suggestionText.split('\n');
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      // 查找包含 "Original:" 的行
-      if (line.includes('**Original:**')) {
-        const originalMatch = line.match(/\*\*Original:\*\*\s*"([^"]+)"/);
-        if (originalMatch) {
-          const originalSentence = originalMatch[1].trim(); // 提取并去除首尾空格
+    // 辅助函数：解析单个 suggestion text
+    const parseSuggestionText = (suggestionText: string, type: "ASL" | "ASW") => {
+      const lines = suggestionText.split('\n');
 
-          // 在 essay 数组中查找匹配的句子
-          const matchedSentenceIndex = essay.findIndex(s => s.content.includes(originalSentence) || originalSentence.includes(s.content)); // 可能需要更精确的匹配逻辑
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        // 查找包含 "Original:" 的行
+        if (line.includes('**Original:**')) {
+          const originalMatch = line.match(/\*\*Original:\*\*\s*"([^"]+)"/);
+          if (originalMatch) {
+            const originalSentence = originalMatch[1].trim(); // 提取并去除首尾空格
 
-          if (matchedSentenceIndex !== -1) {
-            // 找到匹配，获取其 ID (Synthia 通常使用 0-based index 作为 ID，但 data 文件中有时是 1-based)
-            // 假设 essay[s].id 是 0-based，如果是 1-based 则 detectionId = matchedSentenceIndex + 1
-            // 为了兼容性，先假设是 0-based index 作为 ID，或者直接使用索引
-            // 但根据 feedback1.ts 示例，detection 是 1-based ID，所以需要检查 essay 结构
-            // console.log("Essay Item Example:", essay[0]); // Debug: Check essay structure
-            // 假设 essay[i] 有 id 字段，且是 1-based
-            const detectionId = essay[matchedSentenceIndex].id; // <--- 获取原文句子的 ID
+            // 在 essay 数组中查找匹配的句子
+            const matchedSentenceIndex = essay.findIndex(s => s.content.includes(originalSentence) || originalSentence.includes(s.content));
 
-            // 查找下一个 "Revised:" 行作为详细内容
-            let revisedContent = "No revised content found.";
-            for (let j = i + 1; j < lines.length; j++) {
-              if (lines[j].includes('**Revised:**')) {
-                const revisedMatch = lines[j].match(/\*\*Revised:\*\*\s*"([^"]+)"/);
-                if (revisedMatch) {
-                  revisedContent = revisedMatch[1].trim(); // 提取并去除首尾空格
+            if (matchedSentenceIndex !== -1) {
+              const detectionId = essay[matchedSentenceIndex].id; // 获取原文句子的 ID
+
+              // 查找下一个 "Revised:" 行作为详细内容
+              let revisedContent = "No revised content found.";
+              for (let j = i + 1; j < lines.length; j++) {
+                if (lines[j].includes('**Revised:**')) {
+                  const revisedMatch = lines[j].match(/\*\*Revised:\*\*\s*"([^"]+)"/);
+                  if (revisedMatch) {
+                    revisedContent = revisedMatch[1].trim(); // 提取并去除首尾空格
+                  }
+                  break; // 找到后跳出内层循环
                 }
-                break; // 找到后跳出内层循环
-              }
-              // 如果遇到下一个建议项（如 "###" 或另一个 "Original:"），则停止查找 Revised
-              if (lines[j].startsWith('###') || lines[j].includes('**Original:**')) {
+                // 如果遇到下一个建议项（如 "###" 或另一个 "Original:"），则停止查找 Revised
+                if (lines[j].startsWith('###') || lines[j].includes('**Original:**')) {
                   break;
+                }
               }
-            }
 
-            // 创建反馈项对象 (符合 FeedbackItem 类型)
-            const feedbackItem: FeedbackItem = {
-              id: readabilityFeedbackIdBase + feedbackItems.length,
-              source: 999, // 使用一个特殊数字表示是readability suggestion
-              provider: "Qwen-MAX (Readability)",
-              content: `Readability Suggestion: ${originalSentence.substring(0, 50)}...`, // 或者是建议的类型，如 "Break Long Sentences"
-              type: "Readability",
-              actionability: 1,
-              specificity: 0.7, // 示例值
-              justification: 1,
-              sentiment: 0, // 示例值
-              detection: [detectionId], // 关键：将找到的原文 ID 放入数组
-              sentence_count: 1, // 示例值
-              word_count: originalSentence.split(/\s+/).length, // 示例值
-              none: 0, // 示例值
-              // 添加自定义字段来存储 revised 内容，方便后续显示
-              revisedContent: revisedContent
-            };
+              // 创建反馈项对象，使用对应的 type
+              const feedbackItem: FeedbackItem = {
+                id: readabilityFeedbackIdBase + feedbackItems.length,
+                source: 999, // 使用一个特殊数字表示是readability suggestion
+                provider: "Qwen-MAX (Readability)",
+                content: `Readability Suggestion: ${originalSentence.substring(0, 50)}...`,
+                type: type, // 使用 ASL 或 ASW
+                actionability: 0.8,
+                specificity: 1,
+                justification: 0.7,
+                sentiment: 0,
+                detection: [detectionId], // 关键：将找到的原文 ID 放入数组
+                sentence_count: 1,
+                word_count: originalSentence.split(/\s+/).length,
+                none: 0,
+                revisedContent: revisedContent
+              };
 
-            feedbackItems.push(feedbackItem);
-          } else {
+              feedbackItems.push(feedbackItem);
+            } else {
               console.warn(`Original sentence not found in essay: "${originalSentence}"`);
+            }
           }
         }
       }
-    }
-    // --- MODIFICATION END ---
+    };
 
-    // 5. 返回解析后的反馈项数组给前端
+    // 解析所有 suggestion texts
+    for (const { text, type } of allSuggestionTexts) {
+      parseSuggestionText(text, type);
+    }
+
+    // 7. 返回解析后的反馈项数组给前端（包含 ASL 和/或 ASW 的建议）
     return NextResponse.json<ReadabilitySuggestionResponse>(
         { success: true, feedbackItems: feedbackItems }
     );
