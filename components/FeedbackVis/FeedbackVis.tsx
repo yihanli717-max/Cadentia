@@ -312,14 +312,17 @@ const FeedbackVis = (props: FeedbackVisProps) => {
 
     // Get stroke color based on selection state
     const getStrokeColor = (d: any) =>
+      d.data.source !== 999 ? 'transparent' : 
       currentSelectedItems.includes(d.data.id) ? "#a1a1aa" : null;
 
     // Get circle opacity based on selection state
     const getCircleOpacity = (d: any) =>
+      d.data.source !== 999 ? 0 : 
       currentSelectedItems.includes(d.data.id) ? 1 : 0.8;
 
     // Get cilcle fill color based on categorical dimension
     const getFillColor = (d: any) =>
+      d.data.source !== 999 ? 'transparent' : 
       currentSelectedItems.includes(d.data.id)
         ? "#e5e6e6"
         : getColor(colorDimension)(d.data.color as never);
