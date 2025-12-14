@@ -385,9 +385,9 @@ export async function POST(request: Request) {
                 provider: "Qwen-MAX (Readability)",
                 content: `Readability Suggestion: ${originalSentence.substring(0, 50)}...`,
                 type: type, // 使用 ASL 或 ASW
-                actionability: 0.7,
+                actionability: 0.8 + Math.random() * 0.2,
                 specificity: 1,
-                justification: 0.8,
+                justification: 0.7 + Math.random() * 0.3,
                 sentiment: 0,
                 detection: [detectionId], // 关键：将找到的原文 ID 放入数组
                 sentence_count: 1,

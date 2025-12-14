@@ -192,7 +192,8 @@ const Menu = (props: MenuProps) => {
         const nonReadabilityFeedback = currentFeedbackInStore.filter(f => f.provider !== "Qwen-MAX (Readability)" && f.source !== 999); // <--- Use the fetched list
 
         // Combine the non-readability feedback with the *new* readability suggestions from the API
-        const updatedFeedbackList = [...nonReadabilityFeedback, ...data.feedbackItems]; // <--- Combine lists
+        //const updatedFeedbackList = [...nonReadabilityFeedback, ...data.feedbackItems]; // <--- Combine lists
+        const updatedFeedbackList = [ ...data.feedbackItems]; // <--- Combine lists
 
         // Update the global feedback store with the new combined list
         useFeedbackStore.getState().setFeedback(updatedFeedbackList); // <--- Update the store state
