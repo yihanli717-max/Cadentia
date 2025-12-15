@@ -48,6 +48,10 @@ const Menu = (props: MenuProps) => {
   const essay = useEssayStore((state) => state.essay); // Get the current essay from the store
   // --- MODIFICATION END ---
 
+    // 在 Menu 组件内部
+  const [showPlan, setShowPlan] = useState(false);
+
+
   async function loadFRES() {
     setReadabilityLoading(true); // Start loading
     try {
@@ -162,6 +166,7 @@ const Menu = (props: MenuProps) => {
     setSuggestionLoading(true);
     // Optional: Clear old readability suggestions UI state
     setParsedReadabilityFeedback(null);
+    setShowPlan(false);
 
     try {
       const text = essay.map(s => s.content).join(' ');
@@ -184,6 +189,7 @@ const Menu = (props: MenuProps) => {
       const data = await res.json();
       if (data.success && Array.isArray(data.feedbackItems)) {
         // --- MODIFICATION START: Update Global Feedback Store (Corrected) ---
+        setShowPlan(true);
         // Get the *current* feedback list from the store
         const currentFeedbackInStore = useFeedbackStore.getState().feedback; // <--- Get current feedback
 
@@ -323,6 +329,16 @@ const Menu = (props: MenuProps) => {
                   >
                     {suggestionLoading ? "Generating..." : "Get Suggestion"}
                   </button>
+
+                  {/* Improvement Plan Text - 只有当 showPlan 为 true 时显示 */}
+                  {showPlan && !suggestionLoading && (
+                    <div className="mt-3 pt-2 border-t border-base-300 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <p className="text-xs font-semibold mb-1 text-primary">Improvement Plan:</p>
+                      <p className="text-xs text-base-content/80 leading-relaxed text-justify">
+                        Each circle in the menu is related to a sentence in your essay.<br /> The color and size represent the issue type and <br /> improvement actionability respectively. <br /> We recommend you to revise the bigger ones first <br /> according to the provider card on the right.<br /> Then you can improve your essay's readability faster.
+                      </p>
+                    </div>
+                  )}
                   
                 </>
               ) : (

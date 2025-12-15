@@ -129,10 +129,10 @@ const FeedbackVis = (props: FeedbackVisProps) => {
         .attr("cx", (d) => d.x!)
         .attr("cy", (d) => d.y!)
         .attr("r", 0)
-        .attr("fill", getFillColor)
-        .attr("stroke", getStrokeColor)
+        .attr("fill", "transparent")
+        .attr("stroke", "transparent")
         .attr("stroke-width", 3)
-        .attr("opacity", getCircleOpacity);
+        .attr("opacity", 0);
 
       // Animate circle radius
       fillCircle
