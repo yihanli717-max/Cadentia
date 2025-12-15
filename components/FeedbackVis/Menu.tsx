@@ -19,6 +19,15 @@ interface MenuProps {
 const READABILITY_SOURCE_ID = 999;
 const READABILITY_PROVIDER_NAME = "Qwen-MAX (Readability)";
 
+
+// 在组件外部或组件内部顶部定义配置
+// Define User Level Configurations
+const userLevelConfigs: Record<string, { MIN_TARGET: number; MAX_TARGET: number; ASL_BENCHMARK: number; ASW_BENCHMARK: number }> = {
+  simple: { MIN_TARGET: 80, MAX_TARGET: 90, ASL_BENCHMARK: 15, ASW_BENCHMARK: 1.3 },
+  general: { MIN_TARGET: 60, MAX_TARGET: 70, ASL_BENCHMARK: 20, ASW_BENCHMARK: 1.5 },
+  knowledgeable: { MIN_TARGET: 30, MAX_TARGET: 50, ASL_BENCHMARK: 25, ASW_BENCHMARK: 1.7 },
+};
+
 const Menu = (props: MenuProps) => {
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const [searchedText, setSearchedText] = useState("");
@@ -269,6 +278,52 @@ const Menu = (props: MenuProps) => {
   };
   // --- MODIFICATION END ---
 
+  const renderMetricComparison = (value: number, type: 'FRES' | 'ASL' | 'ASW') => {
+    // 1. 获取当前配置
+    const config = userLevelConfigs[userLevel] || userLevelConfigs['general'];
+    
+    // 2. 确定目标值
+    let target = 0;
+    if (type === 'FRES') {
+        target = (config.MIN_TARGET + config.MAX_TARGET) / 2;
+    } else if (type === 'ASL') {
+        target = config.ASL_BENCHMARK;
+    } else if (type === 'ASW') {
+        target = config.ASW_BENCHMARK;
+    }
+
+    // 3. 计算差值
+    const diff = value - target;
+    
+    // 如果差值非常小，不显示
+    if (Math.abs(diff) < 0.05) return null;
+
+    // 4. 根据需求定义颜色和图标方向
+    // 需求：红色向上箭头代表超出 (diff > 0)，绿色向下箭头代表低于 (diff < 0)
+    const isHigh = diff > 0;
+    
+    return (
+        <span className="ml-2 inline-flex items-center gap-0.5" title={`Target: ${target}`}>
+            {isHigh ? (
+                 // Red Up Arrow
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3 text-red-500">
+                  <path fillRule="evenodd" d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z" clipRule="evenodd" />
+                </svg>
+            ) : (
+                 // Green Down Arrow
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3 text-green-500">
+                  <path fillRule="evenodd" d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z" clipRule="evenodd" />
+                </svg>
+            )}
+            
+            {/* 数字显示 (颜色跟随箭头) */}
+            <span className={`text-xs font-bold ${isHigh ? 'text-red-500' : 'text-green-500'}`}>
+                {Math.abs(diff).toFixed(1)}
+            </span>
+        </span>
+    );
+};
+
   return (
     <>
       {/* --- MODIFICATION START: Updated Readability Display (show FRES, ASL, ASW, and formula) --- */}
@@ -317,9 +372,21 @@ const Menu = (props: MenuProps) => {
             <>
               {typeof fres === "number" && typeof asl === "number" && typeof asw === "number" ? (
                 <>
-                  <div className="text-base font-medium">FRES (Overall Readability Score): {fres.toFixed(1)}</div>
-                  <div>ASL (Average Sentence Length): {asl.toFixed(2)}</div>
-                  <div>ASW (Average Number of Syllables per Word): {asw.toFixed(2)}</div>                  
+                  {/* FRES Display with Comparison */}
+                  <div className="text-base font-medium flex items-center">
+                      <span>FRES (Overall Readability Score): {fres.toFixed(1)}</span>
+                      {renderMetricComparison(fres, 'FRES')}
+                  </div>
+                  {/* ASL Display with Comparison */}
+                  <div className="flex items-center">
+                      <span>ASL (Average Sentence Length): {asl.toFixed(2)}</span>
+                      {renderMetricComparison(asl, 'ASL')}
+                  </div>
+                  {/* ASW Display with Comparison */}
+                  <div className="flex items-center">
+                      <span>ASW (Average Number of Syllables per Word): {asw.toFixed(2)}</span>
+                      {renderMetricComparison(asw, 'ASW')}
+                  </div>               
                   <div className="text-xs opacity-75 mt-1">Formula: FRES = 206.835 - 1.015 * ASL - 84.6 * ASW</div>
                   {/* Add button to get suggestion */}
                   <button
