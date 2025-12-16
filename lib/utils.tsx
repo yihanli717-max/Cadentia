@@ -348,4 +348,6 @@ export const typeMap = {
   "essayforum r5": "P10",
   "1": "Justified",
   "0": "Not Justified",
+  asl: "ASL", // Added ASL abbreviation
+  asw: "ASW", // Added ASW abbreviation
 };
