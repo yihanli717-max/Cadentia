@@ -326,7 +326,7 @@ const FeedbackVis = (props: FeedbackVisProps) => {
       currentSelectedItems.includes(d.data.id)
         ? "#e5e6e6"
         : getColor(colorDimension)(d.data.color as never);
-
+        
     // Setup simulation
     const setupSimulation = (nodes: any[]) => {
       const simulation = d3

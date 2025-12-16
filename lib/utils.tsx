@@ -112,6 +112,8 @@ export const categoryColorMap: {
   Orthography: categoryColor[6],
   1: categoryColor[2],
   0: categoryColor[0],
+  ASL: categoryColor[4], // Added ASL
+  ASW: categoryColor[9], // Added ASW
 };
 
 export const clusterColorScales: {
