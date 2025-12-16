@@ -122,7 +122,7 @@ export async function POST(request: Request) {
     ${specificInstructions}
     
     **Output Requirement:**
-    Provide 3-5 specific, actionable suggestions. For each suggestion, provide an example in this format:
+    Provide 3-5 specific, actionable suggestions as many as possible. For each suggestion, provide an example in this format:
     - **Original:** "[exact sentence(s) from text]"
     - **Revised:** "[suggested revision]" (Make sure this revision reflects the goal of ${fres < MIN_TARGET ? "shortening" : "lengthening/combining"} sentences)
     
@@ -215,56 +215,49 @@ export async function POST(request: Request) {
     const BENCHMARK_ASL = config.ASL_BENCHMARK;  // 理想最大句长
     const BENCHMARK_ASW = config.ASW_BENCHMARK; // 理想最大音节密度 (1.4-1.5 是分水岭)
 
-    // --- 计算偏差率 (超出基准多少百分比) ---
-    // 如果小于基准，偏差为 0
-    const aslDeviation = asl > BENCHMARK_ASL ? (asl - BENCHMARK_ASL) / BENCHMARK_ASL : 0;
-    const aswDeviation = asw > BENCHMARK_ASW ? (asw - BENCHMARK_ASW) / BENCHMARK_ASW : 0;
+    // 假设你已经有了 fres, asl, asw, userLevelConfigs 等变量
 
-    // 决定调用哪些模板
+    // 1. 获取目标配置
+    const TARGET_MID = (config.MIN_TARGET + config.MAX_TARGET) / 2;
+
+    // 2. 计算偏差
+    const fresGap = Math.abs(fres - TARGET_MID);
+    const isTooHard = fres < config.MIN_TARGET;
+    const isTooEasy = fres > config.MAX_TARGET;
+
+    // 初始化 flag
     let finalShouldCallASL = false;
     let finalShouldCallASW = false;
 
-    // 逻辑分支
-    if (fres < 60) {
-        // === 情况 A: 文本太难 (需要大力度修正) ===
-        
-        // 1. 如果两者都没有显著偏差（罕见，可能是 FRES 计算边界），默认都开
-        if (aslDeviation === 0 && aswDeviation === 0) {
+    // === 修改后的激进逻辑 ===
+
+    if (isTooHard || isTooEasy) {
+        // 策略：如果 FRES 偏差超过 5 分 (Gap > 5)，这通常意味着结构性问题，
+        // 单靠修 ASL 或 ASW 很难拉回来，必须双管齐下。
+        if (fresGap > 5) {
             finalShouldCallASL = true;
             finalShouldCallASW = true;
         } 
-        // 2. 比较谁的问题更严重
+        // 如果偏差较小 (5分以内)，再看具体是谁在拖后腿
         else {
-            // 设置一个敏感度阈值，比如 0.1 (超标 10%)
-            // 如果 ASL 超标显著 (或者 ASL 问题比 ASW 更大)
-            if (aslDeviation > 0.1 || aslDeviation >= aswDeviation) {
+            // ASL 只要有一点点超标 (比如 > benchmark + 1) 就修
+            if (Math.abs(asl - config.ASL_BENCHMARK) > 1) {
                 finalShouldCallASL = true;
             }
-            
-            // 如果 ASW 超标显著 (或者 ASW 问题比 ASL 更大)
-            if (aswDeviation > 0.1 || aswDeviation >= aslDeviation) {
+            // ASW 只要有一点点超标 (比如 > benchmark + 0.05) 就修
+            // ASW 的系数是 84.6，非常敏感，所以稍微超标就要修
+            if (Math.abs(asw - config.ASW_BENCHMARK) > 0.05) {
                 finalShouldCallASW = true;
             }
+            
+            // 兜底：如果上面都没命中，但总分依然不达标，默认开 ASW (因为它对分数影响最大)
+            if (!finalShouldCallASL && !finalShouldCallASW) {
+                finalShouldCallASW = true; 
+            }
         }
-
-    } else if (fres >= 60 && fres <= 75) {
-        // === 情况 B: 文本适中 (黄金区间) ===
-        // 策略：不进行重度重写，节省 Token，或者仅进行“润色”
-        // 建议：此处可以不调用 ASL/ASW 专项修正，而是调用一个轻量级的 "Polish" 模板
-        // 或者仅当某一项极端异常时才介入
-        
-        if (aslDeviation > 0.2) finalShouldCallASL = true; // 即使总分及格，如果句子由于词简单而过长，也要修
-        if (aswDeviation > 0.2) finalShouldCallASW = true; // 同理
-        
-    } else {
-        // === 情况 C: 文本太简单 (FRES > 75) ===
-        // 通常不需要降维打击。除非用户明确要求“升维” (增加专业度)，否则跳过。
-        // 在这里保持 false
     }
+    // else { 分数达标，不调用 }
 
-    // 输出调试信息 (方便你观察逻辑)
-    console.log(`FRES: ${fres.toFixed(2)} | ASL Dev: ${(aslDeviation*100).toFixed(1)}% | ASW Dev: ${(aswDeviation*100).toFixed(1)}%`);
-    console.log(`Call ASL: ${finalShouldCallASL} | Call ASW: ${finalShouldCallASW}`);
 
     // 4. 辅助函数：调用 DashScope API
     const callDashScopeAPI = async (prompt: string): Promise<string> => {
