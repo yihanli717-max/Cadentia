@@ -21,7 +21,7 @@ const Header = ({}: HeaderProps) => {
       <h1
         className={noto_serif.className + " font-semibold text-lg text-neutral"}
       >
-        <Link href="/">Synthia</Link>
+        <Link href="/">ReadVis</Link>
       </h1>
       <div className="flex flex-row gap-4 justify-center items-center">
         {/* <button
