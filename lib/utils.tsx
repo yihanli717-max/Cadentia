@@ -113,7 +113,7 @@ export const categoryColorMap: {
   1: categoryColor[2],
   0: categoryColor[0],
   ASL: categoryColor[4], // Added ASL
-  ASW: categoryColor[9], // Added ASW
+  ASW: "#FF7F00", // Changed ASW to a distinct orange color
 };
 
 export const clusterColorScales: {
