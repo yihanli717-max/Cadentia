@@ -16,7 +16,7 @@ interface MenuProps {
   classes?: string;
 }
 
-const READABILITY_SOURCE_ID = 999;
+const READABILITY_SOURCE_ID = 0;
 const READABILITY_PROVIDER_NAME = "Qwen-MAX (Readability)";
 
 
@@ -204,7 +204,7 @@ const Menu = (props: MenuProps) => {
 
         // Filter out *old* readability suggestions from the current list (optional, to avoid duplicates on multiple clicks)
         // Assuming readability suggestions have provider: "Qwen-MAX (Readability)" or source: 999
-        const nonReadabilityFeedback = currentFeedbackInStore.filter(f => f.provider !== "Qwen-MAX (Readability)" && f.source !== 999); // <--- Use the fetched list
+        const nonReadabilityFeedback = currentFeedbackInStore.filter(f => f.provider !== "Qwen-MAX (Readability)" && f.source !== 0); // <--- Use the fetched list
 
         // Combine the non-readability feedback with the *new* readability suggestions from the API
         //const updatedFeedbackList = [...nonReadabilityFeedback, ...data.feedbackItems]; // <--- Combine lists

@@ -22,7 +22,7 @@ const typeMap = {
   others: "General Content",
 };
 
-const READABILITY_SOURCE_ID = 999;
+const READABILITY_SOURCE_ID = 0;
 
 type ProviderCardProps = {
   feedbackSourceItem: FeedbackSourceItem;

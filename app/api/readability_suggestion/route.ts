@@ -374,7 +374,7 @@ export async function POST(request: Request) {
               // 创建反馈项对象，使用对应的 type
               const feedbackItem: FeedbackItem = {
                 id: readabilityFeedbackIdBase + feedbackItems.length,
-                source: 999, // 使用一个特殊数字表示是readability suggestion
+                source: 0, // 使用一个特殊数字表示是readability suggestion
                 provider: "Qwen-MAX (Readability)",
                 content: `Readability Suggestion: ${originalSentence.substring(0, 50)}...`,
                 type: type, // 使用 ASL 或 ASW
