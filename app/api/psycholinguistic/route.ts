@@ -7,6 +7,8 @@ const CONCRETENESS_ABSTRACT_THRESHOLD = 2;
 const GPT_COVERAGE_THRESHOLD = 0.6;
 const GPT_BATCH_SIZE = 30;
 const DEFAULT_GPT_MODEL = "gpt-4o-mini";
+const DEFAULT_QWEN_MODEL = "qwen-plus";
+const DASHSCOPE_COMPAT_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1";
 
 const AOA_BASELINE_MEAN = 4.0;
 const AOA_BASELINE_STD = 0.9;
@@ -186,10 +188,12 @@ type WordRating = { aoa: number; concreteness: number };
 async function fetchGptRatingsForWords(
   words: string[],
   apiKey: string,
-  model: string
+  model: string,
+  baseURL?: string
 ): Promise<Record<string, WordRating>> {
-  const openai = new OpenAI({ apiKey });
+  const openai = new OpenAI({ apiKey, baseURL });
   const ratingsMap: Record<string, WordRating> = {};
+  const isQwenCompatible = (baseURL ?? "").includes("dashscope") || model.toLowerCase().startsWith("qwen");
 
   for (const batch of chunkArray(words, GPT_BATCH_SIZE)) {
     const systemPrompt = `You are a psycholinguistic rating assistant.
@@ -218,7 +222,7 @@ ${batch.join("\n")}`;
     const completion = await openai.chat.completions.create({
       model,
       temperature: 0,
-      response_format: { type: "json_object" },
+      ...(isQwenCompatible ? {} : { response_format: { type: "json_object" as const } }),
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
@@ -255,7 +259,8 @@ ${batch.join("\n")}`;
 async function computePsycholinguisticScores(
   text: string,
   apiKey?: string,
-  model = DEFAULT_GPT_MODEL
+  model = DEFAULT_GPT_MODEL,
+  baseURL?: string
 ) {
   const contentWords = extractContentWords(text);
   if (!contentWords.length) {
@@ -299,7 +304,10 @@ async function computePsycholinguisticScores(
   let gptRatings: Record<string, WordRating> = {};
   if (shouldUseGptBackfill && apiKey) {
     try {
-      gptRatings = await fetchGptRatingsForWords(Array.from(missingWords), apiKey, model);
+      gptRatings = await fetchGptRatingsForWords(Array.from(missingWords), apiKey, model, baseURL);
+      if (!Object.keys(gptRatings).length) {
+        console.warn("[psycholinguistic] GPT backfill returned no ratings");
+      }
     } catch (error) {
       console.error("[psycholinguistic] GPT backfill failed, fallback to heuristic", error);
     }
@@ -404,7 +412,7 @@ async function computePsycholinguisticScores(
 
 export async function POST(request: Request) {
   try {
-    const { text, apiKey, model } = await request.json();
+    const { text, apiKey, model, baseURL } = await request.json();
 
     if (typeof text !== "string" || text.trim() === "") {
       return NextResponse.json(
@@ -416,16 +424,34 @@ export async function POST(request: Request) {
       );
     }
 
-    const effectiveApiKey =
-      typeof apiKey === "string" && apiKey.trim().length > 0 ? apiKey.trim() : process.env.OPENAI_API_KEY;
+    const requestedModel = typeof model === "string" && model.trim() ? model.trim() : undefined;
+    const requestedBaseURL = typeof baseURL === "string" && baseURL.trim() ? baseURL.trim() : undefined;
+    const explicitApiKey = typeof apiKey === "string" && apiKey.trim().length > 0 ? apiKey.trim() : undefined;
+
+    const openaiEnvKey = process.env.OPENAI_API_KEY?.trim();
+    const dashscopeEnvKey = process.env.DASHSCOPE_API_KEY?.trim();
+    const preferOpenAIFromEnv = !!openaiEnvKey;
+
+    const effectiveApiKey = explicitApiKey ?? (preferOpenAIFromEnv ? openaiEnvKey : dashscopeEnvKey);
+    const usingDashscope = !explicitApiKey && !preferOpenAIFromEnv && !!dashscopeEnvKey;
+    const effectiveModel =
+      requestedModel ?? (usingDashscope ? DEFAULT_QWEN_MODEL : DEFAULT_GPT_MODEL);
+    const effectiveBaseURL =
+      requestedBaseURL ??
+      (explicitApiKey
+        ? (effectiveModel.toLowerCase().startsWith("qwen") ? DASHSCOPE_COMPAT_BASE_URL : undefined)
+        : (usingDashscope ? DASHSCOPE_COMPAT_BASE_URL : undefined));
 
     const scores = await computePsycholinguisticScores(
       text,
       effectiveApiKey,
-      typeof model === "string" && model.trim() ? model.trim() : DEFAULT_GPT_MODEL
+      effectiveModel,
+      effectiveBaseURL
     );
 
     console.log("[psycholinguistic] computed scores", {
+      model: effectiveModel,
+      baseURL: effectiveBaseURL ?? "(default OpenAI)",
       inputChars: text.length,
       tokenCount: scores.tokenCount,
       uniqueContentWordCount: scores.uniqueContentWordCount,
