@@ -433,7 +433,11 @@ const Menu = (props: MenuProps) => {
       if (readabilityRes.ok) {
         readabilityData = await readabilityRes.json();
         if (readabilityData.success && Array.isArray(readabilityData.feedbackItems)) {
-          readabilityItems = readabilityData.feedbackItems;
+          readabilityItems = readabilityData.feedbackItems.map((item: FeedbackItem) => ({
+            ...item,
+            source: READABILITY_SOURCE_ID,
+            provider: READABILITY_PROVIDER_NAME,
+          }));
           setParsedReadabilityFeedback(readabilityItems);
         } else {
           readabilityError =
