@@ -22,7 +22,7 @@ const typeMap = {
   others: "General Content",
 };
 
-const READABILITY_SOURCE_ID = 0;
+const GENERATED_SUGGESTION_SOURCE_IDS = new Set([0, 1]);
 
 type ProviderCardProps = {
   feedbackSourceItem: FeedbackSourceItem;
@@ -48,8 +48,9 @@ export const ProviderCard = (props: ProviderCardProps) => {
   const selectedFeedbackItems = allFeedbackItems.filter((item) =>
     currentSelectedItems.includes(item.id),
   );
-  const isReadabilityProvider =
-    props.feedbackSourceItem.id === READABILITY_SOURCE_ID;
+  const isGeneratedSuggestionProvider = GENERATED_SUGGESTION_SOURCE_IDS.has(
+    props.feedbackSourceItem.id,
+  );
 
   // Find the related feedback items
   const relatedFeedbacks = allFeedbackItems.filter(
@@ -161,7 +162,7 @@ export const ProviderCard = (props: ProviderCardProps) => {
     });
   };
 
-  const renderReadabilitySuggestions = () => {
+  const renderGeneratedSuggestions = () => {
     if (relatedFeedbacks.length === 0) {
       return (
         <span className="font-medium">
@@ -454,13 +455,13 @@ export const ProviderCard = (props: ProviderCardProps) => {
             "text-xs leading-relaxed overflow-y-auto transition-all duration-1000",
             {
               "line-clamp-3 max-h-[60px]":
-                !shouldExpand && !isReadabilityProvider,
-              "max-h-[1000px]": shouldExpand || isReadabilityProvider,
+                !shouldExpand && !isGeneratedSuggestionProvider,
+              "max-h-[1000px]": shouldExpand || isGeneratedSuggestionProvider,
             },
           )}
         >
-          {isReadabilityProvider ? (
-            renderReadabilitySuggestions()
+          {isGeneratedSuggestionProvider ? (
+            renderGeneratedSuggestions()
           ) : shouldExpand && hoveredFeedback ? (
             <span>
               <span className={noto_serif.className}>&quot;</span>

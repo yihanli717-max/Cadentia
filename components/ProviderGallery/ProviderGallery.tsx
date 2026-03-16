@@ -11,7 +11,7 @@ import "react-contexify/ReactContexify.css";
 import ContextMenu from "@/components/ProviderGallery/ContextMenu";
 
 const MENU_ID = "provider-context-menu";
-const READABILITY_ID = 0;
+const GENERATED_PROVIDER_IDS = new Set([0, 1]);
 
 type ProviderGalleryProps = {
   classes?: string;
@@ -65,7 +65,7 @@ const ProviderGallery = (props: ProviderGalleryProps) => {
     <div className={cn(props.classes, "bg-base-100 border-l border-base-200")}>
       <div>
         {feedbackSource && feedbackSource.length > 0 ? (
-          feedbackSource.filter((item) => item.id === READABILITY_ID).map((item) => (
+          feedbackSource.filter((item) => GENERATED_PROVIDER_IDS.has(item.id)).map((item) => (
             <div
               key={item.id}
               ref={(el) => {

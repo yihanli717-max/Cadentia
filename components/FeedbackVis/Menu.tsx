@@ -18,6 +18,19 @@ interface MenuProps {
 
 const READABILITY_SOURCE_ID = 0;
 const READABILITY_PROVIDER_NAME = "Qwen-MAX (Readability)";
+const PSYCH_SOURCE_ID = 1;
+const PSYCH_PROVIDER_NAME = "Qwen-Plus (Psycholinguistic)";
+
+type PsychScores = {
+  aoa: {
+    meanAoA: number;
+    lateAoARatio: number;
+  };
+  concreteness: {
+    meanConcreteness: number;
+    abstractRatio: number;
+  };
+};
 
 
 // 在组件外部或组件内部顶部定义配置
@@ -37,6 +50,7 @@ const Menu = (props: MenuProps) => {
   const [fres, setFres] = useState<number | null>(null);
   const [asl, setAsl] = useState<number | null>(null);
   const [asw, setAsw] = useState<number | null>(null);
+  const [psychScores, setPsychScores] = useState<PsychScores | null>(null);
   const [readabilityLoading, setReadabilityLoading] = useState<boolean>(true); // Added loading state
   // --- MODIFICATION END ---
 
@@ -107,15 +121,189 @@ const Menu = (props: MenuProps) => {
   }
   // --- MODIFICATION END ---
 
+  async function loadPsychScores(): Promise<PsychScores | null> {
+    try {
+      const text = essay.map((s) => s.content).join(" ");
+      const res = await fetch("/api/psycholinguistic", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!res.ok) {
+        setPsychScores(null);
+        return null;
+      }
+
+      const data = await res.json();
+      if (
+        data?.success &&
+        typeof data?.scores?.aoa?.meanAoA === "number" &&
+        typeof data?.scores?.aoa?.lateAoARatio === "number" &&
+        typeof data?.scores?.concreteness?.meanConcreteness === "number" &&
+        typeof data?.scores?.concreteness?.abstractRatio === "number"
+      ) {
+        const nextScores: PsychScores = {
+          aoa: {
+            meanAoA: data.scores.aoa.meanAoA,
+            lateAoARatio: data.scores.aoa.lateAoARatio,
+          },
+          concreteness: {
+            meanConcreteness: data.scores.concreteness.meanConcreteness,
+            abstractRatio: data.scores.concreteness.abstractRatio,
+          },
+        };
+        setPsychScores(nextScores);
+        return nextScores;
+      } else {
+        setPsychScores(null);
+        return null;
+      }
+    } catch (error) {
+      console.error("Failed to fetch psycholinguistic scores:", error);
+      setPsychScores(null);
+      return null;
+    }
+  }
+
+  function parsePsychSuggestionToFeedbackItems(data: any, essayData: any[]): FeedbackItem[] {
+    const suggestion = data?.suggestion ?? {};
+    const sentenceRevisions: any[] = Array.isArray(suggestion?.sentence_revisions)
+      ? suggestion.sentence_revisions
+      : [];
+    const wordReplacements: any[] = Array.isArray(suggestion?.word_replacements)
+      ? suggestion.word_replacements
+      : [];
+    const priorityActions: any[] = Array.isArray(suggestion?.priority_actions)
+      ? suggestion.priority_actions
+      : [];
+
+    const items: FeedbackItem[] = [];
+    const psychFeedbackIdBase = 998000;
+
+    sentenceRevisions.forEach((item, idx) => {
+      const original = typeof item?.original === "string" ? item.original.trim() : "";
+      const revised = typeof item?.revised === "string" ? item.revised.trim() : "";
+      const effect = typeof item?.expected_effect === "string" ? item.expected_effect.trim() : "psycholinguistic shift";
+
+      if (!original && !revised) return;
+
+      const matchedSentence = essayData.find(
+        (s) =>
+          (original && (s.content.includes(original) || original.includes(s.content))) ||
+          (revised && (s.content.includes(revised) || revised.includes(s.content)))
+      );
+
+      items.push({
+        id: psychFeedbackIdBase + items.length,
+        source: PSYCH_SOURCE_ID,
+        provider: PSYCH_PROVIDER_NAME,
+        content: `Psycholinguistic Suggestion (${idx + 1}): ${effect}`,
+        type: "word-usage",
+        actionability: 0.85,
+        specificity: 1,
+        justification: 0.85,
+        sentiment: 0,
+        detection: matchedSentence ? [matchedSentence.id] : [],
+        sentence_count: matchedSentence ? 1 : 0,
+        word_count: original ? original.split(/\s+/).length : 0,
+        none: 0,
+        revisedContent: revised || original || "No revision content provided.",
+      });
+    });
+
+    wordReplacements.forEach((item, idx) => {
+      const originalWord = typeof item?.original === "string" ? item.original.trim() : "";
+      const replacement = typeof item?.replacement === "string" ? item.replacement.trim() : "";
+      const effect = typeof item?.expected_effect === "string" ? item.expected_effect.trim() : "psycholinguistic shift";
+      if (!originalWord || !replacement) return;
+
+      const matchedSentence = essayData.find((s) =>
+        s.content.toLowerCase().includes(originalWord.toLowerCase())
+      );
+
+      items.push({
+        id: psychFeedbackIdBase + items.length,
+        source: PSYCH_SOURCE_ID,
+        provider: PSYCH_PROVIDER_NAME,
+        content: `Word replacement: "${originalWord}" -> "${replacement}" (${effect})`,
+        type: "word-usage",
+        actionability: 0.8,
+        specificity: 0.9,
+        justification: 0.8,
+        sentiment: 0,
+        detection: matchedSentence ? [matchedSentence.id] : [],
+        sentence_count: matchedSentence ? 1 : 0,
+        word_count: 1,
+        none: 0,
+        revisedContent: replacement,
+      });
+    });
+
+    if (items.length === 0) {
+      priorityActions.forEach((item, idx) => {
+        const focus = typeof item?.focus === "string" ? item.focus.trim() : "Psycholinguistic";
+        const instruction =
+          typeof item?.instruction === "string"
+            ? item.instruction.trim()
+            : typeof item?.reason === "string"
+            ? item.reason.trim()
+            : "Revise wording to better match psycholinguistic target.";
+
+        items.push({
+          id: psychFeedbackIdBase + items.length,
+          source: PSYCH_SOURCE_ID,
+          provider: PSYCH_PROVIDER_NAME,
+          content: `${focus}: ${instruction}`,
+          type: "word-usage",
+          actionability: 0.8,
+          specificity: 0.8,
+          justification: 0.8,
+          sentiment: 0,
+          detection: [],
+          sentence_count: 0,
+          word_count: instruction.split(/\s+/).length,
+          none: 0,
+          revisedContent: `Priority ${idx + 1}: ${instruction}`,
+        });
+      });
+    }
+
+    if (items.length === 0 && typeof suggestion?.raw === "string" && suggestion.raw.trim()) {
+      items.push({
+        id: psychFeedbackIdBase,
+        source: PSYCH_SOURCE_ID,
+        provider: PSYCH_PROVIDER_NAME,
+        content: "Psycholinguistic suggestion (raw model output)",
+        type: "word-usage",
+        actionability: 0.7,
+        specificity: 0.7,
+        justification: 0.7,
+        sentiment: 0,
+        detection: [],
+        sentence_count: 0,
+        word_count: suggestion.raw.split(/\s+/).length,
+        none: 0,
+        revisedContent: suggestion.raw,
+      });
+    }
+
+    return items;
+  }
+
   // --- MODIFICATION START: Updated useEffect hook ---
   // Load FRES when the component mounts and whenever the essay changes
   useEffect(() => {
     if (essay && essay.length > 0) { // Ensure essay has data before loading
       loadFRES();
+      loadPsychScores();
     } else {
       setFres(null); // If essay is empty, clear the FRES
       setAsl(null);  // If essay is empty, clear the ASL
       setAsw(null); // If essay is empty, clear the ASW
+      setPsychScores(null);
       setReadabilityLoading(false); // Also clear loading state
     }
   }, [essay]); // Dependency is the essay state
@@ -180,95 +368,133 @@ const Menu = (props: MenuProps) => {
     try {
       const text = essay.map(s => s.content).join(' ');
 
-      const res = await fetch("/api/readability_suggestion", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ fres, asl, asw, text, essay, userLevel }),
-      });
-      
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error("Fetch Suggestion Error:", errorData);
-        setReadabilitySuggestion(`Error: ${errorData.message || 'Failed to fetch suggestion'}`);
+      const psychScoresForSuggestion = psychScores ?? (await loadPsychScores());
+      const [readabilityRes, psychRes] = await Promise.all([
+        fetch("/api/readability_suggestion", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ fres, asl, asw, text, essay, userLevel }),
+        }),
+        psychScoresForSuggestion
+          ? fetch("/api/psycholinguistic_suggestion", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                text,
+                scores: psychScoresForSuggestion,
+                targetProfile: userLevel,
+              }),
+            })
+          : Promise.resolve(null),
+      ]);
+
+      if (!readabilityRes.ok) {
+        const errorData = await readabilityRes.json();
+        console.error("Fetch Readability Suggestion Error:", errorData);
+        setReadabilitySuggestion(`Error: ${errorData.message || 'Failed to fetch readability suggestion'}`);
         return;
       }
 
-      const data = await res.json();
-      if (data.success && Array.isArray(data.feedbackItems)) {
-        // --- MODIFICATION START: Update Global Feedback Store (Corrected) ---
-        setShowPlan(true);
-        // Get the *current* feedback list from the store
-        const currentFeedbackInStore = useFeedbackStore.getState().feedback; // <--- Get current feedback
-
-        // Filter out *old* readability suggestions from the current list (optional, to avoid duplicates on multiple clicks)
-        // Assuming readability suggestions have provider: "Qwen-MAX (Readability)" or source: 999
-        const nonReadabilityFeedback = currentFeedbackInStore.filter(f => f.provider !== "Qwen-MAX (Readability)" && f.source !== 0); // <--- Use the fetched list
-
-        // Combine the non-readability feedback with the *new* readability suggestions from the API
-        //const updatedFeedbackList = [...nonReadabilityFeedback, ...data.feedbackItems]; // <--- Combine lists
-        const updatedFeedbackList = [ ...data.feedbackItems]; // <--- Combine lists
-
-        // Update the global feedback store with the new combined list
-        useFeedbackStore.getState().setFeedback(updatedFeedbackList); // <--- Update the store state
-
-        // Also update the local state for UI display (if you still want to show them separately initially)
-        setParsedReadabilityFeedback(data.feedbackItems);
-        // --- MODIFICATION END ---
-
-        // --- NEW: ensure a provider card exists for readability suggestions ---
-        const { feedbackSource, setFeedbackSource } =
-          useFeedbackSourceStore.getState();
-
-        const readabilitySummary = data.feedbackItems
-          .map((item: FeedbackItem) => {
-            const originalSentence = item.detection
-              ?.map(
-                (sentenceId) =>
-                  essay.find((sentence) => sentence.id === sentenceId)
-                    ?.content,
-              )
-              .filter(Boolean)
-              .join(" ");
-
-            if (originalSentence && item.revisedContent) {
-              return `Original: "${originalSentence}"\nRevised: "${item.revisedContent}"`;
-            }
-
-            if (item.revisedContent) {
-              return `Revised: "${item.revisedContent}"`;
-            }
-
-            return item.content;
-          })
-          .join("\n\n");
-
-        const readabilityProviderCard: FeedbackSourceItem = {
-          id: READABILITY_SOURCE_ID,
-          provider: READABILITY_PROVIDER_NAME,
-          content:
-            readabilitySummary ||
-            "Readability suggestions generated via Qwen-MAX.",
-        };
-
-        if (
-          feedbackSource.some((source) => source.id === READABILITY_SOURCE_ID)
-        ) {
-          setFeedbackSource(
-            feedbackSource.map((source) =>
-              source.id === READABILITY_SOURCE_ID
-                ? readabilityProviderCard
-                : source,
-            ),
-          );
-        } else {
-          setFeedbackSource([...feedbackSource, readabilityProviderCard]);
-        }
-      } else {
-          console.error("API returned error or invalid data", data);
-          setReadabilitySuggestion(`Error: ${data.message || 'Received invalid data from API'}`);
+      const readabilityData = await readabilityRes.json();
+      if (!(readabilityData.success && Array.isArray(readabilityData.feedbackItems))) {
+        setReadabilitySuggestion(`Error: ${readabilityData.message || "Invalid readability suggestion data"}`);
+        return;
       }
+
+      let psychFeedbackItems: FeedbackItem[] = [];
+      let psychSuggestionData: any = null;
+      if (psychRes) {
+        if (psychRes.ok) {
+          psychSuggestionData = await psychRes.json();
+          if (psychSuggestionData?.success) {
+            psychFeedbackItems = parsePsychSuggestionToFeedbackItems(psychSuggestionData, essay);
+          }
+        } else {
+          const psychError = await psychRes.json().catch(() => ({}));
+          console.error("Fetch Psycholinguistic Suggestion Error:", psychError);
+        }
+      }
+
+      setShowPlan(true);
+      const currentFeedbackInStore = useFeedbackStore.getState().feedback;
+      const nonGeneratedFeedback = currentFeedbackInStore.filter(
+        (f) => f.source !== READABILITY_SOURCE_ID && f.source !== PSYCH_SOURCE_ID
+      );
+      const updatedFeedbackList = [
+        ...nonGeneratedFeedback,
+        ...readabilityData.feedbackItems,
+        ...psychFeedbackItems,
+      ];
+      useFeedbackStore.getState().setFeedback(updatedFeedbackList);
+      setParsedReadabilityFeedback(readabilityData.feedbackItems);
+
+      const { feedbackSource, setFeedbackSource } =
+        useFeedbackSourceStore.getState();
+
+      const readabilitySummary = readabilityData.feedbackItems
+        .map((item: FeedbackItem) => {
+          const originalSentence = item.detection
+            ?.map(
+              (sentenceId) =>
+                essay.find((sentence) => sentence.id === sentenceId)
+                  ?.content,
+            )
+            .filter(Boolean)
+            .join(" ");
+
+          if (originalSentence && item.revisedContent) {
+            return `Original: "${originalSentence}"\nRevised: "${item.revisedContent}"`;
+          }
+
+          if (item.revisedContent) {
+            return `Revised: "${item.revisedContent}"`;
+          }
+
+          return item.content;
+        })
+        .join("\n\n");
+
+      const readabilityProviderCard: FeedbackSourceItem = {
+        id: READABILITY_SOURCE_ID,
+        provider: READABILITY_PROVIDER_NAME,
+        content:
+          readabilitySummary ||
+          "Readability suggestions generated via Qwen-MAX.",
+      };
+
+      const psychSummary =
+        psychSuggestionData?.suggestion?.summary ||
+        (Array.isArray(psychSuggestionData?.suggestion?.priority_actions)
+          ? psychSuggestionData.suggestion.priority_actions
+              .map((item: any) => item?.instruction || item?.reason || "")
+              .filter(Boolean)
+              .join("\n")
+          : "") ||
+        psychFeedbackItems.map((item) => item.content).join("\n\n") ||
+        psychSuggestionData?.suggestion?.raw ||
+        psychSuggestionData?.error;
+
+      const psychProviderCard: FeedbackSourceItem = {
+        id: PSYCH_SOURCE_ID,
+        provider: PSYCH_PROVIDER_NAME,
+        content:
+          psychSummary || "Psycholinguistic suggestions generated via Qwen-Plus.",
+      };
+
+      const nextFeedbackSource = [...feedbackSource];
+      const readabilityIndex = nextFeedbackSource.findIndex((source) => source.id === READABILITY_SOURCE_ID);
+      if (readabilityIndex >= 0) nextFeedbackSource[readabilityIndex] = readabilityProviderCard;
+      else nextFeedbackSource.push(readabilityProviderCard);
+
+      const psychIndex = nextFeedbackSource.findIndex((source) => source.id === PSYCH_SOURCE_ID);
+      if (psychIndex >= 0) nextFeedbackSource[psychIndex] = psychProviderCard;
+      else nextFeedbackSource.push(psychProviderCard);
+
+      setFeedbackSource(nextFeedbackSource);
     } catch (error) {
       console.error("Failed to fetch readability suggestion:", error);
       setReadabilitySuggestion("Error: Failed to fetch suggestion.");
