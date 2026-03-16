@@ -41,6 +41,35 @@ const userLevelConfigs: Record<string, { MIN_TARGET: number; MAX_TARGET: number;
   knowledgeable: { MIN_TARGET: 30, MAX_TARGET: 50, ASL_BENCHMARK: 25, ASW_BENCHMARK: 1.7 },
 };
 
+const psychBenchmarkConfigs: Record<
+  "simple" | "general" | "knowledgeable",
+  {
+    meanAoA: number;
+    lateAoARatio: number;
+    meanConcreteness: number;
+    abstractRatio: number;
+  }
+> = {
+  simple: {
+    meanAoA: 2.0,
+    lateAoARatio: 0.075,
+    meanConcreteness: 4.25,
+    abstractRatio: 0.075,
+  },
+  general: {
+    meanAoA: 3.75,
+    lateAoARatio: 0.25,
+    meanConcreteness: 3.1,
+    abstractRatio: 0.25,
+  },
+  knowledgeable: {
+    meanAoA: 5.75,
+    lateAoARatio: 0.675,
+    meanConcreteness: 1.85,
+    abstractRatio: 0.675,
+  },
+};
+
 const Menu = (props: MenuProps) => {
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const [searchedText, setSearchedText] = useState("");
@@ -51,6 +80,7 @@ const Menu = (props: MenuProps) => {
   const [asl, setAsl] = useState<number | null>(null);
   const [asw, setAsw] = useState<number | null>(null);
   const [psychScores, setPsychScores] = useState<PsychScores | null>(null);
+  const [psychLoading, setPsychLoading] = useState<boolean>(true);
   const [readabilityLoading, setReadabilityLoading] = useState<boolean>(true); // Added loading state
   // --- MODIFICATION END ---
 
@@ -122,6 +152,7 @@ const Menu = (props: MenuProps) => {
   // --- MODIFICATION END ---
 
   async function loadPsychScores(): Promise<PsychScores | null> {
+    setPsychLoading(true);
     try {
       const text = essay.map((s) => s.content).join(" ");
       const res = await fetch("/api/psycholinguistic", {
@@ -165,6 +196,8 @@ const Menu = (props: MenuProps) => {
       console.error("Failed to fetch psycholinguistic scores:", error);
       setPsychScores(null);
       return null;
+    } finally {
+      setPsychLoading(false);
     }
   }
 
@@ -305,6 +338,7 @@ const Menu = (props: MenuProps) => {
       setAsw(null); // If essay is empty, clear the ASW
       setPsychScores(null);
       setReadabilityLoading(false); // Also clear loading state
+      setPsychLoading(false);
     }
   }, [essay]); // Dependency is the essay state
   // --- MODIFICATION END ---
@@ -419,7 +453,7 @@ const Menu = (props: MenuProps) => {
         }
       }
 
-      setShowPlan(true);
+      // setShowPlan(true);
       const currentFeedbackInStore = useFeedbackStore.getState().feedback;
       const nonGeneratedFeedback = currentFeedbackInStore.filter(
         (f) => f.source !== READABILITY_SOURCE_ID && f.source !== PSYCH_SOURCE_ID
@@ -504,7 +538,7 @@ const Menu = (props: MenuProps) => {
   };
   // --- MODIFICATION END ---
 
-  const renderMetricComparison = (value: number, type: 'FRES' | 'ASL' | 'ASW') => {
+const renderMetricComparison = (value: number, type: 'FRES' | 'ASL' | 'ASW') => {
     // 1. 获取当前配置
     const config = userLevelConfigs[userLevel] || userLevelConfigs['general'];
     
@@ -548,6 +582,39 @@ const Menu = (props: MenuProps) => {
             </span>
         </span>
     );
+};
+
+const renderPsychMetricComparison = (
+  value: number,
+  type: "meanAoA" | "lateAoARatio" | "meanConcreteness" | "abstractRatio"
+) => {
+  const config = psychBenchmarkConfigs[userLevel] || psychBenchmarkConfigs.general;
+  const target = config[type];
+  const diff = value - target;
+
+  if (Math.abs(diff) < 0.005) return null;
+  const isHigh = diff > 0;
+  const diffText =
+    type === "lateAoARatio" || type === "abstractRatio"
+      ? Math.abs(diff).toFixed(2)
+      : Math.abs(diff).toFixed(1);
+
+  return (
+    <span className="ml-2 inline-flex items-center gap-0.5" title={`Target: ${target.toFixed(2)}`}>
+      {isHigh ? (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3 text-red-500">
+          <path fillRule="evenodd" d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z" clipRule="evenodd" />
+        </svg>
+      ) : (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3 text-green-500">
+          <path fillRule="evenodd" d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z" clipRule="evenodd" />
+        </svg>
+      )}
+      <span className={`text-xs font-bold ${isHigh ? "text-red-500" : "text-green-500"}`}>
+        {diffText}
+      </span>
+    </span>
+  );
 };
 
   return (
@@ -614,6 +681,37 @@ const Menu = (props: MenuProps) => {
                       {renderMetricComparison(asw, 'ASW')}
                   </div>               
                   <div className="text-xs opacity-75 mt-1">Formula: FRES = 206.835 - 1.015 * ASL - 84.6 * ASW</div>
+
+                  <div className="mt-3 pt-2 border-t border-base-300">
+                    <span className="text-xs opacity-50">Psycholinguistic</span>
+                    <div className="text-sm mt-1">
+                      {psychLoading ? (
+                        <span>Calculating...</span>
+                      ) : psychScores ? (
+                        <>
+                          <div className="flex items-center">
+                            <span>AoA Mean (1-7): {psychScores.aoa.meanAoA.toFixed(2)}</span>
+                            {renderPsychMetricComparison(psychScores.aoa.meanAoA, "meanAoA")}
+                          </div>
+                          <div className="flex items-center">
+                            <span>Late AoA Ratio {"(>=5)"}: {psychScores.aoa.lateAoARatio.toFixed(2)}</span>
+                            {renderPsychMetricComparison(psychScores.aoa.lateAoARatio, "lateAoARatio")}
+                          </div>
+                          <div className="flex items-center">
+                            <span>Concreteness Mean (1-5): {psychScores.concreteness.meanConcreteness.toFixed(2)}</span>
+                            {renderPsychMetricComparison(psychScores.concreteness.meanConcreteness, "meanConcreteness")}
+                          </div>
+                          <div className="flex items-center">
+                            <span>Abstract Ratio {"(<=2)"}: {psychScores.concreteness.abstractRatio.toFixed(2)}</span>
+                            {renderPsychMetricComparison(psychScores.concreteness.abstractRatio, "abstractRatio")}
+                          </div>
+                        </>
+                      ) : (
+                        <span>N/A</span>
+                      )}
+                    </div>
+                  </div>
+
                   {/* Add button to get suggestion */}
                   <button
                     onClick={fetchReadabilitySuggestion}
