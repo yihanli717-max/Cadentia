@@ -33,6 +33,7 @@ export type FeedbackItem = {
   length?: number;
   embeddings?: number[];
   revisedContent?: string;
+  highlightWords?: string[];
 };
 
 export type FeedbackSourceItem = {

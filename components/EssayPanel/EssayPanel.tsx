@@ -18,6 +18,7 @@ import { TbCheck, TbEdit, TbRefresh } from "react-icons/tb";
 const SENTENCE_MENU_ID = "sentence-context-menu";
 const EDIT_MENU_ID = "edit-context-menu";
 const REGENERATE_MENU_ID = "regenerate-context-menu";
+const PSYCH_SOURCE_ID = 101;
 
 interface EssayPanelProps {
   classes?: string;
@@ -65,6 +66,72 @@ const EssayPanel = (props: EssayPanelProps) => {
     () => allFeedback.find((item) => item.id === hoveredItem),
     [allFeedback, hoveredItem],
   );
+
+  const psychHighlightWordsBySentence = useMemo(() => {
+    const map = new Map<number, Set<string>>();
+
+    const selectedPsychFeedbacks = allFeedback.filter(
+      (item) =>
+        item.source === PSYCH_SOURCE_ID && currentSelectedItems.includes(item.id),
+    );
+
+    const activePsychFeedbacks =
+      hoveredFeedback && hoveredFeedback.source === PSYCH_SOURCE_ID
+        ? [
+            hoveredFeedback,
+            ...selectedPsychFeedbacks.filter((item) => item.id !== hoveredFeedback.id),
+          ]
+        : selectedPsychFeedbacks;
+
+    activePsychFeedbacks.forEach((feedback) => {
+      const words = (feedback.highlightWords || [])
+        .filter((word) => typeof word === "string" && word.trim().length > 0)
+        .map((word) => word.toLowerCase());
+
+      if (!words.length) return;
+      const targetSentenceIds =
+        feedback.detection && feedback.detection.length > 0
+          ? feedback.detection
+          : essay.map((s) => s.id);
+
+      targetSentenceIds.forEach((sentenceId) => {
+        if (!map.has(sentenceId)) map.set(sentenceId, new Set<string>());
+        const sentenceWordSet = map.get(sentenceId);
+        words.forEach((word) => sentenceWordSet?.add(word));
+      });
+    });
+
+    return map;
+  }, [allFeedback, currentSelectedItems, hoveredFeedback, essay]);
+
+  const renderSentenceWithPsychWordHighlight = (
+    sentenceText: string,
+    sentenceId: number,
+  ) => {
+    const sentenceHighlightWords = psychHighlightWordsBySentence.get(sentenceId);
+    if (!sentenceHighlightWords || sentenceHighlightWords.size === 0) {
+      return sentenceText + " ";
+    }
+
+    const parts = sentenceText.split(/(\s+|[^\w']+)/g);
+    return (
+      <>
+        {parts.map((part, idx) => {
+          if (!part) return null;
+          const normalized = part.toLowerCase().replace(/^[^a-z']+|[^a-z']+$/g, "");
+          if (normalized && sentenceHighlightWords.has(normalized)) {
+            return (
+              <span key={`${part}-${idx}`} className="text-red-500 font-semibold">
+                {part}
+              </span>
+            );
+          }
+          return <React.Fragment key={`${part}-${idx}`}>{part}</React.Fragment>;
+        })}
+        {" "}
+      </>
+    );
+  };
   const highlightSentences = useMemo(() => {
     // iterate through hoveredFeedback's plan and get all sentences
     const sentences = new Set<string>();
@@ -242,7 +309,7 @@ const EssayPanel = (props: EssayPanelProps) => {
                       // if senction.content exit in revisionObject's revision's orginal, then show the revision content
                       (revisionObject?.revision.find(
                         (item) => item.original === section.content,
-                      )?.revised || section.content) + " "
+                      )?.revised || renderSentenceWithPsychWordHighlight(section.content, section.id))
                     )}
                   </span>
                   {revisionObject?.revision.find(

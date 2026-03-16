@@ -257,6 +257,8 @@ const Menu = (props: MenuProps) => {
         s.content.toLowerCase().includes(originalWord.toLowerCase())
       );
 
+      const highlightWords = [originalWord.toLowerCase()];
+
       items.push({
         id: psychFeedbackIdBase + items.length,
         source: PSYCH_SOURCE_ID,
@@ -272,6 +274,7 @@ const Menu = (props: MenuProps) => {
         word_count: 1,
         none: 0,
         revisedContent: replacement,
+        highlightWords,
       });
     });
 
