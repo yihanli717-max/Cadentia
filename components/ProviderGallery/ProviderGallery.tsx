@@ -11,7 +11,7 @@ import "react-contexify/ReactContexify.css";
 import ContextMenu from "@/components/ProviderGallery/ContextMenu";
 
 const MENU_ID = "provider-context-menu";
-const GENERATED_PROVIDER_IDS = new Set([0, 1]);
+const GENERATED_PROVIDER_IDS = new Set([100, 101]);
 
 type ProviderGalleryProps = {
   classes?: string;

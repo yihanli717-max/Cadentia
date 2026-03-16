@@ -16,9 +16,9 @@ interface MenuProps {
   classes?: string;
 }
 
-const READABILITY_SOURCE_ID = 0;
+const READABILITY_SOURCE_ID = 100;
 const READABILITY_PROVIDER_NAME = "Qwen-MAX (Readability)";
-const PSYCH_SOURCE_ID = 1;
+const PSYCH_SOURCE_ID = 101;
 const PSYCH_PROVIDER_NAME = "Qwen-Plus (Psycholinguistic)";
 
 type PsychScores = {

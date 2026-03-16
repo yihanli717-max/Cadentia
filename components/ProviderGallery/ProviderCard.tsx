@@ -22,7 +22,7 @@ const typeMap = {
   others: "General Content",
 };
 
-const GENERATED_SUGGESTION_SOURCE_IDS = new Set([0, 1]);
+const GENERATED_SUGGESTION_SOURCE_IDS = new Set([100, 101]);
 
 type ProviderCardProps = {
   feedbackSourceItem: FeedbackSourceItem;
@@ -313,7 +313,7 @@ export const ProviderCard = (props: ProviderCardProps) => {
             <div className="flex flex-row gap-1 items-center">
               <h1 className={cn("text-sm font-semibold")}>
                 <span className="opacity-60">
-                  Provider {props.feedbackSourceItem["id"]} /{" "}
+                  Provider /{" "}
                 </span>
                 {props.feedbackSourceItem["provider"]}
               </h1>
