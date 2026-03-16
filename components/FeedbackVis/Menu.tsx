@@ -426,50 +426,71 @@ const Menu = (props: MenuProps) => {
           : Promise.resolve(null),
       ]);
 
-      if (!readabilityRes.ok) {
-        const errorData = await readabilityRes.json();
-        console.error("Fetch Readability Suggestion Error:", errorData);
-        setReadabilitySuggestion(`Error: ${errorData.message || 'Failed to fetch readability suggestion'}`);
-        return;
-      }
+      let readabilityItems: FeedbackItem[] = [];
+      let readabilityData: any = null;
+      let readabilityError: string | null = null;
 
-      const readabilityData = await readabilityRes.json();
-      if (!(readabilityData.success && Array.isArray(readabilityData.feedbackItems))) {
-        setReadabilitySuggestion(`Error: ${readabilityData.message || "Invalid readability suggestion data"}`);
-        return;
+      if (readabilityRes.ok) {
+        readabilityData = await readabilityRes.json();
+        if (readabilityData.success && Array.isArray(readabilityData.feedbackItems)) {
+          readabilityItems = readabilityData.feedbackItems;
+          setParsedReadabilityFeedback(readabilityItems);
+        } else {
+          readabilityError =
+            readabilityData?.message || "Invalid readability suggestion data";
+        }
+      } else {
+        const errorData = await readabilityRes.json().catch(() => ({}));
+        console.error("Fetch Readability Suggestion Error:", errorData);
+        readabilityError =
+          errorData?.message || "Failed to fetch readability suggestion";
       }
 
       let psychFeedbackItems: FeedbackItem[] = [];
       let psychSuggestionData: any = null;
+      let psychError: string | null = null;
       if (psychRes) {
         if (psychRes.ok) {
           psychSuggestionData = await psychRes.json();
           if (psychSuggestionData?.success) {
             psychFeedbackItems = parsePsychSuggestionToFeedbackItems(psychSuggestionData, essay);
+          } else {
+            psychError =
+              psychSuggestionData?.error || "Invalid psycholinguistic suggestion data";
           }
         } else {
-          const psychError = await psychRes.json().catch(() => ({}));
-          console.error("Fetch Psycholinguistic Suggestion Error:", psychError);
+          const psychErrorData = await psychRes.json().catch(() => ({}));
+          console.error("Fetch Psycholinguistic Suggestion Error:", psychErrorData);
+          psychError =
+            psychErrorData?.error || "Failed to fetch psycholinguistic suggestion";
         }
       }
 
-      // setShowPlan(true);
+      if (readabilityError && psychError) {
+        setReadabilitySuggestion(
+          `Readability: ${readabilityError}; Psycholinguistic: ${psychError}`,
+        );
+      } else if (readabilityError) {
+        setReadabilitySuggestion(`Readability: ${readabilityError}`);
+      } else {
+        setReadabilitySuggestion(null);
+      }
+
       const currentFeedbackInStore = useFeedbackStore.getState().feedback;
       const nonGeneratedFeedback = currentFeedbackInStore.filter(
         (f) => f.source !== READABILITY_SOURCE_ID && f.source !== PSYCH_SOURCE_ID
       );
       const updatedFeedbackList = [
         ...nonGeneratedFeedback,
-        ...readabilityData.feedbackItems,
+        ...readabilityItems,
         ...psychFeedbackItems,
       ];
       useFeedbackStore.getState().setFeedback(updatedFeedbackList);
-      setParsedReadabilityFeedback(readabilityData.feedbackItems);
 
       const { feedbackSource, setFeedbackSource } =
         useFeedbackSourceStore.getState();
 
-      const readabilitySummary = readabilityData.feedbackItems
+      const readabilitySummary = readabilityItems
         .map((item: FeedbackItem) => {
           const originalSentence = item.detection
             ?.map(
@@ -519,14 +540,18 @@ const Menu = (props: MenuProps) => {
           psychSummary || "Psycholinguistic suggestions generated via Qwen-Plus.",
       };
 
-      const nextFeedbackSource = [...feedbackSource];
-      const readabilityIndex = nextFeedbackSource.findIndex((source) => source.id === READABILITY_SOURCE_ID);
-      if (readabilityIndex >= 0) nextFeedbackSource[readabilityIndex] = readabilityProviderCard;
-      else nextFeedbackSource.push(readabilityProviderCard);
+      const nextFeedbackSource = feedbackSource.filter(
+        (source) =>
+          source.id !== READABILITY_SOURCE_ID && source.id !== PSYCH_SOURCE_ID
+      );
+      if (readabilityItems.length > 0) {
+        nextFeedbackSource.push(readabilityProviderCard);
+      }
+      if (psychFeedbackItems.length > 0 || !!psychSummary) {
+        nextFeedbackSource.push(psychProviderCard);
+      }
 
-      const psychIndex = nextFeedbackSource.findIndex((source) => source.id === PSYCH_SOURCE_ID);
-      if (psychIndex >= 0) nextFeedbackSource[psychIndex] = psychProviderCard;
-      else nextFeedbackSource.push(psychProviderCard);
+      //setShowPlan(readabilityItems.length > 0 || psychFeedbackItems.length > 0 || !!psychSummary);
 
       setFeedbackSource(nextFeedbackSource);
     } catch (error) {
