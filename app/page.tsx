@@ -5,7 +5,6 @@ import EntryPanel from "@/components/EntryPanel";
 import ProviderGallery from "@/components/ProviderGallery/ProviderGallery";
 import EssayPanel from "@/components/EssayPanel/EssayPanel";
 import FeedbackVis from "@/components/FeedbackVis/FeedbackVis";
-import RevisionGallery from "@/components/RevisionGallery/RevisionGallery";
 import {
   // useOpenAIAPI,
   useFeedbackStore,
@@ -27,7 +26,7 @@ const Page = () => {
             <EssayPanel classes="flex-none w-[512px] sticky top-0 h-screen overflow-auto" />
             <div className="flex-1 min-w-0">
               <div className="flex flex-col h-full">
-                <RevisionGallery classes="flex-none mt-[3rem] overflow-x-auto" />
+                <div className="flex-none mt-[3rem] h-[170px] border-b border-base-200 bg-white" />
                 <FeedbackVis classes="w-full flex-1 min-h-0" />
               </div>
             </div>
