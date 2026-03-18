@@ -14,6 +14,7 @@ import { FeedbackItem, FeedbackSourceItem } from "@/lib/type"; // Add this impor
 
 interface MenuProps {
   classes?: string;
+  dashboardOnly?: boolean;
 }
 
 const READABILITY_SOURCE_ID = 100;
@@ -33,7 +34,7 @@ type PsychScores = {
 };
 
 
-// 在组件外部或组件内部顶部定义配置
+// 鍦ㄧ粍浠跺閮ㄦ垨缁勪欢鍐呴儴椤堕儴瀹氫箟閰嶇疆
 // Define User Level Configurations
 const userLevelConfigs: Record<string, { MIN_TARGET: number; MAX_TARGET: number; ASL_BENCHMARK: number; ASW_BENCHMARK: number }> = {
   simple: { MIN_TARGET: 80, MAX_TARGET: 90, ASL_BENCHMARK: 15, ASW_BENCHMARK: 1.3 },
@@ -71,6 +72,7 @@ const psychBenchmarkConfigs: Record<
 };
 
 const Menu = (props: MenuProps) => {
+  const dashboardOnly = props.dashboardOnly ?? false;
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const [searchedText, setSearchedText] = useState("");
   const [prompt, setPrompt] = useState("");
@@ -101,7 +103,7 @@ const Menu = (props: MenuProps) => {
   const essay = useEssayStore((state) => state.essay); // Get the current essay from the store
   // --- MODIFICATION END ---
 
-    // 在 Menu 组件内部
+    // 鍦?Menu 缁勪欢鍐呴儴
   const [showPlan, setShowPlan] = useState(false);
 
 
@@ -571,10 +573,10 @@ const Menu = (props: MenuProps) => {
   // --- MODIFICATION END ---
 
 const renderMetricComparison = (value: number, type: 'FRES' | 'ASL' | 'ASW') => {
-    // 1. 获取当前配置
+    // 1. 鑾峰彇褰撳墠閰嶇疆
     const config = userLevelConfigs[userLevel] || userLevelConfigs['general'];
     
-    // 2. 确定目标值
+    // 2. 纭畾鐩爣鍊?
     let target = 0;
     if (type === 'FRES') {
         target = (config.MIN_TARGET + config.MAX_TARGET) / 2;
@@ -584,14 +586,14 @@ const renderMetricComparison = (value: number, type: 'FRES' | 'ASL' | 'ASW') => 
         target = config.ASW_BENCHMARK;
     }
 
-    // 3. 计算差值
+    // 3. 璁＄畻宸€?
     const diff = value - target;
     
-    // 如果差值非常小，不显示
+    // 濡傛灉宸€奸潪甯稿皬锛屼笉鏄剧ず
     if (Math.abs(diff) < 0.05) return null;
 
-    // 4. 根据需求定义颜色和图标方向
-    // 需求：红色向上箭头代表超出 (diff > 0)，绿色向下箭头代表低于 (diff < 0)
+    // 4. 鏍规嵁闇€姹傚畾涔夐鑹插拰鍥炬爣鏂瑰悜
+    // 闇€姹傦細绾㈣壊鍚戜笂绠ご浠ｈ〃瓒呭嚭 (diff > 0)锛岀豢鑹插悜涓嬬澶翠唬琛ㄤ綆浜?(diff < 0)
     const isHigh = diff > 0;
     
     return (
@@ -608,7 +610,7 @@ const renderMetricComparison = (value: number, type: 'FRES' | 'ASL' | 'ASW') => 
                 </svg>
             )}
             
-            {/* 数字显示 (颜色跟随箭头) */}
+            {/* 鏁板瓧鏄剧ず (棰滆壊璺熼殢绠ご) */}
             <span className={`text-xs font-bold ${isHigh ? 'text-red-500' : 'text-green-500'}`}>
                 {Math.abs(diff).toFixed(1)}
             </span>
@@ -653,125 +655,116 @@ const renderPsychMetricComparison = (
     <>
       {/* --- MODIFICATION START: Updated Readability Display (show FRES, ASL, ASW, and formula) --- */}
       <div
-        className="absolute right-4 top-4 bg-base-100 shadow-md rounded-md px-3 py-2 z-50"
-        style={{ border: "1px solid rgba(255,255,255,0.15)" }}
+        className={cn(
+          "bg-base-100 shadow-md rounded-md px-3 py-2 z-50",
+          dashboardOnly ? "h-full w-full shadow-none border-0" : "absolute right-4 top-4",
+        )}
+        style={{ border: dashboardOnly ? "none" : "1px solid rgba(255,255,255,0.15)" }}
       >
-        {/* User Level Selection */}
-        <div className="mb-3 pb-2 border-b border-base-300">
-          <span className="text-xs opacity-50 mb-1 block">Target Audience</span>
-          <div className="flex flex-row gap-1">
+        <div className="flex h-full flex-col gap-3">
+          <div className="grid grid-cols-[96px_1fr_auto] items-center gap-3 border-b border-base-300 pb-2">
+            <div className="text-2xs font-semibold uppercase opacity-60 leading-4">
+              Target<br />Audience<br />Level
+            </div>
+            <div className="flex flex-row flex-wrap gap-1">
+              <button
+                onClick={() => setUserLevel("simple")}
+                className={cn(
+                  "btn btn-xs text-2xs px-2 py-1",
+                  userLevel === "simple" ? "btn-active" : "btn-ghost"
+                )}
+              >
+                Simple
+              </button>
+              <button
+                onClick={() => setUserLevel("general")}
+                className={cn(
+                  "btn btn-xs text-2xs px-2 py-1",
+                  userLevel === "general" ? "btn-active" : "btn-ghost"
+                )}
+              >
+                General
+              </button>
+              <button
+                onClick={() => setUserLevel("knowledgeable")}
+                className={cn(
+                  "btn btn-xs text-2xs px-2 py-1",
+                  userLevel === "knowledgeable" ? "btn-active" : "btn-ghost"
+                )}
+              >
+                Knowledgeable
+              </button>
+            </div>
             <button
-              onClick={() => setUserLevel("simple")}
-              className={cn(
-                "btn btn-xs text-2xs px-2 py-1",
-                userLevel === "simple" ? "btn-active" : "btn-ghost"
-              )}
+              onClick={fetchReadabilitySuggestion}
+              disabled={suggestionLoading}
+              className="btn btn-xs btn-outline"
             >
-              Simple
-            </button>
-            <button
-              onClick={() => setUserLevel("general")}
-              className={cn(
-                "btn btn-xs text-2xs px-2 py-1",
-                userLevel === "general" ? "btn-active" : "btn-ghost"
-              )}
-            >
-              General
-            </button>
-            <button
-              onClick={() => setUserLevel("knowledgeable")}
-              className={cn(
-                "btn btn-xs text-2xs px-2 py-1",
-                userLevel === "knowledgeable" ? "btn-active" : "btn-ghost"
-              )}
-            >
-              Knowledgeable
+              {suggestionLoading ? "Generating..." : "Get Suggestion"}
             </button>
           </div>
-        </div>
-        <span className="text-xs opacity-50">Readability</span>
-        <div className="text-sm ml-2">
-          {readabilityLoading ? (
-            <span>Calculating...</span>
-          ) : (
-            <>
-              {typeof fres === "number" && typeof asl === "number" && typeof asw === "number" ? (
-                <>
-                  {/* FRES Display with Comparison */}
-                  <div className="text-base font-medium flex items-center">
-                      <span>FRES (Overall Readability Score): {fres.toFixed(1)}</span>
-                      {renderMetricComparison(fres, 'FRES')}
-                  </div>
-                  {/* ASL Display with Comparison */}
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p className="text-xs opacity-50 mb-1">Readability</p>
+              {readabilityLoading ? (
+                <span>Calculating...</span>
+              ) : typeof fres === "number" && typeof asl === "number" && typeof asw === "number" ? (
+                <div className="space-y-1">
                   <div className="flex items-center">
-                      <span>ASL (Average Sentence Length): {asl.toFixed(2)}</span>
-                      {renderMetricComparison(asl, 'ASL')}
+                    <span>FRES: {fres.toFixed(1)}</span>
+                    {renderMetricComparison(fres, "FRES")}
                   </div>
-                  {/* ASW Display with Comparison */}
                   <div className="flex items-center">
-                      <span>ASW (Average Number of Syllables per Word): {asw.toFixed(2)}</span>
-                      {renderMetricComparison(asw, 'ASW')}
-                  </div>               
-                  <div className="text-xs opacity-75 mt-1">Formula: FRES = 206.835 - 1.015 * ASL - 84.6 * ASW</div>
-
-                  <div className="mt-3 pt-2 border-t border-base-300">
-                    <span className="text-xs opacity-50">Psycholinguistic</span>
-                    <div className="text-sm mt-1">
-                      {psychLoading ? (
-                        <span>Calculating...</span>
-                      ) : psychScores ? (
-                        <>
-                          <div className="flex items-center">
-                            <span>AoA Mean (1-7): {psychScores.aoa.meanAoA.toFixed(2)}</span>
-                            {renderPsychMetricComparison(psychScores.aoa.meanAoA, "meanAoA")}
-                          </div>
-                          <div className="flex items-center">
-                            <span>Late AoA Ratio {"(>=5)"}: {psychScores.aoa.lateAoARatio.toFixed(2)}</span>
-                            {renderPsychMetricComparison(psychScores.aoa.lateAoARatio, "lateAoARatio")}
-                          </div>
-                          <div className="flex items-center">
-                            <span>Concreteness Mean (1-5): {psychScores.concreteness.meanConcreteness.toFixed(2)}</span>
-                            {renderPsychMetricComparison(psychScores.concreteness.meanConcreteness, "meanConcreteness")}
-                          </div>
-                          <div className="flex items-center">
-                            <span>Abstract Ratio {"(<=2)"}: {psychScores.concreteness.abstractRatio.toFixed(2)}</span>
-                            {renderPsychMetricComparison(psychScores.concreteness.abstractRatio, "abstractRatio")}
-                          </div>
-                        </>
-                      ) : (
-                        <span>N/A</span>
-                      )}
-                    </div>
+                    <span>ASL: {asl.toFixed(2)}</span>
+                    {renderMetricComparison(asl, "ASL")}
                   </div>
-
-                  {/* Add button to get suggestion */}
-                  <button
-                    onClick={fetchReadabilitySuggestion}
-                    disabled={suggestionLoading} // Disable while loading
-                    className="mt-2 text-xs btn btn-xs btn-outline"
-                  >
-                    {suggestionLoading ? "Generating..." : "Get Suggestion"}
-                  </button>
-
-                  {/* Improvement Plan Text - 只有当 showPlan 为 true 时显示 */}
-                  {showPlan && !suggestionLoading && (
-                    <div className="mt-3 pt-2 border-t border-base-300 animate-in fade-in slide-in-from-top-2 duration-300">
-                      <p className="text-xs font-semibold mb-1 text-primary">Improvement Plan:</p>
-                      <p className="text-xs text-base-content/80 leading-relaxed text-justify">
-                        Each circle in the menu is related to a sentence in your essay.<br /> The color and size represent the issue type and <br /> improvement actionability respectively. <br /> We recommend you to revise the bigger ones first <br /> according to the provider card on the right.<br /> Then you can improve your essay's readability faster.
-                      </p>
-                    </div>
-                  )}
-                  
-                </>
+                  <div className="flex items-center">
+                    <span>ASW: {asw.toFixed(2)}</span>
+                    {renderMetricComparison(asw, "ASW")}
+                  </div>
+                  <div className="text-2xs opacity-70">
+                    FRES = 206.835 - 1.015*ASL - 84.6*ASW
+                  </div>
+                </div>
               ) : (
                 <span>N/A</span>
               )}
-            </>
-          )}
+            </div>
+
+            <div>
+              <p className="text-xs opacity-50 mb-1">Psycholinguistic</p>
+              {psychLoading ? (
+                <span>Calculating...</span>
+              ) : psychScores ? (
+                <div className="space-y-1">
+                  <div className="flex items-center">
+                    <span>AoA Mean: {psychScores.aoa.meanAoA.toFixed(2)}</span>
+                    {renderPsychMetricComparison(psychScores.aoa.meanAoA, "meanAoA")}
+                  </div>
+                  <div className="flex items-center">
+                    <span>Late AoA Ratio: {psychScores.aoa.lateAoARatio.toFixed(2)}</span>
+                    {renderPsychMetricComparison(psychScores.aoa.lateAoARatio, "lateAoARatio")}
+                  </div>
+                  <div className="flex items-center">
+                    <span>Concreteness Mean: {psychScores.concreteness.meanConcreteness.toFixed(2)}</span>
+                    {renderPsychMetricComparison(psychScores.concreteness.meanConcreteness, "meanConcreteness")}
+                  </div>
+                  <div className="flex items-center">
+                    <span>Abstract Ratio: {psychScores.concreteness.abstractRatio.toFixed(2)}</span>
+                    {renderPsychMetricComparison(psychScores.concreteness.abstractRatio, "abstractRatio")}
+                  </div>
+                </div>
+              ) : (
+                <span>N/A</span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
       {/* --- MODIFICATION END --- */}
+      {!dashboardOnly && (
+        <>
       <div
         className={cn(
           props.classes,
@@ -983,7 +976,7 @@ const renderPsychMetricComparison = (
                 setSearchedEmbeddings(embeddings);
               }}
             >
-              ↵
+              鈫?
             </kbd>
           </label>
           {/* <div className="ml-2 flex flex-col gap-1 w-52">
@@ -1107,6 +1100,8 @@ const renderPsychMetricComparison = (
             : "Apply"}
         </button>
       </div>
+        </>
+      )}
     </>
   );
 };
