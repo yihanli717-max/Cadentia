@@ -662,9 +662,9 @@ const renderPsychMetricComparison = (
         style={{ border: dashboardOnly ? "none" : "1px solid rgba(255,255,255,0.15)" }}
       >
         <div className="flex h-full flex-col gap-3">
-          <div className="grid grid-cols-[96px_1fr_auto] items-center gap-3 border-b border-base-300 pb-2">
-            <div className="text-2xs font-semibold uppercase opacity-60 leading-4">
-              Target<br />Audience<br />Level
+          <div className="grid grid-cols-[180px_1fr_auto] items-center gap-3 border-b border-base-300 pb-2">
+            <div className="text-2xs font-semibold uppercase opacity-60 whitespace-nowrap">
+              Target Audience Level
             </div>
             <div className="flex flex-row flex-wrap gap-1">
               <button
