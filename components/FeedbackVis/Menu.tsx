@@ -263,7 +263,7 @@ const Menu = (props: MenuProps) => {
         id: psychFeedbackIdBase + items.length,
         source: PSYCH_SOURCE_ID,
         provider: PSYCH_PROVIDER_NAME,
-        content: `Word replacement: "${originalWord}" -> "${replacement}" (${effect})`,
+        content: `Word replacement: "${originalWord}" (${effect})`,
         type: "word-usage",
         actionability: 0.8,
         specificity: 0.9,

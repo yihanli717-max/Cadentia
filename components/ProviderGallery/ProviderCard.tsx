@@ -178,14 +178,26 @@ export const ProviderCard = (props: ProviderCardProps) => {
             key={feedback.id}
             className="rounded-lg border border-base-200 bg-base-50 px-3 py-2"
           >
-            <p className="text-xs font-semibold text-neutral-700">
-              {feedback.content}
-            </p>
             {feedback.revisedContent ? (
-              <p className="mt-1 text-xs text-neutral-600">
-                {feedback.revisedContent}
+              <details className="group">
+                <summary className="cursor-pointer list-none text-xs font-semibold text-neutral-700">
+                  <span>{feedback.content}</span>
+                  <span className="ml-2 text-2xs font-medium text-neutral-500 group-open:hidden">
+                    (click to view suggestion)
+                  </span>
+                  <span className="ml-2 hidden text-2xs font-medium text-neutral-500 group-open:inline">
+                    (click to hide)
+                  </span>
+                </summary>
+                <p className="mt-2 text-xs text-neutral-600 whitespace-pre-wrap">
+                  {feedback.revisedContent}
+                </p>
+              </details>
+            ) : (
+              <p className="text-xs font-semibold text-neutral-700">
+                {feedback.content}
               </p>
-            ) : null}
+            )}
           </div>
         ))}
       </div>
