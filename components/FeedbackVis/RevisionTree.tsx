@@ -46,19 +46,33 @@ type RevisionTreeProps = {
   classes?: string;
 };
 
+const METRIC_CIRCLE_COLOR: Record<
+  MetricKey,
+  { bg: string; border: string; text: string }
+> = {
+  asl: { bg: "bg-sky-400", border: "border-sky-600", text: "text-white" },
+  asw: { bg: "bg-cyan-400", border: "border-cyan-600", text: "text-white" },
+  aoa: { bg: "bg-amber-400", border: "border-amber-600", text: "text-white" },
+  concreteness: { bg: "bg-emerald-400", border: "border-emerald-600", text: "text-white" },
+};
+
 function classifyFeedbackMetric(feedback: FeedbackItem): MetricKey {
-  const feedbackType = String(feedback.type || "").toLowerCase();
+  const feedbackType = String(feedback.type || "").trim().toLowerCase();
   const content = String(feedback.content || "").toLowerCase();
   const revised = String(feedback.revisedContent || "").toLowerCase();
   const mergedText = `${feedbackType} ${content} ${revised}`;
 
   if (feedback.source === READABILITY_SOURCE_ID) {
+    if (feedbackType === "asl") return "asl";
+    if (feedbackType === "asw") return "asw";
     if (mergedText.includes("asw")) return "asw";
     if (mergedText.includes("asl")) return "asl";
     return "asl";
   }
 
   if (feedback.source === PSYCH_SOURCE_ID) {
+    if (feedbackType === "aoa") return "aoa";
+    if (feedbackType === "concreteness") return "concreteness";
     if (
       mergedText.includes("concrete") ||
       mergedText.includes("concreteness") ||
@@ -191,6 +205,21 @@ function TreeNode({
   );
 }
 
+function getCircleDiameter(
+  actionability: number | undefined,
+  minActionability: number,
+  maxActionability: number,
+): number {
+  const minDiameter = 20;
+  const maxDiameter = 34;
+  const value = typeof actionability === "number" ? actionability : minActionability;
+  if (Math.abs(maxActionability - minActionability) < 0.001) {
+    return 26;
+  }
+  const normalized = (value - minActionability) / (maxActionability - minActionability);
+  return minDiameter + normalized * (maxDiameter - minDiameter);
+}
+
 const RevisionTree = (props: RevisionTreeProps) => {
   const allFeedback = useFeedbackStore((state) => state.feedback);
   const generatedFeedback = useMemo(
@@ -222,6 +251,13 @@ const RevisionTree = (props: RevisionTreeProps) => {
       ),
     [generatedFeedback, psychMetrics.meanAoA, psychMetrics.meanConcreteness, readabilityMetrics.asl, readabilityMetrics.asw, targetAudienceLevel],
   );
+  const [minActionability, maxActionability] = useMemo(() => {
+    if (!generatedFeedback.length) return [0, 1] as const;
+    const values = generatedFeedback.map((item) =>
+      typeof item.actionability === "number" ? item.actionability : 0,
+    );
+    return [Math.min(...values), Math.max(...values)] as const;
+  }, [generatedFeedback]);
 
   const {
     currentSelectedItems,
@@ -297,41 +333,65 @@ const RevisionTree = (props: RevisionTreeProps) => {
                               </div>
                             </div>
                           ) : null}
-                          {metricNode.children.map((feedback, index) => {
-                            const selected = currentSelectedItems.includes(feedback.id);
-                            return (
-                              <div
-                                key={feedback.id}
-                                className="relative z-10 flex w-full items-center justify-center"
-                              >
-                                <div className="h-px w-4 bg-base-300" />
-                                <button
-                                  className={cn(
-                                    "rounded border px-2 py-1 text-2xs transition-colors",
-                                    selected
-                                      ? "border-sky-300 bg-sky-50"
-                                      : "border-base-300 bg-white hover:bg-base-200",
-                                  )}
-                                  onClick={() => {
-                                    setCurrentSelectedItems([feedback.id]);
-                                    setCurrentSelectedSentences(feedback.detection || []);
-                                    setHoveredProvider(feedback.source);
-                                    setHoveredItem(feedback.id);
-                                    eventTracker({
-                                      action: "revision tree item selected",
-                                      data: {
-                                        node: rootNode.title,
-                                        metric: metricNode.title,
-                                        feedbackId: feedback.id,
-                                      },
-                                    });
-                                  }}
-                                >
-                                  Node {index + 1}
-                                </button>
+                          {metricNode.children.length === 0 ? (
+                            <div className="relative z-10 flex w-full items-center justify-center">
+                              <div className="h-px w-4 bg-base-300" />
+                              <div className="rounded border border-dashed border-base-300 bg-white px-2 py-1 text-2xs opacity-60">
+                                waiting
                               </div>
-                            );
-                          })}
+                            </div>
+                          ) : (
+                            <div className="relative z-10 flex w-full items-center justify-center">
+                              <div className="h-px w-4 bg-base-300" />
+                              <div className="flex max-w-[170px] flex-wrap justify-center gap-2">
+                                {metricNode.children.map((feedback, index) => {
+                                  const selected = currentSelectedItems.includes(feedback.id);
+                                  const diameter = getCircleDiameter(
+                                    feedback.actionability,
+                                    minActionability,
+                                    maxActionability,
+                                  );
+                                  const color = METRIC_CIRCLE_COLOR[metricNode.key];
+
+                                  return (
+                                    <button
+                                      key={feedback.id}
+                                      title={`${feedback.content}\nActionability: ${(
+                                        feedback.actionability ?? 0
+                                      ).toFixed(2)}`}
+                                      className={cn(
+                                        "flex items-center justify-center rounded-full border-2 text-2xs font-semibold transition-all",
+                                        selected
+                                          ? "bg-zinc-300 border-zinc-500 text-zinc-800"
+                                          : `${color.bg} ${color.border} ${color.text} hover:scale-105`,
+                                      )}
+                                      style={{
+                                        width: `${diameter}px`,
+                                        height: `${diameter}px`,
+                                      }}
+                                      onClick={() => {
+                                        setCurrentSelectedItems([feedback.id]);
+                                        setCurrentSelectedSentences(feedback.detection || []);
+                                        setHoveredProvider(feedback.source);
+                                        setHoveredItem(feedback.id);
+                                        eventTracker({
+                                          action: "revision tree circle selected",
+                                          data: {
+                                            node: rootNode.title,
+                                            metric: metricNode.title,
+                                            feedbackId: feedback.id,
+                                            actionability: feedback.actionability,
+                                          },
+                                        });
+                                      }}
+                                    >
+                                      {index + 1}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
