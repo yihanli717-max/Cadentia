@@ -81,30 +81,38 @@ function getDirectionHint(
   if (key === "asl") {
     if (readabilityMetrics.asl === null) return null;
     const diff = readabilityMetrics.asl - readabilityBenchmarks[userLevel].ASL_BENCHMARK;
-    if (Math.abs(diff) < DIRECTION_EPSILON) return "ASL is on benchmark";
-    return diff > 0 ? "need to lower ASL" : "need to raise ASL";
+    if (Math.abs(diff) < DIRECTION_EPSILON) return "ASL is on benchmark; keep sentence length stable.";
+    return diff > 0
+      ? "need to lower ASL by splitting long sentences and removing extra clauses."
+      : "need to raise ASL by combining short sentences and adding linking clauses.";
   }
 
   if (key === "asw") {
     if (readabilityMetrics.asw === null) return null;
     const diff = readabilityMetrics.asw - readabilityBenchmarks[userLevel].ASW_BENCHMARK;
-    if (Math.abs(diff) < DIRECTION_EPSILON) return "ASW is on benchmark";
-    return diff > 0 ? "need to lower ASW" : "need to raise ASW";
+    if (Math.abs(diff) < DIRECTION_EPSILON) return "ASW is on benchmark; keep word complexity balanced.";
+    return diff > 0
+      ? "need to lower ASW by replacing multi-syllable words with simpler synonyms."
+      : "need to raise ASW by using more precise, higher-level vocabulary.";
   }
 
   if (key === "aoa") {
     if (psychMetrics.meanAoA === null) return null;
     const diff = psychMetrics.meanAoA - psychBenchmarks[userLevel].meanAoA;
-    if (Math.abs(diff) < DIRECTION_EPSILON) return "AoA is on benchmark";
-    return diff > 0 ? "need to lower AoA" : "need to raise AoA";
+    if (Math.abs(diff) < DIRECTION_EPSILON) return "AoA is on benchmark; maintain current lexical acquisition level.";
+    return diff > 0
+      ? "need to lower AoA by replacing late-acquired words with earlier-acquired alternatives."
+      : "need to raise AoA by adding more advanced, domain-appropriate terms.";
   }
 
   if (psychMetrics.meanConcreteness === null) return null;
   const diff = psychMetrics.meanConcreteness - psychBenchmarks[userLevel].meanConcreteness;
-  if (Math.abs(diff) < DIRECTION_EPSILON) return "Concreteness is on benchmark";
+  if (Math.abs(diff) < DIRECTION_EPSILON) {
+    return "Concreteness is on benchmark; keep abstract-concrete balance.";
+  }
   return diff > 0
-    ? "need to lower Concreteness"
-    : "need to raise Concreteness";
+    ? "need to lower Concreteness by abstracting concrete examples into concepts."
+    : "need to raise Concreteness by adding specific examples and tangible wording.";
 }
 
 function buildTree(
