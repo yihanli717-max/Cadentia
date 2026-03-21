@@ -131,7 +131,7 @@ const RevisionTree = (props: RevisionTreeProps) => {
   return (
     <div
       className={cn(
-        "absolute top-[112px] left-3 right-[76px] bottom-16 rounded-md border border-base-200 bg-base-100 p-3 overflow-auto",
+        "absolute top-[32px] left-3 right-[6px] bottom-16 rounded-md border border-base-200 bg-base-100 p-3 overflow-auto",
         props.classes,
       )}
     >
