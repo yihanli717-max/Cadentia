@@ -261,14 +261,12 @@ const RevisionTree = (props: RevisionTreeProps) => {
 
   const {
     currentSelectedItems,
-    setCurrentSelectedItems,
-    setCurrentSelectedSentences,
+    updateCurrentSelectedItems,
     setHoveredProvider,
     setHoveredItem,
   } = useSharedConfigStore((state) => ({
     currentSelectedItems: state.currentSelectedItems,
-    setCurrentSelectedItems: state.setCurrentSelectedItems,
-    setCurrentSelectedSentences: state.setCurrentSelectedSentences,
+    updateCurrentSelectedItems: state.updateCurrentSelectedItems,
     setHoveredProvider: state.setHoveredProvider,
     setHoveredItem: state.setHoveredItem,
   }));
@@ -370,12 +368,28 @@ const RevisionTree = (props: RevisionTreeProps) => {
                                         height: `${diameter}px`,
                                       }}
                                       onClick={() => {
-                                        setCurrentSelectedItems([feedback.id]);
-                                        setCurrentSelectedSentences(feedback.detection || []);
-                                        setHoveredProvider(feedback.source);
-                                        setHoveredItem(feedback.id);
+                                        const isSelected = currentSelectedItems.includes(
+                                          feedback.id,
+                                        );
+                                        const nextSelectedItems = isSelected
+                                          ? currentSelectedItems.filter(
+                                              (id) => id !== feedback.id,
+                                            )
+                                          : [...currentSelectedItems, feedback.id];
+
+                                        updateCurrentSelectedItems(nextSelectedItems);
+
+                                        if (!isSelected) {
+                                          setHoveredItem(feedback.id);
+                                          setHoveredProvider(null);
+                                        } else {
+                                          setHoveredItem(null);
+                                          setHoveredProvider(null);
+                                        }
                                         eventTracker({
-                                          action: "revision tree circle selected",
+                                          action: isSelected
+                                            ? "revision tree circle deselected"
+                                            : "revision tree circle selected",
                                           data: {
                                             node: rootNode.title,
                                             metric: metricNode.title,

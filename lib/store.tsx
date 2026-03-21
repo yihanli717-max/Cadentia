@@ -370,22 +370,8 @@ export const useSharedConfigStore = create<
         set(
           produce((state) => {
             console.log("update current selected items");
-            // Find added and removed feedback items
-            const oldSelectedItems = state.currentSelectedItems;
-            const addedItems = feedbacks.filter(
-              (id: number) => !oldSelectedItems.includes(id),
-            );
-            const removedItems = oldSelectedItems.filter(
-              (id: number) => !feedbacks.includes(id),
-            );
-
-            console.log("addedItems", addedItems);
-            console.log("removedItems", removedItems);
-
-            // Update currentSelectedItems
             state.currentSelectedItems = feedbacks;
 
-            // Track the event
             eventTracker({
               action: "update selected feedback",
               data: {
@@ -394,57 +380,18 @@ export const useSharedConfigStore = create<
             });
 
             const allFeedback = useFeedbackStore.getState().feedback;
+            const sentenceIds = new Set<number>();
+            feedbacks
+              .map((id) => allFeedback.find((item) => item.id === id))
+              .filter(
+                (feedback): feedback is Exclude<typeof feedback, undefined> =>
+                  !!feedback,
+              )
+              .forEach((feedback) => {
+                feedback.detection?.forEach((id) => sentenceIds.add(id));
+              });
 
-            // If no changes, exit early
-            if (addedItems.length === 0 && removedItems.length === 0) {
-              return;
-            }
-
-            // If there are only additions (no removals), add their sentence IDs to the current set
-            if (addedItems.length > 0 && removedItems.length === 0) {
-              const currentSentenceIds = new Set(
-                state.currentSelectedSentences,
-              );
-
-              addedItems
-                .map((id) => allFeedback.find((item) => item.id === id))
-                .filter(
-                  (feedback): feedback is Exclude<typeof feedback, undefined> =>
-                    !!feedback,
-                )
-                .forEach((feedback) => {
-                  feedback.detection?.forEach((id) =>
-                    currentSentenceIds.add(id),
-                  );
-                });
-
-              state.currentSelectedSentences = Array.from(currentSentenceIds);
-            }
-            // If there are any removals, recalculate the entire set of sentence IDs
-            else if (removedItems.length > 0) {
-              const currentSentenceIds = new Set(
-                state.currentSelectedSentences,
-              );
-
-              removedItems
-                .map((id: number) => allFeedback.find((item) => item.id === id))
-                .filter(
-                  (
-                    feedback: FeedbackItem,
-                  ): feedback is Exclude<typeof feedback, undefined> =>
-                    !!feedback,
-                )
-                .forEach((feedback: FeedbackItem) => {
-                  feedback?.detection?.forEach((id) =>
-                    // remove the sentence from the set if it is already in the set
-                    currentSentenceIds.has(id)
-                      ? currentSentenceIds.delete(id)
-                      : null,
-                  );
-                });
-
-              state.currentSelectedSentences = Array.from(currentSentenceIds);
-            }
+            state.currentSelectedSentences = Array.from(sentenceIds);
           }),
         ),
       setCurrentRevisionItem: (id: number) =>
