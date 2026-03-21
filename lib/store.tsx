@@ -91,6 +91,18 @@ export const useFeedbackStore = create<FeedbackState & FeedbackActions>()(
 );
 
 export type SharedConfigState = {
+  targetAudienceLevel: "simple" | "general" | "knowledgeable";
+  readabilityMetrics: {
+    fres: number | null;
+    asl: number | null;
+    asw: number | null;
+  };
+  psychMetrics: {
+    meanAoA: number | null;
+    lateAoARatio: number | null;
+    meanConcreteness: number | null;
+    abstractRatio: number | null;
+  };
   isLoading: boolean;
   clusterDimension: "type" | "provider";
   numericalDimension: "none" | "actionability" | "specificity" | "length";
@@ -110,6 +122,18 @@ export type SharedConfigState = {
 };
 
 export type SharedConfigActions = {
+  setTargetAudienceLevel: (level: "simple" | "general" | "knowledgeable") => void;
+  setReadabilityMetrics: (metrics: {
+    fres: number | null;
+    asl: number | null;
+    asw: number | null;
+  }) => void;
+  setPsychMetrics: (metrics: {
+    meanAoA: number | null;
+    lateAoARatio: number | null;
+    meanConcreteness: number | null;
+    abstractRatio: number | null;
+  }) => void;
   setLoading: (loading: boolean) => void;
   setClusterDimension: (dimension: "type" | "provider") => void;
   setNumericalDimension: (
@@ -138,6 +162,18 @@ export const useSharedConfigStore = create<
 >()(
   persist(
     (set) => ({
+      targetAudienceLevel: "general",
+      readabilityMetrics: {
+        fres: null,
+        asl: null,
+        asw: null,
+      },
+      psychMetrics: {
+        meanAoA: null,
+        lateAoARatio: null,
+        meanConcreteness: null,
+        abstractRatio: null,
+      },
       isLoading: false,
       clusterDimension: "provider",
       numericalDimension: "none",
@@ -154,6 +190,24 @@ export const useSharedConfigStore = create<
       bubbleRadii: {},
       currentRemovedSentences: [],
       currentReferenceSentence: null,
+      setTargetAudienceLevel: (level) =>
+        set(
+          produce((state) => {
+            state.targetAudienceLevel = level;
+          }),
+        ),
+      setReadabilityMetrics: (metrics) =>
+        set(
+          produce((state) => {
+            state.readabilityMetrics = metrics;
+          }),
+        ),
+      setPsychMetrics: (metrics) =>
+        set(
+          produce((state) => {
+            state.psychMetrics = metrics;
+          }),
+        ),
       setLoading: (loading: boolean) =>
         set(
           produce((state) => {

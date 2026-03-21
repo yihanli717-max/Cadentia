@@ -95,9 +95,14 @@ const Menu = (props: MenuProps) => {
   const [parsedReadabilityFeedback, setParsedReadabilityFeedback] = useState<FeedbackItem[] | null>(null);
   // --- MODIFICATION END ---
 
-  // --- MODIFICATION START: Added state for user level selection ---
-  const [userLevel, setUserLevel] = useState<"simple" | "general" | "knowledgeable">("general");
-  // --- MODIFICATION END ---
+  const userLevel = useSharedConfigStore((state) => state.targetAudienceLevel);
+  const setTargetAudienceLevel = useSharedConfigStore(
+    (state) => state.setTargetAudienceLevel,
+  );
+  const setReadabilityMetrics = useSharedConfigStore(
+    (state) => state.setReadabilityMetrics,
+  );
+  const setPsychMetrics = useSharedConfigStore((state) => state.setPsychMetrics);
 
   // --- MODIFICATION START: Added essay store hook ---
   const essay = useEssayStore((state) => state.essay); // Get the current essay from the store
@@ -127,6 +132,7 @@ const Menu = (props: MenuProps) => {
         setFres(null);
         setAsl(null);
         setAsw(null);
+        setReadabilityMetrics({ fres: null, asl: null, asw: null });
         return;
       }
 
@@ -137,16 +143,23 @@ const Menu = (props: MenuProps) => {
         setFres(data.scores.FRES); // Access FRES from data.scores.FRES
         setAsl(data.scores.ASL);   // Access ASL from data.scores.ASL
         setAsw(data.scores.ASW);   // Access ASW from data.scores.ASW
+        setReadabilityMetrics({
+          fres: data.scores.FRES,
+          asl: data.scores.ASL,
+          asw: data.scores.ASW,
+        });
       } else {
         setFres(null);
         setAsl(null);
         setAsw(null);
+        setReadabilityMetrics({ fres: null, asl: null, asw: null });
       }
     } catch (error) {
       console.error("Failed to fetch FRES:", error);
       setFres(null);
       setAsl(null);
       setAsw(null);
+      setReadabilityMetrics({ fres: null, asl: null, asw: null });
     } finally {
       setReadabilityLoading(false); // End loading
     }
@@ -167,6 +180,12 @@ const Menu = (props: MenuProps) => {
 
       if (!res.ok) {
         setPsychScores(null);
+        setPsychMetrics({
+          meanAoA: null,
+          lateAoARatio: null,
+          meanConcreteness: null,
+          abstractRatio: null,
+        });
         return null;
       }
 
@@ -189,14 +208,32 @@ const Menu = (props: MenuProps) => {
           },
         };
         setPsychScores(nextScores);
+        setPsychMetrics({
+          meanAoA: nextScores.aoa.meanAoA,
+          lateAoARatio: nextScores.aoa.lateAoARatio,
+          meanConcreteness: nextScores.concreteness.meanConcreteness,
+          abstractRatio: nextScores.concreteness.abstractRatio,
+        });
         return nextScores;
       } else {
         setPsychScores(null);
+        setPsychMetrics({
+          meanAoA: null,
+          lateAoARatio: null,
+          meanConcreteness: null,
+          abstractRatio: null,
+        });
         return null;
       }
     } catch (error) {
       console.error("Failed to fetch psycholinguistic scores:", error);
       setPsychScores(null);
+      setPsychMetrics({
+        meanAoA: null,
+        lateAoARatio: null,
+        meanConcreteness: null,
+        abstractRatio: null,
+      });
       return null;
     } finally {
       setPsychLoading(false);
@@ -342,6 +379,13 @@ const Menu = (props: MenuProps) => {
       setAsl(null);  // If essay is empty, clear the ASL
       setAsw(null); // If essay is empty, clear the ASW
       setPsychScores(null);
+      setReadabilityMetrics({ fres: null, asl: null, asw: null });
+      setPsychMetrics({
+        meanAoA: null,
+        lateAoARatio: null,
+        meanConcreteness: null,
+        abstractRatio: null,
+      });
       setReadabilityLoading(false); // Also clear loading state
       setPsychLoading(false);
     }
@@ -668,7 +712,7 @@ const renderPsychMetricComparison = (
             </div>
             <div className="flex flex-row flex-wrap gap-1">
               <button
-                onClick={() => setUserLevel("simple")}
+                onClick={() => setTargetAudienceLevel("simple")}
                 className={cn(
                   "btn btn-xs text-2xs px-2 py-1",
                   userLevel === "simple" ? "btn-active" : "btn-ghost"
@@ -677,7 +721,7 @@ const renderPsychMetricComparison = (
                 Simple
               </button>
               <button
-                onClick={() => setUserLevel("general")}
+                onClick={() => setTargetAudienceLevel("general")}
                 className={cn(
                   "btn btn-xs text-2xs px-2 py-1",
                   userLevel === "general" ? "btn-active" : "btn-ghost"
@@ -686,7 +730,7 @@ const renderPsychMetricComparison = (
                 General
               </button>
               <button
-                onClick={() => setUserLevel("knowledgeable")}
+                onClick={() => setTargetAudienceLevel("knowledgeable")}
                 className={cn(
                   "btn btn-xs text-2xs px-2 py-1",
                   userLevel === "knowledgeable" ? "btn-active" : "btn-ghost"

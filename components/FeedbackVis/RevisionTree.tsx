@@ -5,12 +5,34 @@ import { useFeedbackStore, useSharedConfigStore } from "@/lib/store";
 
 const READABILITY_SOURCE_ID = 100;
 const PSYCH_SOURCE_ID = 101;
+const DIRECTION_EPSILON = 0.05;
+
+type AudienceLevel = "simple" | "general" | "knowledgeable";
+
+const readabilityBenchmarks: Record<
+  AudienceLevel,
+  { ASL_BENCHMARK: number; ASW_BENCHMARK: number }
+> = {
+  simple: { ASL_BENCHMARK: 15, ASW_BENCHMARK: 1.3 },
+  general: { ASL_BENCHMARK: 20, ASW_BENCHMARK: 1.5 },
+  knowledgeable: { ASL_BENCHMARK: 25, ASW_BENCHMARK: 1.7 },
+};
+
+const psychBenchmarks: Record<
+  AudienceLevel,
+  { meanAoA: number; meanConcreteness: number }
+> = {
+  simple: { meanAoA: 2.0, meanConcreteness: 4.25 },
+  general: { meanAoA: 3.75, meanConcreteness: 3.1 },
+  knowledgeable: { meanAoA: 5.75, meanConcreteness: 1.85 },
+};
 
 type MetricKey = "asl" | "asw" | "aoa" | "concreteness";
 
 type MetricNode = {
   key: MetricKey;
   title: string;
+  directionHint: string | null;
   children: FeedbackItem[];
 };
 
@@ -50,21 +72,81 @@ function classifyFeedbackMetric(feedback: FeedbackItem): MetricKey {
   return "asl";
 }
 
-function buildTree(feedbackItems: FeedbackItem[]): RootNode[] {
+function getDirectionHint(
+  key: MetricKey,
+  userLevel: AudienceLevel,
+  readabilityMetrics: { asl: number | null; asw: number | null },
+  psychMetrics: { meanAoA: number | null; meanConcreteness: number | null },
+): string | null {
+  if (key === "asl") {
+    if (readabilityMetrics.asl === null) return null;
+    const diff = readabilityMetrics.asl - readabilityBenchmarks[userLevel].ASL_BENCHMARK;
+    if (Math.abs(diff) < DIRECTION_EPSILON) return "ASL is on benchmark";
+    return diff > 0 ? "need to lower ASL" : "need to raise ASL";
+  }
+
+  if (key === "asw") {
+    if (readabilityMetrics.asw === null) return null;
+    const diff = readabilityMetrics.asw - readabilityBenchmarks[userLevel].ASW_BENCHMARK;
+    if (Math.abs(diff) < DIRECTION_EPSILON) return "ASW is on benchmark";
+    return diff > 0 ? "need to lower ASW" : "need to raise ASW";
+  }
+
+  if (key === "aoa") {
+    if (psychMetrics.meanAoA === null) return null;
+    const diff = psychMetrics.meanAoA - psychBenchmarks[userLevel].meanAoA;
+    if (Math.abs(diff) < DIRECTION_EPSILON) return "AoA is on benchmark";
+    return diff > 0 ? "need to lower AoA" : "need to raise AoA";
+  }
+
+  if (psychMetrics.meanConcreteness === null) return null;
+  const diff = psychMetrics.meanConcreteness - psychBenchmarks[userLevel].meanConcreteness;
+  if (Math.abs(diff) < DIRECTION_EPSILON) return "Concreteness is on benchmark";
+  return diff > 0
+    ? "need to lower Concreteness"
+    : "need to raise Concreteness";
+}
+
+function buildTree(
+  feedbackItems: FeedbackItem[],
+  userLevel: AudienceLevel,
+  readabilityMetrics: { asl: number | null; asw: number | null },
+  psychMetrics: { meanAoA: number | null; meanConcreteness: number | null },
+): RootNode[] {
   const readability: RootNode = {
     key: "readability",
     title: "Readability",
     metrics: [
-      { key: "asl", title: "ASL", children: [] },
-      { key: "asw", title: "ASW", children: [] },
+      {
+        key: "asl",
+        title: "ASL",
+        directionHint: getDirectionHint("asl", userLevel, readabilityMetrics, psychMetrics),
+        children: [],
+      },
+      {
+        key: "asw",
+        title: "ASW",
+        directionHint: getDirectionHint("asw", userLevel, readabilityMetrics, psychMetrics),
+        children: [],
+      },
     ],
   };
   const psycholinguistic: RootNode = {
     key: "psycholinguistic",
     title: "Psycholinguistic",
     metrics: [
-      { key: "aoa", title: "AoA", children: [] },
-      { key: "concreteness", title: "Concreteness", children: [] },
+      {
+        key: "aoa",
+        title: "AoA",
+        directionHint: getDirectionHint("aoa", userLevel, readabilityMetrics, psychMetrics),
+        children: [],
+      },
+      {
+        key: "concreteness",
+        title: "Concreteness",
+        directionHint: getDirectionHint("concreteness", userLevel, readabilityMetrics, psychMetrics),
+        children: [],
+      },
     ],
   };
 
@@ -112,7 +194,26 @@ const RevisionTree = (props: RevisionTreeProps) => {
       ),
     [allFeedback],
   );
-  const treeData = useMemo(() => buildTree(generatedFeedback), [generatedFeedback]);
+  const { targetAudienceLevel, readabilityMetrics, psychMetrics } = useSharedConfigStore(
+    (state) => ({
+      targetAudienceLevel: state.targetAudienceLevel,
+      readabilityMetrics: state.readabilityMetrics,
+      psychMetrics: state.psychMetrics,
+    }),
+  );
+  const treeData = useMemo(
+    () =>
+      buildTree(
+        generatedFeedback,
+        targetAudienceLevel,
+        { asl: readabilityMetrics.asl, asw: readabilityMetrics.asw },
+        {
+          meanAoA: psychMetrics.meanAoA,
+          meanConcreteness: psychMetrics.meanConcreteness,
+        },
+      ),
+    [generatedFeedback, psychMetrics.meanAoA, psychMetrics.meanConcreteness, readabilityMetrics.asl, readabilityMetrics.asw, targetAudienceLevel],
+  );
 
   const {
     currentSelectedItems,
@@ -170,7 +271,7 @@ const RevisionTree = (props: RevisionTreeProps) => {
                       <TreeNode label={metricNode.title} />
                       <div className="h-3 w-px bg-base-300" />
 
-                      {metricNode.children.length === 0 ? (
+                      {metricNode.children.length === 0 && !metricNode.directionHint ? (
                         <div className="flex items-center">
                           <div className="h-px w-4 bg-base-300" />
                           <div className="rounded border border-dashed border-base-300 bg-white px-2 py-1 text-2xs opacity-60">
@@ -180,6 +281,14 @@ const RevisionTree = (props: RevisionTreeProps) => {
                       ) : (
                         <div className="relative flex w-full flex-col items-center gap-2 pt-1">
                           <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-base-300" />
+                          {metricNode.directionHint ? (
+                            <div className="relative z-10 flex w-full items-center justify-center">
+                              <div className="h-px w-4 bg-base-300" />
+                              <div className="rounded border border-amber-300 bg-amber-50 px-2 py-1 text-2xs font-semibold text-amber-800">
+                                {metricNode.directionHint}
+                              </div>
+                            </div>
+                          ) : null}
                           {metricNode.children.map((feedback, index) => {
                             const selected = currentSelectedItems.includes(feedback.id);
                             return (
