@@ -1,12 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import { essay as essay0 } from "@/data/essay0";
 import { feedback as feedback0 } from "@/data/feedback0";
 import { feedbackSource as feedbackSource0 } from "@/data/source0";
-import { essay as essay1 } from "@/data/essay1";
 import { feedback as feedback1 } from "@/data/feedback1";
 import { feedbackSource as feedbackSource1 } from "@/data/source1";
-import { essay as essay2 } from "@/data/essay2";
 import { feedback as feedback2 } from "@/data/feedback2";
 import { feedbackSource as feedbackSource2 } from "@/data/source2";
 import {
@@ -53,7 +50,6 @@ const EntryPanel = (props: EntryPanelProps) => {
         : dataset === 1
           ? await loadEmbeddings("embeddings1.json")
           : await loadEmbeddings("embeddings2.json");
-    const essay = dataset === 0 ? essay0 : dataset === 1 ? essay1 : essay2;
     const feedback =
       dataset === 0 ? feedback0 : dataset === 1 ? feedback1 : feedback2;
     const feedbackSource =
@@ -63,7 +59,7 @@ const EntryPanel = (props: EntryPanelProps) => {
           ? feedbackSource1
           : feedbackSource2;
 
-    useEssayStore.setState({ essay: essay });
+    useEssayStore.setState({ essay: [] });
     useFeedbackSourceStore.setState({ feedbackSource: feedbackSource });
     // useFeedbackStore.setState({ feedback: feedback })
 
