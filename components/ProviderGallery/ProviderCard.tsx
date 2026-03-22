@@ -6,6 +6,7 @@ import {
   useSharedConfigStore,
   useFeedbackStore,
   useRevisionListStore,
+  useEssayStore,
 } from "@/lib/store";
 import { noto_serif } from "@/app/fonts";
 import { cosineSimilarity } from "fast-cosine-similarity";
@@ -38,7 +39,11 @@ type ProviderCardProps = {
 
 export const ProviderCard = (props: ProviderCardProps) => {
   const [selectBtn, setSelectBtn] = useState("Select All");
+  const [showFinalAnswerByFeedback, setShowFinalAnswerByFeedback] = useState<
+    Record<number, boolean>
+  >({});
   const revisionList = useRevisionListStore((state) => state.revisionList);
+  const essay = useEssayStore((state) => state.essay);
   const [isExpanded, setIsExpanded] = useState(false);
   const allFeedbackItems = useFeedbackStore((state) => state.feedback);
   const {
@@ -167,6 +172,105 @@ export const ProviderCard = (props: ProviderCardProps) => {
   };
 
   const renderGeneratedSuggestions = () => {
+    const countSentences = (value: string) =>
+      value
+        .split(/[.!?]+/)
+        .map((part) => part.trim())
+        .filter(Boolean).length;
+
+    const countWords = (value: string) =>
+      value
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean).length;
+
+    const maskWord = (word: string) => {
+      if (!word) return word;
+      if (word.length <= 1) return "_";
+      if (word.length <= 3) return `${word[0]}${"_".repeat(word.length - 1)}`;
+      return `${word[0]}${"_".repeat(word.length - 2)}${word[word.length - 1]}`;
+    };
+
+    const maskPhrase = (text: string) =>
+      text.replace(/[A-Za-z']+/g, (token) => maskWord(token));
+
+    const getOriginalSentenceFromDetection = (feedbackId: number, detection: number[]) => {
+      if (!detection?.length) return "";
+      const sentenceId = detection[0];
+      return essay.find((sentence) => sentence.id === sentenceId)?.content || "";
+    };
+
+    const buildAslIntermediate = (
+      originalSentence: string,
+      revisedSentence: string,
+    ) => {
+      const original = originalSentence.trim();
+      const revised = revisedSentence.trim();
+      const originalCount = countSentences(original);
+      const revisedCount = countSentences(revised);
+      const originalWords = countWords(original);
+      const revisedWords = countWords(revised);
+
+      let mode: "raise" | "lower" | "adjust" = "adjust";
+      if (revisedCount < originalCount) mode = "raise";
+      else if (revisedCount > originalCount) mode = "lower";
+      else if (revisedWords > originalWords + 2) mode = "raise";
+      else if (revisedWords < originalWords - 2) mode = "lower";
+
+      const cueSentence = original || "the detected sentence";
+
+      if (mode === "raise") {
+        return `[ASL Raise Template]
+1. Find two short clauses that share a subject.
+2. Keep one clause as the main clause.
+3. Merge the other clause using a connector or relative clause.
+Cue: combine around "${cueSentence}".`;
+      }
+      if (mode === "lower") {
+        return `[ASL Lower Template]
+1. Find a long sentence with multiple clauses.
+2. Split at a natural clause boundary.
+3. Keep one core idea per sentence and keep a clear connector.
+Cue: split around "${cueSentence}".`;
+      }
+      return `[ASL Adjustment Template]
+1. Check clause density in the detected sentence.
+2. Split or merge one clause based on readability goal.
+3. Keep grammar and logic intact after restructuring.
+Cue: revise "${cueSentence}" with one sentence-length move.`;
+    };
+
+    const buildIntermediateAnswer = (feedback: any) => {
+      const type = String(feedback.type || "").toLowerCase();
+      const finalAnswer = String(feedback.revisedContent || "");
+      if (!finalAnswer) return "";
+
+      if (type === "asl") {
+        const originalSentence = getOriginalSentenceFromDetection(
+          feedback.id,
+          feedback.detection || [],
+        );
+        return buildAslIntermediate(originalSentence, finalAnswer);
+      }
+
+      if (type === "asw" || type === "aoa" || type === "concreteness") {
+        return maskPhrase(finalAnswer);
+      }
+
+      return finalAnswer;
+    };
+
+    const canToggleAnswerState = (feedback: any) => {
+      const type = String(feedback.type || "").toLowerCase();
+      if (!feedback.revisedContent) return false;
+      return (
+        type === "asl" ||
+        type === "asw" ||
+        type === "aoa" ||
+        type === "concreteness"
+      );
+    };
+
     if (relatedFeedbacks.length === 0) {
       return (
         <span className="font-medium">
@@ -193,9 +297,38 @@ export const ProviderCard = (props: ProviderCardProps) => {
                     (click to hide)
                   </span>
                 </summary>
-                <p className="mt-2 text-xs text-neutral-600 whitespace-pre-wrap">
-                  {feedback.revisedContent}
-                </p>
+                {canToggleAnswerState(feedback) ? (
+                  <div className="mt-2 flex items-start gap-2">
+                    <p className="flex-1 text-xs text-neutral-600 whitespace-pre-wrap">
+                      {showFinalAnswerByFeedback[feedback.id]
+                        ? feedback.revisedContent
+                        : buildIntermediateAnswer(feedback)}
+                    </p>
+                    <button
+                      type="button"
+                      className="btn btn-xs btn-ghost min-h-0 h-5 px-1 leading-none"
+                      title={
+                        showFinalAnswerByFeedback[feedback.id]
+                          ? "Back to hint"
+                          : "Show final answer"
+                      }
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        setShowFinalAnswerByFeedback((prev) => ({
+                          ...prev,
+                          [feedback.id]: !prev[feedback.id],
+                        }));
+                      }}
+                    >
+                      {showFinalAnswerByFeedback[feedback.id] ? "←" : "→"}
+                    </button>
+                  </div>
+                ) : (
+                  <p className="mt-2 text-xs text-neutral-600 whitespace-pre-wrap">
+                    {feedback.revisedContent}
+                  </p>
+                )}
               </details>
             ) : (
               <p className="text-xs font-semibold text-neutral-700">
