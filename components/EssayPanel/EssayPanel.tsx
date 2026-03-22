@@ -18,6 +18,7 @@ import { TbCheck, TbEdit, TbRefresh } from "react-icons/tb";
 const SENTENCE_MENU_ID = "sentence-context-menu";
 const EDIT_MENU_ID = "edit-context-menu";
 const REGENERATE_MENU_ID = "regenerate-context-menu";
+const READABILITY_SOURCE_ID = 100;
 const PSYCH_SOURCE_ID = 101;
 
 interface EssayPanelProps {
@@ -67,48 +68,61 @@ const EssayPanel = (props: EssayPanelProps) => {
     [allFeedback, hoveredItem],
   );
 
-  const psychHighlightWordsBySentence = useMemo(() => {
-    const map = new Map<number, Set<string>>();
+  const lexicalHighlightBySentence = useMemo(() => {
+    const map = new Map<number, Map<string, "red" | "orange">>();
+    const lexicalTypeToColor = (feedback: any): "red" | "orange" | null => {
+      const type = String(feedback.type || "").toLowerCase();
+      if (feedback.source === READABILITY_SOURCE_ID && type === "asw") return "red";
+      if (feedback.source === PSYCH_SOURCE_ID && type === "aoa") return "red";
+      if (feedback.source === PSYCH_SOURCE_ID && type === "concreteness") return "orange";
+      return null;
+    };
 
-    const selectedPsychFeedbacks = allFeedback.filter(
-      (item) =>
-        item.source === PSYCH_SOURCE_ID && currentSelectedItems.includes(item.id),
-    );
+    const selectedLexicalFeedbacks = allFeedback.filter((item) => {
+      if (!currentSelectedItems.includes(item.id)) return false;
+      return lexicalTypeToColor(item) !== null;
+    });
 
-    const activePsychFeedbacks =
-      hoveredFeedback && hoveredFeedback.source === PSYCH_SOURCE_ID
-        ? [
-            hoveredFeedback,
-            ...selectedPsychFeedbacks.filter((item) => item.id !== hoveredFeedback.id),
-          ]
-        : selectedPsychFeedbacks;
+    const activeLexicalFeedbacks = [
+      ...selectedLexicalFeedbacks,
+      ...(hoveredFeedback && lexicalTypeToColor(hoveredFeedback) ? [hoveredFeedback] : []),
+    ];
 
-    activePsychFeedbacks.forEach((feedback) => {
+    activeLexicalFeedbacks.forEach((feedback) => {
+      const color = lexicalTypeToColor(feedback);
+      if (!color) return;
+
       const words = (feedback.highlightWords || [])
         .filter((word) => typeof word === "string" && word.trim().length > 0)
         .map((word) => word.toLowerCase());
-
       if (!words.length) return;
-      const targetSentenceIds =
-        feedback.detection && feedback.detection.length > 0
-          ? feedback.detection
-          : essay.map((s) => s.id);
 
-      targetSentenceIds.forEach((sentenceId) => {
-        if (!map.has(sentenceId)) map.set(sentenceId, new Set<string>());
-        const sentenceWordSet = map.get(sentenceId);
-        words.forEach((word) => sentenceWordSet?.add(word));
+      const targetSentenceIds =
+        feedback.detection && feedback.detection.length > 0 ? feedback.detection : [];
+      if (!targetSentenceIds.length) return;
+
+      targetSentenceIds.forEach((sentenceId: number) => {
+        if (!map.has(sentenceId)) map.set(sentenceId, new Map<string, "red" | "orange">());
+        const sentenceWordMap = map.get(sentenceId);
+        words.forEach((word) => {
+          const existing = sentenceWordMap?.get(word);
+          if (!existing) {
+            sentenceWordMap?.set(word, color);
+          } else if (existing !== "red" && color === "red") {
+            sentenceWordMap?.set(word, color);
+          }
+        });
       });
     });
 
     return map;
-  }, [allFeedback, currentSelectedItems, hoveredFeedback, essay]);
+  }, [allFeedback, currentSelectedItems, hoveredFeedback]);
 
-  const renderSentenceWithPsychWordHighlight = (
+  const renderSentenceWithLexicalHighlight = (
     sentenceText: string,
     sentenceId: number,
   ) => {
-    const sentenceHighlightWords = psychHighlightWordsBySentence.get(sentenceId);
+    const sentenceHighlightWords = lexicalHighlightBySentence.get(sentenceId);
     if (!sentenceHighlightWords || sentenceHighlightWords.size === 0) {
       return sentenceText + " ";
     }
@@ -119,9 +133,17 @@ const EssayPanel = (props: EssayPanelProps) => {
         {parts.map((part, idx) => {
           if (!part) return null;
           const normalized = part.toLowerCase().replace(/^[^a-z']+|[^a-z']+$/g, "");
-          if (normalized && sentenceHighlightWords.has(normalized)) {
+          const color = normalized ? sentenceHighlightWords.get(normalized) : null;
+          if (normalized && color) {
             return (
-              <span key={`${part}-${idx}`} className="text-red-500 font-semibold">
+              <span
+                key={`${part}-${idx}`}
+                className={
+                  color === "red"
+                    ? "text-red-500 font-semibold"
+                    : "text-orange-500 font-semibold"
+                }
+              >
                 {part}
               </span>
             );
@@ -309,7 +331,7 @@ const EssayPanel = (props: EssayPanelProps) => {
                       // if senction.content exit in revisionObject's revision's orginal, then show the revision content
                       (revisionObject?.revision.find(
                         (item) => item.original === section.content,
-                      )?.revised || renderSentenceWithPsychWordHighlight(section.content, section.id))
+                      )?.revised || renderSentenceWithLexicalHighlight(section.content, section.id))
                     )}
                   </span>
                   {revisionObject?.revision.find(

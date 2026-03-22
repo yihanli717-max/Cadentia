@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
 const userLevelConfigs = {
   'simple': { MIN_TARGET: 80, MAX_TARGET: 90, ASL_BENCHMARK: 15, ASW_BENCHMARK: 1.3 },
@@ -6,9 +6,9 @@ const userLevelConfigs = {
   'knowledgeable': { MIN_TARGET: 30, MAX_TARGET: 50, ASL_BENCHMARK: 25, ASW_BENCHMARK: 1.7 },
 };
 
-// 定义 FeedbackItem 的类型（确保与您的 lib/type.tsx 中定义一致）
+// 瀹氫箟 FeedbackItem 鐨勭被鍨嬶紙纭繚涓庢偍鐨?lib/type.tsx 涓畾涔変竴鑷达級
 type FeedbackItem = {
-  id: number; // 使用 number，以便前端沿用现有逻辑
+  id: number; // 浣跨敤 number锛屼互渚垮墠绔部鐢ㄧ幇鏈夐€昏緫
   source: number;
   provider: string;
   content: string;
@@ -17,28 +17,29 @@ type FeedbackItem = {
   specificity: number;
   justification: number;
   sentiment: number;
-  detection: number[]; // 这是关键，用于定位原文句子的 ID 数组
+  detection: number[]; // 杩欐槸鍏抽敭锛岀敤浜庡畾浣嶅師鏂囧彞瀛愮殑 ID 鏁扮粍
   sentence_count: number;
   word_count: number;
   none: number;
-  // 可以添加自定义字段来存储修订内容
-  revisedContent?: string; // 可选字段，存储修订示例
+  // 鍙互娣诲姞鑷畾涔夊瓧娈垫潵瀛樺偍淇鍐呭
+  revisedContent?: string; // 鍙€夊瓧娈碉紝瀛樺偍淇绀轰緥
+  highlightWords?: string[];
 };
 
 // --- MODIFICATION START: Rename 'details' field to avoid conflict ---
-// 定义 API 响应的类型
+// 瀹氫箟 API 鍝嶅簲鐨勭被鍨?
 type ReadabilitySuggestionResponse = {
   success: boolean;
   feedbackItems?: FeedbackItem[];
   message?: string;
-  dashscopeErrorDetails?: any; // 重命名字段，避免与 DashScope API 的 'details' 冲突
+  dashscopeErrorDetails?: any; // 閲嶅懡鍚嶅瓧娈碉紝閬垮厤涓?DashScope API 鐨?'details' 鍐茬獊
 };
 // --- MODIFICATION END ---
 
 export async function POST(request: Request) {
   try {
-    // 1. 接收前端发送的当前指标、文本和句子信息
-    const { fres, asl, asw, text, essay, userLevel } = await request.json(); // <--- 添加 userLevel 参数
+    // 1. 鎺ユ敹鍓嶇鍙戦€佺殑褰撳墠鎸囨爣銆佹枃鏈拰鍙ュ瓙淇℃伅
+    const { fres, asl, asw, text, essay, userLevel } = await request.json(); // <--- 娣诲姞 userLevel 鍙傛暟
 
     const apiKey = process.env.DASHSCOPE_API_KEY;
 
@@ -56,25 +57,26 @@ export async function POST(request: Request) {
       );
     }
 
-    // 根据用户选择的级别获取对应的配置
+    // 鏍规嵁鐢ㄦ埛閫夋嫨鐨勭骇鍒幏鍙栧搴旂殑閰嶇疆
     type UserLevel = 'simple' | 'general' | 'knowledgeable';
     const level: UserLevel = (userLevel === 'simple' || userLevel === 'general' || userLevel === 'knowledgeable') 
       ? userLevel as UserLevel
-      : 'general'; // 默认使用 'general'
+      : 'general'; // 榛樿浣跨敤 'general'
     const config = userLevelConfigs[level];
 
-    // 2. 创建独立的 Prompt 模板函数
+    // 2. 鍒涘缓鐙珛鐨?Prompt 妯℃澘鍑芥暟
     const createASLPrompt = (fres: number, asl: number, asw: number, text: string) => {
-      // 定义目标范围
+      // 瀹氫箟鐩爣鑼冨洿
       const MIN_TARGET = config.MIN_TARGET;
       const MAX_TARGET = config.MAX_TARGET;
+      const aslStatus = asl < config.ASL_BENCHMARK ? "below" : asl > config.ASL_BENCHMARK ? "above" : "within";
     
-      // 1. 确定优化方向和具体指令
+      // 1. 纭畾浼樺寲鏂瑰悜鍜屽叿浣撴寚浠?
       let goalDescription = "";
       let specificInstructions = "";
     
       if (fres < MIN_TARGET) {
-        // 场景 A：分数太低（太难），需要增加分数 -> 降低 ASL
+        // 鍦烘櫙 A锛氬垎鏁板お浣庯紙澶毦锛夛紝闇€瑕佸鍔犲垎鏁?-> 闄嶄綆 ASL
         goalDescription = `The current FRES (${fres}) is BELOW the target range (${MIN_TARGET}-${MAX_TARGET}). The text is too difficult to read. We need to **INCREASE** the score by **DECREASING** Average Sentence Length (ASL).`;
         specificInstructions = `
     - **Shorten sentences:** Break long, complex sentences into two or more shorter sentences.
@@ -83,7 +85,7 @@ export async function POST(request: Request) {
     - **Aim for clarity:** Make the text punchier and more direct.`;
     
       } else if (fres > MAX_TARGET) {
-        // 场景 B：分数太高（太简单），需要降低分数 -> 增加 ASL
+        // 鍦烘櫙 B锛氬垎鏁板お楂橈紙澶畝鍗曪級锛岄渶瑕侀檷浣庡垎鏁?-> 澧炲姞 ASL
         goalDescription = `The current FRES (${fres}) is ABOVE the target range (${MIN_TARGET}-${MAX_TARGET}). The text is too simple or choppy. We need to **DECREASE** the score by **INCREASING** Average Sentence Length (ASL) to achieve a more professional or mature flow.`;
         specificInstructions = `
     - **Combine sentences:** Merge short, choppy sentences into compound or complex sentences using appropriate conjunctions (and, but, although, because).
@@ -92,7 +94,7 @@ export async function POST(request: Request) {
     - **Avoid fragmentation:** Ensure the text reads as a cohesive narrative rather than a list of simple statements.`;
     
       } else {
-        // 场景 C：分数在范围内
+        // 鍦烘櫙 C锛氬垎鏁板湪鑼冨洿鍐?
         goalDescription = `The current FRES (${fres}) is WITHIN the target range (${MIN_TARGET}-${MAX_TARGET}). The readability is generally good.`;
         specificInstructions = `
     - Focus on maintaining the current Average Sentence Length while ensuring sentence variety.
@@ -100,7 +102,7 @@ export async function POST(request: Request) {
     - Ensure the rhythm of the text is engaging.`;
       }
     
-      // 2. 生成最终 Prompt
+      // 2. 鐢熸垚鏈€缁?Prompt
       return `
     You are an expert writing coach analyzing text readability using the Flesch Reading-Ease Score (FRES).
     
@@ -122,7 +124,11 @@ export async function POST(request: Request) {
     ${specificInstructions}
     
     **Output Requirement:**
-    Provide 3-5 specific, actionable suggestions as many as possible. For each suggestion, provide an example in this format:
+    Per-metric quota rule for ASL:
+    - If ASL is NOT on benchmark (status: ${aslStatus}), you MUST provide 1-5 suggestions targeting ASL.
+    - If ASL is on benchmark (status: ${aslStatus}), you may provide 0 suggestions.
+
+    For each suggestion, provide an example in this format:
     - **Original:** "[exact sentence(s) from text]"
     - **Revised:** "[suggested revision]" (Make sure this revision reflects the goal of ${fres < MIN_TARGET ? "shortening" : "lengthening/combining"} sentences)
     
@@ -141,12 +147,13 @@ export async function POST(request: Request) {
     const createASWPrompt = (fres: number, asl: number, asw: number, text: string) => {
       const MIN_TARGET = config.MIN_TARGET;
       const MAX_TARGET = config.MAX_TARGET;
+      const aswStatus = asw < config.ASW_BENCHMARK ? "below" : asw > config.ASW_BENCHMARK ? "above" : "within";
     
       let goalDescription = "";
       let specificInstructions = "";
     
       if (fres < MIN_TARGET) {
-        // 场景 A：分数太低（太难） -> 需要降低 ASW
+        // 鍦烘櫙 A锛氬垎鏁板お浣庯紙澶毦锛?-> 闇€瑕侀檷浣?ASW
         goalDescription = `The current FRES (${fres}) is BELOW the target range (${MIN_TARGET}-${MAX_TARGET}). The vocabulary is likely too complex or academic. We need to **INCREASE** the score by **DECREASING** Average Syllables per Word (ASW).`;
         specificInstructions = `
     - **Simplify Vocabulary:** Replace long, multi-syllable words with shorter, simpler synonyms (e.g., use "buy" instead of "purchase", "use" instead of "utilize").
@@ -155,7 +162,7 @@ export async function POST(request: Request) {
     - **Aim for Accessibility:** Make the word choices understandable to a wider audience.`;
     
       } else if (fres > MAX_TARGET) {
-        // 场景 B：分数太高（太简单） -> 需要提高 ASW
+        // 鍦烘櫙 B锛氬垎鏁板お楂橈紙澶畝鍗曪級 -> 闇€瑕佹彁楂?ASW
         goalDescription = `The current FRES (${fres}) is ABOVE the target range (${MIN_TARGET}-${MAX_TARGET}). The vocabulary may feel too childish, generic, or repetitive. We need to **DECREASE** the score by **INCREASING** Average Syllables per Word (ASW) to achieve a more professional tone.`;
         specificInstructions = `
     - **Enhance Precision:** Replace generic, single-syllable words with more precise, multi-syllable alternatives (e.g., use "demonstrate" instead of "show", "significant" instead of "big").
@@ -164,7 +171,7 @@ export async function POST(request: Request) {
     - **Specific Terminology:** Use industry-appropriate terminology where it adds clarity and authority, even if the words are longer.`;
     
       } else {
-        // 场景 C：分数达标
+        // 鍦烘櫙 C锛氬垎鏁拌揪鏍?
         goalDescription = `The current FRES (${fres}) is WITHIN the target range (${MIN_TARGET}-${MAX_TARGET}). The vocabulary level is appropriate.`;
         specificInstructions = `
     - Focus on maintaining the current complexity of word choice.
@@ -193,9 +200,14 @@ export async function POST(request: Request) {
     ${specificInstructions}
     
     **Output Requirement:**
-    Provide 3-5 specific, actionable suggestions. For each suggestion, provide an example in this format:
-    - **Original:** "[exact sentence from the original text]"
-    - **Revised:** "[suggested revision of that sentence]" (Ensure the sentence structure remains mostly the same, but the vocabulary changes to reflect the goal of ${fres < MIN_TARGET ? "simplifying" : "elevating"} word choice)
+    Per-metric quota rule for ASW:
+    - If ASW is NOT on benchmark (status: ${aswStatus}), you MUST provide 1-5 suggestions targeting ASW.
+    - If ASW is on benchmark (status: ${aswStatus}), you may provide 0 suggestions.
+
+    For each suggestion, provide a WORD-LEVEL replacement in this exact format:
+    - **Original Word:** "[exact word from the original text]"
+    - **Replacement Word:** "[single replacement word]"
+    - **Context Sentence:** "[the sentence containing the original word]"
     
     Original text:
     "${text}"
@@ -209,57 +221,17 @@ export async function POST(request: Request) {
     `.trim();
     };
 
-    // 3. 改进的分流机制：基于“基准偏差”而非“扣分权重”
+    // 3. Readability metric routing:
+    // call each model branch whenever that metric is off benchmark.
+    const BENCHMARK_ASL = config.ASL_BENCHMARK;
+    const BENCHMARK_ASW = config.ASW_BENCHMARK;
+    const METRIC_EPSILON = 0.0001;
 
-    // --- 配置基准线 (根据 Plain English 标准设定) ---
-    const BENCHMARK_ASL = config.ASL_BENCHMARK;  // 理想最大句长
-    const BENCHMARK_ASW = config.ASW_BENCHMARK; // 理想最大音节密度 (1.4-1.5 是分水岭)
-
-    // 假设你已经有了 fres, asl, asw, userLevelConfigs 等变量
-
-    // 1. 获取目标配置
-    const TARGET_MID = (config.MIN_TARGET + config.MAX_TARGET) / 2;
-
-    // 2. 计算偏差
-    const fresGap = Math.abs(fres - TARGET_MID);
-    const isTooHard = fres < config.MIN_TARGET;
-    const isTooEasy = fres > config.MAX_TARGET;
-
-    // 初始化 flag
-    let finalShouldCallASL = false;
-    let finalShouldCallASW = false;
-
-    // === 修改后的激进逻辑 ===
-
-    if (isTooHard || isTooEasy) {
-        // 策略：如果 FRES 偏差超过 5 分 (Gap > 5)，这通常意味着结构性问题，
-        // 单靠修 ASL 或 ASW 很难拉回来，必须双管齐下。
-        if (fresGap > 5) {
-            finalShouldCallASL = true;
-            finalShouldCallASW = true;
-        } 
-        // 如果偏差较小 (5分以内)，再看具体是谁在拖后腿
-        else {
-            // ASL 只要有一点点超标 (比如 > benchmark + 1) 就修
-            if (Math.abs(asl - config.ASL_BENCHMARK) > 1) {
-                finalShouldCallASL = true;
-            }
-            // ASW 只要有一点点超标 (比如 > benchmark + 0.05) 就修
-            // ASW 的系数是 84.6，非常敏感，所以稍微超标就要修
-            if (Math.abs(asw - config.ASW_BENCHMARK) > 0.05) {
-                finalShouldCallASW = true;
-            }
-            
-            // 兜底：如果上面都没命中，但总分依然不达标，默认开 ASW (因为它对分数影响最大)
-            if (!finalShouldCallASL && !finalShouldCallASW) {
-                finalShouldCallASW = true; 
-            }
-        }
-    }
-    // else { 分数达标，不调用 }
+    const finalShouldCallASL = Math.abs(asl - BENCHMARK_ASL) > METRIC_EPSILON;
+    const finalShouldCallASW = Math.abs(asw - BENCHMARK_ASW) > METRIC_EPSILON;
 
 
-    // 4. 辅助函数：调用 DashScope API
+    // 4. 杈呭姪鍑芥暟锛氳皟鐢?DashScope API
     const callDashScopeAPI = async (prompt: string): Promise<string> => {
       const response = await fetch("https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation", {
         method: "POST",
@@ -296,19 +268,19 @@ export async function POST(request: Request) {
       }
     };
 
-    // 5. 分别调用 API（如果需要）
+    // 5. 鍒嗗埆璋冪敤 API锛堝鏋滈渶瑕侊級
     const allSuggestionTexts: Array<{ text: string; type: "ASL" | "ASW" }> = [];
 
     if (finalShouldCallASL) {
       try {
         const aslPrompt = createASLPrompt(fres, asl, asw, text);
         const aslText = await callDashScopeAPI(aslPrompt);
-        if (aslText && aslText.trim().length > 50) { // 确保有实际内容
+        if (aslText && aslText.trim().length > 50) { // 纭繚鏈夊疄闄呭唴瀹?
           allSuggestionTexts.push({ text: aslText, type: "ASL" });
         }
       } catch (error) {
         console.error("Failed to fetch ASL suggestions:", error);
-        // 继续处理其他请求，不中断
+        // 缁х画澶勭悊鍏朵粬璇锋眰锛屼笉涓柇
       }
     }
 
@@ -316,73 +288,68 @@ export async function POST(request: Request) {
       try {
         const aswPrompt = createASWPrompt(fres, asl, asw, text);
         const aswText = await callDashScopeAPI(aswPrompt);
-        if (aswText && aswText.trim().length > 50) { // 确保有实际内容
+        if (aswText && aswText.trim().length > 50) { // 纭繚鏈夊疄闄呭唴瀹?
           allSuggestionTexts.push({ text: aswText, type: "ASW" });
         }
       } catch (error) {
         console.error("Failed to fetch ASW suggestions:", error);
-        // 继续处理其他请求，不中断
+        // 缁х画澶勭悊鍏朵粬璇锋眰锛屼笉涓柇
       }
     }
 
-    // 如果没有任何建议生成，返回错误
+    // If all readability metrics are on benchmark, return empty suggestions.
     if (allSuggestionTexts.length === 0) {
       return NextResponse.json<ReadabilitySuggestionResponse>(
-        { success: false, message: "Failed to generate any readability suggestions. Please check the API response." },
-        { status: 500 }
+        { success: true, feedbackItems: [] },
       );
     }
 
-    // 6. 解析所有 suggestion texts 并创建 FeedbackItems
+    // 6. Parse suggestion texts and build feedback items
     const feedbackItems: FeedbackItem[] = [];
     const readabilityFeedbackIdBase = 999000;
+    const MAX_PER_METRIC = 5;
 
-    // 辅助函数：解析单个 suggestion text
-    const parseSuggestionText = (suggestionText: string, type: "ASL" | "ASW") => {
+    const parseASLText = (suggestionText: string) => {
       const lines = suggestionText.split('\n');
+      let count = 0;
 
       for (let i = 0; i < lines.length; i++) {
+        if (count >= MAX_PER_METRIC) break;
         const line = lines[i];
-        // 查找包含 "Original:" 的行
         if (line.includes('**Original:**')) {
           const originalMatch = line.match(/\*\*Original:\*\*\s*"([^"]+)"/);
           if (originalMatch) {
-            const originalSentence = originalMatch[1].trim(); // 提取并去除首尾空格
-
-            // 在 essay 数组中查找匹配的句子
+            const originalSentence = originalMatch[1].trim();
             const matchedSentenceIndex = essay.findIndex(s => s.content.includes(originalSentence) || originalSentence.includes(s.content));
 
             if (matchedSentenceIndex !== -1) {
-              const detectionId = essay[matchedSentenceIndex].id; // 获取原文句子的 ID
+              const detectionId = essay[matchedSentenceIndex].id;
 
-              // 查找下一个 "Revised:" 行作为详细内容
               let revisedContent = "No revised content found.";
               for (let j = i + 1; j < lines.length; j++) {
                 if (lines[j].includes('**Revised:**')) {
                   const revisedMatch = lines[j].match(/\*\*Revised:\*\*\s*"([^"]+)"/);
                   if (revisedMatch) {
-                    revisedContent = revisedMatch[1].trim(); // 提取并去除首尾空格
+                    revisedContent = revisedMatch[1].trim();
                   }
-                  break; // 找到后跳出内层循环
+                  break;
                 }
-                // 如果遇到下一个建议项（如 "###" 或另一个 "Original:"），则停止查找 Revised
                 if (lines[j].startsWith('###') || lines[j].includes('**Original:**')) {
                   break;
                 }
               }
 
-              // 创建反馈项对象，使用对应的 type
               const feedbackItem: FeedbackItem = {
                 id: readabilityFeedbackIdBase + feedbackItems.length,
-                source: 0, // 使用一个特殊数字表示是readability suggestion
+                source: 0,
                 provider: "Qwen-MAX (Readability)",
-                content: `Readability Suggestion: ${originalSentence.substring(0, 50)}...`,
-                type: type, // 使用 ASL 或 ASW
+                content: `ASL Suggestion: ${originalSentence.substring(0, 50)}...`,
+                type: "ASL",
                 actionability: 0.8 + Math.random() * 0.2,
                 specificity: 1,
                 justification: 0.7 + Math.random() * 0.3,
                 sentiment: 0,
-                detection: [detectionId], // 关键：将找到的原文 ID 放入数组
+                detection: [detectionId],
                 sentence_count: 1,
                 word_count: originalSentence.split(/\s+/).length,
                 none: 0,
@@ -390,6 +357,7 @@ export async function POST(request: Request) {
               };
 
               feedbackItems.push(feedbackItem);
+              count++;
             } else {
               console.warn(`Original sentence not found in essay: "${originalSentence}"`);
             }
@@ -398,12 +366,99 @@ export async function POST(request: Request) {
       }
     };
 
-    // 解析所有 suggestion texts
+    const parseASWText = (suggestionText: string) => {
+      const regex =
+        /\*\*Original Word:\*\*\s*"([^"]+)"[\s\S]*?\*\*Replacement Word:\*\*\s*"([^"]+)"(?:[\s\S]*?\*\*Context Sentence:\*\*\s*"([^"]+)")?/gi;
+      const matches = Array.from(suggestionText.matchAll(regex)).slice(0, MAX_PER_METRIC);
+
+      matches.forEach((match) => {
+        const originalWord = (match[1] || "").trim();
+        const replacementWord = (match[2] || "").trim();
+        const contextSentence = (match[3] || "").trim();
+        if (!originalWord || !replacementWord) return;
+
+        const normalizedOriginal = originalWord.toLowerCase();
+        const matchedSentence = contextSentence
+          ? essay.find((s) => s.content.includes(contextSentence) || contextSentence.includes(s.content))
+          : essay.find((s) => s.content.toLowerCase().includes(normalizedOriginal));
+
+        const highlightWords = originalWord
+          .split(/\s+/)
+          .map((word) => word.trim().toLowerCase())
+          .filter(Boolean);
+
+        feedbackItems.push({
+          id: readabilityFeedbackIdBase + feedbackItems.length,
+          source: 0,
+          provider: "Qwen-MAX (Readability)",
+          content: `ASW word replacement: "${originalWord}"`,
+          type: "ASW",
+          actionability: 0.8 + Math.random() * 0.2,
+          specificity: 1,
+          justification: 0.7 + Math.random() * 0.3,
+          sentiment: 0,
+          detection: matchedSentence ? [matchedSentence.id] : [],
+          sentence_count: matchedSentence ? 1 : 0,
+          word_count: 1,
+          none: 0,
+          revisedContent: replacementWord,
+          highlightWords,
+        });
+      });
+    };
+
     for (const { text, type } of allSuggestionTexts) {
-      parseSuggestionText(text, type);
+      if (type === "ASL") {
+        parseASLText(text);
+      } else {
+        parseASWText(text);
+      }
     }
 
-    // 7. 返回解析后的反馈项数组给前端（包含 ASL 和/或 ASW 的建议）
+    const aslCount = feedbackItems.filter((item) => item.type === "ASL").length;
+    const aswCount = feedbackItems.filter((item) => item.type === "ASW").length;
+
+    if (finalShouldCallASL && aslCount === 0) {
+      feedbackItems.push({
+        id: readabilityFeedbackIdBase + feedbackItems.length,
+        source: 0,
+        provider: "Qwen-MAX (Readability)",
+        content: "ASL fallback: revise one sentence length toward benchmark.",
+        type: "ASL",
+        actionability: 0.75,
+        specificity: 0.7,
+        justification: 0.8,
+        sentiment: 0,
+        detection: [],
+        sentence_count: 0,
+        word_count: 8,
+        none: 0,
+        revisedContent:
+          "Fallback ASL action: split or combine one sentence to move ASL toward benchmark.",
+      });
+    }
+
+    if (finalShouldCallASW && aswCount === 0) {
+      feedbackItems.push({
+        id: readabilityFeedbackIdBase + feedbackItems.length,
+        source: 0,
+        provider: "Qwen-MAX (Readability)",
+        content: "ASW fallback word replacement",
+        type: "ASW",
+        actionability: 0.75,
+        specificity: 0.7,
+        justification: 0.8,
+        sentiment: 0,
+        detection: [],
+        sentence_count: 0,
+        word_count: 1,
+        none: 0,
+        revisedContent: "use a more suitable synonym",
+        highlightWords: [],
+      });
+    }
+
+    // 7. Return parsed readability feedback
     return NextResponse.json<ReadabilitySuggestionResponse>(
         { success: true, feedbackItems: feedbackItems }
     );

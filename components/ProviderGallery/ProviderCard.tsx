@@ -19,6 +19,10 @@ const typeMap = {
   orthography: "Convention/Grammar/Spelling",
   organization: "Organization",
   "word-usage": "Word Usage/Clarity",
+  asl: "ASL",
+  asw: "ASW",
+  aoa: "AoA",
+  concreteness: "Concreteness",
   others: "General Content",
 };
 

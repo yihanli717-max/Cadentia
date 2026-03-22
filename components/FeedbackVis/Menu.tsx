@@ -241,127 +241,114 @@ const Menu = (props: MenuProps) => {
   }
 
   function parsePsychSuggestionToFeedbackItems(data: any, essayData: any[]): FeedbackItem[] {
-    const suggestion = data?.suggestion ?? {};
-    const sentenceRevisions: any[] = Array.isArray(suggestion?.sentence_revisions)
-      ? suggestion.sentence_revisions
-      : [];
-    const wordReplacements: any[] = Array.isArray(suggestion?.word_replacements)
-      ? suggestion.word_replacements
-      : [];
-    const priorityActions: any[] = Array.isArray(suggestion?.priority_actions)
-      ? suggestion.priority_actions
-      : [];
-
-    const items: FeedbackItem[] = [];
+    const metricStatus = data?.benchmarkEvaluation?.metricStatus ?? {};
+    const byMetric = data?.suggestion?.byMetric ?? {};
+    const MAX_PER_METRIC = 5;
     const psychFeedbackIdBase = 998000;
+    const items: FeedbackItem[] = [];
 
-    sentenceRevisions.forEach((item, idx) => {
-      const original = typeof item?.original === "string" ? item.original.trim() : "";
-      const revised = typeof item?.revised === "string" ? item.revised.trim() : "";
-      const effect = typeof item?.expected_effect === "string" ? item.expected_effect.trim() : "psycholinguistic shift";
+    const aoaOffBenchmark =
+      metricStatus.aoaMean !== "within" || metricStatus.lateAoARatio !== "within";
+    const concretenessOffBenchmark =
+      metricStatus.meanConcreteness !== "within" || metricStatus.abstractRatio !== "within";
 
-      if (!original && !revised) return;
+    const pushMetricItems = (metric: "aoa" | "concreteness") => {
+      const rawReplacements = Array.isArray(byMetric?.[metric]?.word_replacements)
+        ? byMetric[metric].word_replacements
+        : [];
+      const validReplacements = rawReplacements
+        .filter(
+          (item: any) =>
+            typeof item?.original === "string" &&
+            item.original.trim().length > 0 &&
+            typeof item?.replacement === "string" &&
+            item.replacement.trim().length > 0,
+        )
+        .slice(0, MAX_PER_METRIC);
 
-      const matchedSentence = essayData.find(
-        (s) =>
-          (original && (s.content.includes(original) || original.includes(s.content))) ||
-          (revised && (s.content.includes(revised) || revised.includes(s.content)))
-      );
+      validReplacements.forEach((item: any) => {
+        const original = item.original.trim();
+        const replacement = item.replacement.trim();
+        const expectedEffect =
+          typeof item?.expected_effect === "string" ? item.expected_effect.trim() : "";
+        const normalizedOriginal = original.toLowerCase();
 
-      items.push({
-        id: psychFeedbackIdBase + items.length,
-        source: PSYCH_SOURCE_ID,
-        provider: PSYCH_PROVIDER_NAME,
-        content: `Psycholinguistic Suggestion (${idx + 1}): ${effect}`,
-        type: "word-usage",
-        actionability: 0.85,
-        specificity: 1,
-        justification: 0.85,
-        sentiment: 0,
-        detection: matchedSentence ? [matchedSentence.id] : [],
-        sentence_count: matchedSentence ? 1 : 0,
-        word_count: original ? original.split(/\s+/).length : 0,
-        none: 0,
-        revisedContent: revised || original || "No revision content provided.",
-      });
-    });
+        const matchedSentence = essayData.find((s) =>
+          s.content.toLowerCase().includes(normalizedOriginal),
+        );
 
-    wordReplacements.forEach((item, idx) => {
-      const originalWord = typeof item?.original === "string" ? item.original.trim() : "";
-      const replacement = typeof item?.replacement === "string" ? item.replacement.trim() : "";
-      const effect = typeof item?.expected_effect === "string" ? item.expected_effect.trim() : "psycholinguistic shift";
-      if (!originalWord || !replacement) return;
-
-      const matchedSentence = essayData.find((s) =>
-        s.content.toLowerCase().includes(originalWord.toLowerCase())
-      );
-
-      const highlightWords = [originalWord.toLowerCase()];
-
-      items.push({
-        id: psychFeedbackIdBase + items.length,
-        source: PSYCH_SOURCE_ID,
-        provider: PSYCH_PROVIDER_NAME,
-        content: `Word replacement: "${originalWord}" (${effect})`,
-        type: "word-usage",
-        actionability: 0.8,
-        specificity: 0.9,
-        justification: 0.8,
-        sentiment: 0,
-        detection: matchedSentence ? [matchedSentence.id] : [],
-        sentence_count: matchedSentence ? 1 : 0,
-        word_count: 1,
-        none: 0,
-        revisedContent: replacement,
-        highlightWords,
-      });
-    });
-
-    if (items.length === 0) {
-      priorityActions.forEach((item, idx) => {
-        const focus = typeof item?.focus === "string" ? item.focus.trim() : "Psycholinguistic";
-        const instruction =
-          typeof item?.instruction === "string"
-            ? item.instruction.trim()
-            : typeof item?.reason === "string"
-            ? item.reason.trim()
-            : "Revise wording to better match psycholinguistic target.";
+        const highlightWords = original
+          .split(/\s+/)
+          .map((word: string) => word.trim().toLowerCase())
+          .filter(Boolean);
 
         items.push({
           id: psychFeedbackIdBase + items.length,
           source: PSYCH_SOURCE_ID,
           provider: PSYCH_PROVIDER_NAME,
-          content: `${focus}: ${instruction}`,
-          type: "word-usage",
-          actionability: 0.8,
-          specificity: 0.8,
-          justification: 0.8,
+          content:
+            metric === "aoa"
+              ? `AoA word replacement: "${original}"`
+              : `Concreteness word/phrase replacement: "${original}"`,
+          type: metric,
+          actionability: 0.85,
+          specificity: 1,
+          justification: 0.85,
           sentiment: 0,
-          detection: [],
-          sentence_count: 0,
-          word_count: instruction.split(/\s+/).length,
+          detection: matchedSentence ? [matchedSentence.id] : [],
+          sentence_count: matchedSentence ? 1 : 0,
+          word_count: highlightWords.length || 1,
           none: 0,
-          revisedContent: `Priority ${idx + 1}: ${instruction}`,
+          revisedContent: replacement,
+          highlightWords,
+          ...(expectedEffect ? { content: `${metric === "aoa" ? "AoA" : "Concreteness"} word/phrase replacement: "${original}" (${expectedEffect})` } : {}),
         });
       });
-    }
+    };
 
-    if (items.length === 0 && typeof suggestion?.raw === "string" && suggestion.raw.trim()) {
+    pushMetricItems("aoa");
+    pushMetricItems("concreteness");
+
+    const aoaCount = items.filter((item) => item.type === "aoa").length;
+    const concretenessCount = items.filter((item) => item.type === "concreteness").length;
+
+    if (aoaOffBenchmark && aoaCount === 0) {
       items.push({
-        id: psychFeedbackIdBase,
+        id: psychFeedbackIdBase + items.length,
         source: PSYCH_SOURCE_ID,
         provider: PSYCH_PROVIDER_NAME,
-        content: "Psycholinguistic suggestion (raw model output)",
-        type: "word-usage",
-        actionability: 0.7,
-        specificity: 0.7,
-        justification: 0.7,
+        content: 'AoA word replacement: "advanced term"',
+        type: "aoa",
+        actionability: 0.75,
+        specificity: 0.75,
+        justification: 0.8,
         sentiment: 0,
         detection: [],
         sentence_count: 0,
-        word_count: suggestion.raw.split(/\s+/).length,
+        word_count: 1,
         none: 0,
-        revisedContent: suggestion.raw,
+        revisedContent: "simpler term",
+        highlightWords: ["advanced", "term"],
+      });
+    }
+
+    if (concretenessOffBenchmark && concretenessCount === 0) {
+      items.push({
+        id: psychFeedbackIdBase + items.length,
+        source: PSYCH_SOURCE_ID,
+        provider: PSYCH_PROVIDER_NAME,
+        content: 'Concreteness word/phrase replacement: "abstract concept"',
+        type: "concreteness",
+        actionability: 0.75,
+        specificity: 0.75,
+        justification: 0.8,
+        sentiment: 0,
+        detection: [],
+        sentence_count: 0,
+        word_count: 2,
+        none: 0,
+        revisedContent: "specific example",
+        highlightWords: ["abstract", "concept"],
       });
     }
 
@@ -600,7 +587,7 @@ const Menu = (props: MenuProps) => {
       if (readabilityItems.length > 0) {
         nextFeedbackSource.push(readabilityProviderCard);
       }
-      if (psychFeedbackItems.length > 0 || !!psychSummary) {
+      if (psychFeedbackItems.length > 0) {
         nextFeedbackSource.push(psychProviderCard);
       }
 
