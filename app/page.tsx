@@ -27,8 +27,8 @@ const Page = () => {
             <EssayPanel classes="flex-none w-[512px] sticky top-0 h-screen overflow-auto" />
             <div className="flex-1 min-w-0">
               <div className="flex flex-col h-full">
-                <div className="flex-none mt-[3rem] h-[220px] border-b border-base-200 bg-white px-2 py-2">
-                  <Menu dashboardOnly classes="h-full w-full" />
+                <div className="relative flex-none mt-[3rem] h-[260px] border-b border-base-200 bg-white">
+                  <Menu dashboardOnly classes="absolute left-3 right-[6px] top-2 bottom-2" />
                 </div>
                 <FeedbackVis classes="w-full flex-1 min-h-0" />
               </div>

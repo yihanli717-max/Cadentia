@@ -704,6 +704,7 @@ const renderPsychMetricComparison = (
       <div
         className={cn(
           "bg-base-100 shadow-md rounded-md px-3 py-2 z-50",
+          props.classes,
           dashboardOnly ? "h-full w-full shadow-none border-0" : "absolute right-4 top-4",
         )}
         style={{ border: dashboardOnly ? "none" : "1px solid rgba(255,255,255,0.15)" }}
@@ -805,6 +806,18 @@ const renderPsychMetricComparison = (
               ) : (
                 <span>N/A</span>
               )}
+            </div>
+          </div>
+
+          <div className="border-t border-base-200 pt-2 text-2xs text-gray-500 leading-relaxed">
+            <div>ASL = average words per sentence; ASW = average syllables per word.</div>
+            <div>
+              AoA Mean = average acquisition-age rating; Late AoA Ratio = share of later-acquired
+              words.
+            </div>
+            <div>
+              Concreteness Mean = average concreteness rating; Abstract Ratio = share of abstract
+              words/phrases.
             </div>
           </div>
         </div>

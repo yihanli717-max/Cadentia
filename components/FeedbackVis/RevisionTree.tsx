@@ -120,7 +120,9 @@ function getDirectionHint(
   if (key === "asl") {
     if (readabilityMetrics.asl === null) return null;
     const diff = readabilityMetrics.asl - readabilityBenchmarks[userLevel].ASL_BENCHMARK;
-    if (Math.abs(diff) < DIRECTION_EPSILON) return "ASL is on benchmark; keep sentence length stable.";
+    if (Math.abs(diff) < DIRECTION_EPSILON) {
+      return "ASL is on the benchmark.";
+    }
     return diff > 0
       ? "need to lower ASL by splitting long sentences and removing extra clauses."
       : "need to raise ASL by combining short sentences and adding linking clauses.";
@@ -129,7 +131,9 @@ function getDirectionHint(
   if (key === "asw") {
     if (readabilityMetrics.asw === null) return null;
     const diff = readabilityMetrics.asw - readabilityBenchmarks[userLevel].ASW_BENCHMARK;
-    if (Math.abs(diff) < DIRECTION_EPSILON) return "ASW is on benchmark; keep word complexity balanced.";
+    if (Math.abs(diff) < DIRECTION_EPSILON) {
+      return "ASW is on the benchmark.";
+    }
     return diff > 0
       ? "need to lower ASW by replacing multi-syllable words with simpler synonyms."
       : "need to raise ASW by using more precise, higher-level vocabulary.";
@@ -146,7 +150,7 @@ function getDirectionHint(
       psychMetrics.lateAoARatio < bench.lateAoARatio.min - DIRECTION_EPSILON;
 
     if (!meanAbove && !meanBelow && !ratioAbove && !ratioBelow) {
-      return "AoA is on benchmark; maintain current lexical acquisition level.";
+      return "AoA is on the benchmark.";
     }
     if (meanAbove || ratioAbove) {
       return "need to lower AoA by replacing late-acquired words with earlier-acquired alternatives.";
@@ -171,7 +175,7 @@ function getDirectionHint(
     psychMetrics.abstractRatio < bench.abstractRatio.min - DIRECTION_EPSILON;
 
   if (!concAbove && !concBelow && !absAbove && !absBelow) {
-    return "Concreteness is on benchmark; keep abstract-concrete balance.";
+    return "Concreteness is on the benchmark.";
   }
   if (concAbove || absBelow) {
     return "need to lower Concreteness by abstracting concrete examples into concepts.";
@@ -343,7 +347,7 @@ const RevisionTree = (props: RevisionTreeProps) => {
   return (
     <div
       className={cn(
-        "absolute top-[32px] left-3 right-[6px] bottom-16 rounded-md border border-base-200 bg-base-100 p-3 overflow-auto",
+        "absolute top-[52px] left-3 right-[6px] bottom-16 rounded-md border border-base-200 bg-base-100 p-3 overflow-auto",
         props.classes,
       )}
     >
@@ -382,14 +386,7 @@ const RevisionTree = (props: RevisionTreeProps) => {
                       <TreeNode label={metricNode.title} />
                       <div className="h-3 w-px bg-base-300" />
 
-                      {metricNode.children.length === 0 && !metricNode.directionHint ? (
-                        <div className="flex items-center">
-                          <div className="h-px w-4 bg-base-300" />
-                          <div className="rounded border border-dashed border-base-300 bg-white px-2 py-1 text-2xs opacity-60">
-                            waiting
-                          </div>
-                        </div>
-                      ) : (
+                      {(metricNode.directionHint || metricNode.children.length > 0) && (
                         <div className="relative flex w-full flex-col items-center gap-2 pt-1">
                           <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-base-300" />
                           {metricNode.directionHint ? (
@@ -400,14 +397,7 @@ const RevisionTree = (props: RevisionTreeProps) => {
                               </div>
                             </div>
                           ) : null}
-                          {metricNode.children.length === 0 ? (
-                            <div className="relative z-10 flex w-full items-center justify-center">
-                              <div className="h-px w-4 bg-base-300" />
-                              <div className="rounded border border-dashed border-base-300 bg-white px-2 py-1 text-2xs opacity-60">
-                                waiting
-                              </div>
-                            </div>
-                          ) : (
+                          {metricNode.children.length > 0 ? (
                             <div className="relative z-10 flex w-full items-center justify-center">
                               <div className="h-px w-4 bg-base-300" />
                               <div className="flex max-w-[170px] flex-wrap justify-center gap-2">
@@ -474,7 +464,7 @@ const RevisionTree = (props: RevisionTreeProps) => {
                                 })}
                               </div>
                             </div>
-                          )}
+                          ) : null}
                         </div>
                       )}
                     </div>
