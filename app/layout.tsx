@@ -4,7 +4,7 @@ import { noto_sans } from "./fonts";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Synthia",
+  title: "Cadentia",
   description: "Visually Synthesizing Writing Feedback for Iterative Revision",
 };
 
