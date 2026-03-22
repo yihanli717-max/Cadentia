@@ -3,6 +3,7 @@ import { cn, eventTracker } from "@/lib/utils";
 import {
   useEssayStore,
   useFeedbackStore,
+  useFeedbackSourceStore,
   useSharedConfigStore,
   useRevisionListStore,
 } from "@/lib/store";
@@ -42,6 +43,10 @@ const EssayPanel = (props: EssayPanelProps) => {
   });
 
   const essay = useEssayStore((state) => state.essay);
+  const setEssay = useEssayStore((state) => state.setEssay);
+  const [isEditingEssay, setIsEditingEssay] = useState(true);
+  const [essayInput, setEssayInput] = useState("");
+  const [essayInputError, setEssayInputError] = useState<string | null>(null);
   const {
     hoveredProvider,
     hoveredItem,
@@ -67,6 +72,109 @@ const EssayPanel = (props: EssayPanelProps) => {
     () => allFeedback.find((item) => item.id === hoveredItem),
     [allFeedback, hoveredItem],
   );
+
+  const formatEssayForInput = (sentences: Sentence[]) => {
+    if (!sentences.length) return "";
+    const paragraphMap = new Map<number, string[]>();
+    sentences.forEach((sentence) => {
+      if (!paragraphMap.has(sentence.paragraph)) {
+        paragraphMap.set(sentence.paragraph, []);
+      }
+      paragraphMap.get(sentence.paragraph)?.push(sentence.content.trim());
+    });
+    return Array.from(paragraphMap.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([, items]) => items.filter(Boolean).join(" "))
+      .join("\n\n");
+  };
+
+  const splitParagraphIntoSentences = (paragraphText: string): string[] => {
+    const normalized = paragraphText.replace(/\s+/g, " ").trim();
+    if (!normalized) return [];
+    const matches = normalized.match(/[^.!?]+[.!?]+(?:["')\]]+)?|[^.!?]+$/g);
+    if (!matches || matches.length === 0) return [normalized];
+    return matches.map((item) => item.trim()).filter(Boolean);
+  };
+
+  const parseEssayInputToSentences = (inputText: string): Sentence[] => {
+    const paragraphs = inputText
+      .split(/\n\s*\n+/)
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean);
+
+    let sentenceId = 1;
+    const parsed: Sentence[] = [];
+
+    paragraphs.forEach((paragraphContent, paragraphIndex) => {
+      const parsedSentences = splitParagraphIntoSentences(paragraphContent);
+      parsedSentences.forEach((sentenceContent) => {
+        parsed.push({
+          id: sentenceId++,
+          content: sentenceContent,
+          paragraph: paragraphIndex + 1,
+        });
+      });
+    });
+
+    return parsed;
+  };
+
+  const handleSubmitEssay = () => {
+    const trimmedInput = essayInput.trim();
+    if (!trimmedInput) {
+      setEssayInputError("Essay cannot be empty.");
+      return;
+    }
+
+    const parsedEssay = parseEssayInputToSentences(trimmedInput);
+    if (!parsedEssay.length) {
+      setEssayInputError("No valid sentence found. Please add essay content.");
+      return;
+    }
+
+    setEssay(parsedEssay);
+    setEssayInputError(null);
+    setIsEditingEssay(false);
+
+    const currentFeedback = useFeedbackStore.getState().feedback;
+    useFeedbackStore
+      .getState()
+      .setFeedback(
+        currentFeedback.filter(
+          (item) =>
+            item.source !== READABILITY_SOURCE_ID && item.source !== PSYCH_SOURCE_ID,
+        ),
+      );
+
+    const { feedbackSource, setFeedbackSource } = useFeedbackSourceStore.getState();
+    setFeedbackSource(
+      feedbackSource.filter(
+        (source) =>
+          source.id !== READABILITY_SOURCE_ID && source.id !== PSYCH_SOURCE_ID,
+      ),
+    );
+
+    const sharedConfig = useSharedConfigStore.getState();
+    sharedConfig.setCurrentSelectedItems([]);
+    sharedConfig.setCurrentSelectedSentences([]);
+    sharedConfig.setCurrentReferenceSentence(null);
+    sharedConfig.setHoveredSentence(null);
+    sharedConfig.setHoveredItem(null);
+    sharedConfig.setHoveredProvider(null);
+    sharedConfig.setComparisonMode(false);
+
+    eventTracker({
+      action: "submit custom essay",
+      data: {
+        sentenceCount: parsedEssay.length,
+        paragraphCount: Math.max(...parsedEssay.map((item) => item.paragraph)),
+      },
+    });
+  };
+
+  useEffect(() => {
+    setEssayInput(formatEssayForInput(essay));
+  }, [essay]);
 
   const lexicalHighlightBySentence = useMemo(() => {
     const map = new Map<number, Map<string, "red" | "orange">>();
@@ -183,216 +291,251 @@ const EssayPanel = (props: EssayPanelProps) => {
     >
       <div className="h-[3rem] px-4 bg-white text-neutral flex flex-row items-center gap-2 absolute top-[3rem] z-50 w-full justify-between">
         <p className="font-semibold text-lg">My Essay</p>
-        <div className="form-control">
-          <label className="label cursor-pointer space-x-2">
-            <span className="label-text text-xs ">
-              Compare to Original Essay
-            </span>
-            <input
-              type="checkbox"
-              className="toggle toggle-sm"
-              checked={comparisonMode}
-              onChange={() => {
-                eventTracker({
-                  action: "toggle comparison mode",
-                  data: {
-                    mode: !comparisonMode,
-                  },
-                });
-                setComparisonMode(!comparisonMode);
+        <div className="flex flex-row items-center gap-2">
+          {isEditingEssay ? (
+            <>
+              <button
+                className="btn btn-xs btn-ghost"
+                onClick={() => {
+                  setEssayInput(formatEssayForInput(essay));
+                  setEssayInputError(null);
+                  setIsEditingEssay(false);
+                }}
+              >
+                Cancel
+              </button>
+              <button className="btn btn-xs btn-neutral" onClick={handleSubmitEssay}>
+                Submit
+              </button>
+            </>
+          ) : (
+            <button
+              className="btn btn-xs btn-outline"
+              onClick={() => {
+                setEssayInput(formatEssayForInput(essay));
+                setEssayInputError(null);
+                setComparisonMode(false);
+                setIsEditingEssay(true);
               }}
-            />
-          </label>
+            >
+              Edit Essay
+            </button>
+          )}
         </div>
       </div>
       <div className="text-sm leading-relaxed p-4 pt-24 overflow-y-auto relative grow">
-        {Object.entries(paragraphs).map(
-          ([paragraph, sections], index, array) => (
-            <div
-              key={paragraph}
-              className={cn(
-                (index < array.length - 1 ? "mb-6 " : "") + "cursor-pointer",
-                // if the last one, add margin bottom
-                index === array.length - 1 ? "mb-96" : "",
-              )}
-            >
-              {sections.map((section) => (
-                <React.Fragment key={`section-${section.id}`}>
-                  <span
-                    id={section.id.toString()}
-                    className={cn(
-                      "transition-all duration-150 ease-in-out",
-                      hoveredSentence === section.id ||
-                        allFeedback
-                          .find((item) => item.source === hoveredProvider)
-                          ?.detection.includes(section.id) ||
-                        highlightSentences.has(section.content)
-                        ? "bg-sky-100 underline"
-                        : "",
-                      hoveredSentence === section.id ? "underline" : "",
-                      // if the sentence is the last one in the currentSelectedSentences
-                      currentReferenceSentence === section.id
-                        ? "underline"
-                        : "",
-                      currentSelectedSentences.includes(section.id) &&
-                        "bg-sky-100",
-                      currentSelectedSentences.includes(section.id) &&
-                        "bg-sky-100" &&
-                        revisionObject?.revision.find(
-                          (item) => item.original === section.content,
-                        ) &&
-                        "bg-green-100",
-                    )}
-                    onMouseEnter={() => {
-                      setHoveredSentence(section.id);
-                      eventTracker({
-                        action: "hover on sentence",
-                        data: {
-                          sentence: section.id,
-                        },
-                      });
-                    }}
-                    onMouseLeave={() => {
-                      // console.log("ifClicked", ifClicked);
-                      if (!ifClicked) setHoveredSentence(null);
-                    }}
-                    // onMouseUp={(e) => {
-                    //   // console.log("11", ifClicked);
-                    //   e.stopPropagation();
-                    //   e.preventDefault();
-
-                    //   setIfClicked(true);
-                    //   setHoveredSentence(section.id);
-                    //   setTimeout(() => {
-                    //     showSentenceMenu({
-                    //       id: SENTENCE_MENU_ID,
-                    //       event: e, // pass the original mouse event
-                    //       props: {
-                    //         sentence: section,
-                    //       },
-                    //     });
-                    //   }, 0);
-                    // }}
-                    onClick={(event) => {
-                      // if shift key is pressed, then set the reference sentence
-                      if (event.shiftKey) {
-                        if (currentReferenceSentence === section.id) {
-                          setCurrentReferenceSentence(null);
-                        } else {
-                          setCurrentReferenceSentence(section.id);
-                        }
-
+        {isEditingEssay ? (
+          <div className="flex h-full flex-col gap-2">
+            <textarea
+              value={essayInput}
+              onChange={(event) => {
+                setEssayInput(event.target.value);
+                if (essayInputError) {
+                  setEssayInputError(null);
+                }
+              }}
+              className="textarea textarea-bordered w-full grow text-sm leading-relaxed"
+              placeholder="Type or paste your essay here. Use a blank line to separate paragraphs."
+            />
+            <div className="flex flex-row items-center justify-between">
+              <p className="text-2xs opacity-60">
+                Tip: use a blank line between paragraphs.
+              </p>
+              {essayInputError ? (
+                <p className="text-2xs text-red-500">{essayInputError}</p>
+              ) : null}
+            </div>
+          </div>
+        ) : (
+          Object.entries(paragraphs).map(
+            ([paragraph, sections], index, array) => (
+              <div
+                key={paragraph}
+                className={cn(
+                  (index < array.length - 1 ? "mb-6 " : "") + "cursor-pointer",
+                  // if the last one, add margin bottom
+                  index === array.length - 1 ? "mb-96" : "",
+                )}
+              >
+                {sections.map((section) => (
+                  <React.Fragment key={`section-${section.id}`}>
+                    <span
+                      id={section.id.toString()}
+                      className={cn(
+                        "transition-all duration-150 ease-in-out",
+                        hoveredSentence === section.id ||
+                          allFeedback
+                            .find((item) => item.source === hoveredProvider)
+                            ?.detection.includes(section.id) ||
+                          highlightSentences.has(section.content)
+                          ? "bg-sky-100 underline"
+                          : "",
+                        hoveredSentence === section.id ? "underline" : "",
+                        // if the sentence is the last one in the currentSelectedSentences
+                        currentReferenceSentence === section.id
+                          ? "underline"
+                          : "",
+                        currentSelectedSentences.includes(section.id) &&
+                          "bg-sky-100",
+                        currentSelectedSentences.includes(section.id) &&
+                          "bg-sky-100" &&
+                          revisionObject?.revision.find(
+                            (item) => item.original === section.content,
+                          ) &&
+                          "bg-green-100",
+                      )}
+                      onMouseEnter={() => {
+                        setHoveredSentence(section.id);
                         eventTracker({
-                          action: "set reference sentence",
+                          action: "hover on sentence",
                           data: {
                             sentence: section.id,
                           },
                         });
+                      }}
+                      onMouseLeave={() => {
+                        // console.log("ifClicked", ifClicked);
+                        if (!ifClicked) setHoveredSentence(null);
+                      }}
+                      // onMouseUp={(e) => {
+                      //   // console.log("11", ifClicked);
+                      //   e.stopPropagation();
+                      //   e.preventDefault();
 
-                        return;
-                      }
+                      //   setIfClicked(true);
+                      //   setHoveredSentence(section.id);
+                      //   setTimeout(() => {
+                      //     showSentenceMenu({
+                      //       id: SENTENCE_MENU_ID,
+                      //       event: e, // pass the original mouse event
+                      //       props: {
+                      //         sentence: section,
+                      //       },
+                      //     });
+                      //   }, 0);
+                      // }}
+                      onClick={(event) => {
+                        // if shift key is pressed, then set the reference sentence
+                        if (event.shiftKey) {
+                          if (currentReferenceSentence === section.id) {
+                            setCurrentReferenceSentence(null);
+                          } else {
+                            setCurrentReferenceSentence(section.id);
+                          }
 
-                      if (!currentSelectedSentences.includes(section.id)) {
-                        setCurrentSelectedSentences([
-                          ...currentSelectedSentences,
-                          section.id,
-                        ]);
-                      } else {
-                        setCurrentSelectedSentences(
-                          currentSelectedSentences.filter(
-                            (id) => id !== section.id,
-                          ),
-                        );
-                      }
-                    }}
-                  >
-                    {comparisonMode ? (
-                      // if senction.content exit in revisionObject's revision's orginal, then show the text diff via TextDiff component
-                      revisionObject &&
-                      revisionObject.revision.find(
-                        (item) => item.original === section.content,
-                      ) ? (
-                        <TextDiff
-                          oldText={
-                            revisionObject?.revision.find(
-                              (item) => item.original === section.content,
-                            )?.original || ""
-                          }
-                          newText={
-                            revisionObject?.revision.find(
-                              (item) => item.original === section.content,
-                            )?.revised || ""
-                          }
-                        />
+                          eventTracker({
+                            action: "set reference sentence",
+                            data: {
+                              sentence: section.id,
+                            },
+                          });
+
+                          return;
+                        }
+
+                        if (!currentSelectedSentences.includes(section.id)) {
+                          setCurrentSelectedSentences([
+                            ...currentSelectedSentences,
+                            section.id,
+                          ]);
+                        } else {
+                          setCurrentSelectedSentences(
+                            currentSelectedSentences.filter(
+                              (id) => id !== section.id,
+                            ),
+                          );
+                        }
+                      }}
+                    >
+                      {comparisonMode ? (
+                        // if senction.content exit in revisionObject's revision's orginal, then show the text diff via TextDiff component
+                        revisionObject &&
+                        revisionObject.revision.find(
+                          (item) => item.original === section.content,
+                        ) ? (
+                          <TextDiff
+                            oldText={
+                              revisionObject?.revision.find(
+                                (item) => item.original === section.content,
+                              )?.original || ""
+                            }
+                            newText={
+                              revisionObject?.revision.find(
+                                (item) => item.original === section.content,
+                              )?.revised || ""
+                            }
+                          />
+                        ) : (
+                          section.content + " "
+                        )
                       ) : (
-                        section.content + " "
-                      )
-                    ) : (
-                      // if senction.content exit in revisionObject's revision's orginal, then show the revision content
-                      (revisionObject?.revision.find(
-                        (item) => item.original === section.content,
-                      )?.revised || renderSentenceWithLexicalHighlight(section.content, section.id))
-                    )}
-                  </span>
-                  {revisionObject?.revision.find(
-                    (item) => item.original === section.content,
-                  )?.revised && (
-                    // <span className="text-xs opacity-60">[edited]</span>
-                    <span className="inline-flex translate-y-[1px] ml-[3px]">
-                      {/* <span className="size-4 border bg-white rounded-sm join-item flex items-center justify-center text-neutral hover:bg-base-200 active:scale-90 transition-all duration-150 ease-in-out">
-                        <TbCheck size={12} />
-                      </span> */}
-                      <span
-                        className="size-4 border bg-white rounded-sm join-item flex items-center justify-center text-neutral hover:bg-base-200 active:scale-90 transition-all duration-150 ease-in-out"
-                        onClick={(e) => {
-                          console.log("clicked", section.content);
-                          setClickedSentence(section.content);
-                          showEditMenu({
-                            id: EDIT_MENU_ID,
-                            event: e, // pass the original mouse event
-                            props: {
-                              sentence: section,
-                            },
-                          });
-                          eventTracker({
-                            action: "click on edit",
-                            data: {
-                              sentence: section.id,
-                            },
-                          });
-                        }}
-                      >
-                        <TbEdit size={12} />
-                      </span>
-
-                      <span
-                        className="size-4 border bg-white rounded-sm join-item flex items-center justify-center text-neutral hover:bg-base-200 active:scale-90 transition-all duration-150 ease-in-out"
-                        onClick={(e) => {
-                          console.log("clicked", section.content);
-                          setClickedSentence(section.content);
-                          showRegenerateMenu({
-                            id: REGENERATE_MENU_ID,
-                            event: e, // pass the original mouse event
-                            props: {
-                              sentence: section,
-                            },
-                          });
-                          eventTracker({
-                            action: "click on regenerate",
-                            data: {
-                              sentence: section.id,
-                            },
-                          });
-                        }}
-                      >
-                        <TbRefresh size={12} />
-                      </span>
+                        // if senction.content exit in revisionObject's revision's orginal, then show the revision content
+                        (revisionObject?.revision.find(
+                          (item) => item.original === section.content,
+                        )?.revised ||
+                          renderSentenceWithLexicalHighlight(section.content, section.id))
+                      )}
                     </span>
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-          ),
+                    {revisionObject?.revision.find(
+                      (item) => item.original === section.content,
+                    )?.revised && (
+                      // <span className="text-xs opacity-60">[edited]</span>
+                      <span className="inline-flex translate-y-[1px] ml-[3px]">
+                        {/* <span className="size-4 border bg-white rounded-sm join-item flex items-center justify-center text-neutral hover:bg-base-200 active:scale-90 transition-all duration-150 ease-in-out">
+                          <TbCheck size={12} />
+                        </span> */}
+                        <span
+                          className="size-4 border bg-white rounded-sm join-item flex items-center justify-center text-neutral hover:bg-base-200 active:scale-90 transition-all duration-150 ease-in-out"
+                          onClick={(e) => {
+                            console.log("clicked", section.content);
+                            setClickedSentence(section.content);
+                            showEditMenu({
+                              id: EDIT_MENU_ID,
+                              event: e, // pass the original mouse event
+                              props: {
+                                sentence: section,
+                              },
+                            });
+                            eventTracker({
+                              action: "click on edit",
+                              data: {
+                                sentence: section.id,
+                              },
+                            });
+                          }}
+                        >
+                          <TbEdit size={12} />
+                        </span>
+
+                        <span
+                          className="size-4 border bg-white rounded-sm join-item flex items-center justify-center text-neutral hover:bg-base-200 active:scale-90 transition-all duration-150 ease-in-out"
+                          onClick={(e) => {
+                            console.log("clicked", section.content);
+                            setClickedSentence(section.content);
+                            showRegenerateMenu({
+                              id: REGENERATE_MENU_ID,
+                              event: e, // pass the original mouse event
+                              props: {
+                                sentence: section,
+                              },
+                            });
+                            eventTracker({
+                              action: "click on regenerate",
+                              data: {
+                                sentence: section.id,
+                              },
+                            });
+                          }}
+                        >
+                          <TbRefresh size={12} />
+                        </span>
+                      </span>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            ),
+          )
         )}
       </div>
 
