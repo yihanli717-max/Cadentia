@@ -225,7 +225,7 @@ export async function POST(request: Request) {
     // call each model branch whenever that metric is off benchmark.
     const BENCHMARK_ASL = config.ASL_BENCHMARK;
     const BENCHMARK_ASW = config.ASW_BENCHMARK;
-    const METRIC_EPSILON = 0.0001;
+    const METRIC_EPSILON = 0.05;
 
     const finalShouldCallASL = Math.abs(asl - BENCHMARK_ASL) > METRIC_EPSILON;
     const finalShouldCallASW = Math.abs(asw - BENCHMARK_ASW) > METRIC_EPSILON;

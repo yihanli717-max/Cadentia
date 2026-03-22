@@ -27,6 +27,7 @@ const QWEN_MODEL = "qwen-plus";
 const DASHSCOPE_COMPAT_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1";
 const MIN_SUGGESTIONS = 1;
 const MAX_SUGGESTIONS = 5;
+const PSYCH_EPSILON = 0.05;
 
 const BENCHMARKS: Record<
   TargetProfile,
@@ -61,9 +62,14 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-function getRangeDirection(value: number, min: number, max: number): MetricDirection {
-  if (value < min) return "below";
-  if (value > max) return "above";
+function getRangeDirection(
+  value: number,
+  min: number,
+  max: number,
+  epsilon: number = 0,
+): MetricDirection {
+  if (value < min - epsilon) return "below";
+  if (value > max + epsilon) return "above";
   return "within";
 }
 
@@ -79,21 +85,25 @@ function buildBenchmarkEvaluation(scores: PsychScores, target: TargetProfile) {
     scores.aoa.meanAoA,
     targetBench.aoaMean.min,
     targetBench.aoaMean.max,
+    PSYCH_EPSILON,
   );
   const aoaLateStatus = getRangeDirection(
     scores.aoa.lateAoARatio,
     targetBench.lateAoARatio.min,
     targetBench.lateAoARatio.max,
+    PSYCH_EPSILON,
   );
   const concMeanStatus = getRangeDirection(
     scores.concreteness.meanConcreteness,
     targetBench.meanConcreteness.min,
     targetBench.meanConcreteness.max,
+    PSYCH_EPSILON,
   );
   const concAbsStatus = getRangeDirection(
     scores.concreteness.abstractRatio,
     targetBench.abstractRatio.min,
     targetBench.abstractRatio.max,
+    PSYCH_EPSILON,
   );
 
   return {

@@ -657,7 +657,7 @@ const renderPsychMetricComparison = (
   const target = config[type];
   const diff = value - target;
 
-  if (Math.abs(diff) < 0.005) return null;
+  if (Math.abs(diff) < 0.05) return null;
   const isHigh = diff > 0;
   const diffText =
     type === "lateAoARatio" || type === "abstractRatio"
