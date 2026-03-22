@@ -320,13 +320,13 @@ const EssayPanel = (props: EssayPanelProps) => {
         </div>
       </div>
       <div className="text-sm leading-relaxed p-4 pt-24 overflow-y-auto relative grow">
+        <p className="mb-3 text-xs text-neutral-600">
+          Technology has had a huge impact on our lives. How should we deal with the challenges
+          brought by technological innovation? Please write an essay show your opinion about this
+          problem (no less than 150 words).
+        </p>
         {isEditingEssay ? (
           <div className="flex h-full flex-col gap-2">
-            <p className="text-xs text-neutral-600">
-              Technology has had a huge impact on our lives. How should we deal with the
-              challenges brought by technological innovation? Please write an essay show your
-              opinion about this problem (no less than 150 words).
-            </p>
             <textarea
               value={essayInput}
               onChange={(event) => {
