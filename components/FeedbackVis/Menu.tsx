@@ -42,32 +42,34 @@ const userLevelConfigs: Record<string, { MIN_TARGET: number; MAX_TARGET: number;
   knowledgeable: { MIN_TARGET: 30, MAX_TARGET: 50, ASL_BENCHMARK: 25, ASW_BENCHMARK: 1.7 },
 };
 
+const PSYCH_EPSILON = 0.05;
+
 const psychBenchmarkConfigs: Record<
   "simple" | "general" | "knowledgeable",
   {
-    meanAoA: number;
-    lateAoARatio: number;
-    meanConcreteness: number;
-    abstractRatio: number;
+    meanAoA: { min: number; max: number };
+    lateAoARatio: { min: number; max: number };
+    meanConcreteness: { min: number; max: number };
+    abstractRatio: { min: number; max: number };
   }
 > = {
   simple: {
-    meanAoA: 2.0,
-    lateAoARatio: 0.075,
-    meanConcreteness: 4.25,
-    abstractRatio: 0.075,
+    meanAoA: { min: 1.0, max: 3.0 },
+    lateAoARatio: { min: 0.0, max: 0.15 },
+    meanConcreteness: { min: 3.5, max: 5.0 },
+    abstractRatio: { min: 0.0, max: 0.15 },
   },
   general: {
-    meanAoA: 3.75,
-    lateAoARatio: 0.25,
-    meanConcreteness: 3.1,
-    abstractRatio: 0.25,
+    meanAoA: { min: 3.0, max: 4.5 },
+    lateAoARatio: { min: 0.15, max: 0.35 },
+    meanConcreteness: { min: 2.7, max: 3.5 },
+    abstractRatio: { min: 0.15, max: 0.35 },
   },
   knowledgeable: {
-    meanAoA: 5.75,
-    lateAoARatio: 0.675,
-    meanConcreteness: 1.85,
-    abstractRatio: 0.675,
+    meanAoA: { min: 4.5, max: 7.0 },
+    lateAoARatio: { min: 0.35, max: 1.0 },
+    meanConcreteness: { min: 1.0, max: 2.7 },
+    abstractRatio: { min: 0.35, max: 1.0 },
   },
 };
 
@@ -468,6 +470,7 @@ const Menu = (props: MenuProps) => {
 
       if (readabilityRes.ok) {
         readabilityData = await readabilityRes.json();
+        console.log("[menu][readability_suggestion][debug]", readabilityData?.debug ?? null);
         if (readabilityData.success && Array.isArray(readabilityData.feedbackItems)) {
           readabilityItems = readabilityData.feedbackItems.map((item: FeedbackItem) => ({
             ...item,
@@ -492,6 +495,10 @@ const Menu = (props: MenuProps) => {
       if (psychRes) {
         if (psychRes.ok) {
           psychSuggestionData = await psychRes.json();
+          console.log(
+            "[menu][psycholinguistic_suggestion][debug]",
+            psychSuggestionData?.debug ?? null,
+          );
           if (psychSuggestionData?.success) {
             psychFeedbackItems = parsePsychSuggestionToFeedbackItems(psychSuggestionData, essay);
           } else {
@@ -525,6 +532,10 @@ const Menu = (props: MenuProps) => {
         ...readabilityItems,
         ...psychFeedbackItems,
       ];
+      console.log("[menu][suggestion counts]", {
+        readabilityItems: readabilityItems.length,
+        psychItems: psychFeedbackItems.length,
+      });
       useFeedbackStore.getState().setFeedback(updatedFeedbackList);
 
       const { feedbackSource, setFeedbackSource } =
@@ -654,18 +665,23 @@ const renderPsychMetricComparison = (
   type: "meanAoA" | "lateAoARatio" | "meanConcreteness" | "abstractRatio"
 ) => {
   const config = psychBenchmarkConfigs[userLevel] || psychBenchmarkConfigs.general;
-  const target = config[type];
-  const diff = value - target;
+  const range = config[type];
+  const lower = range.min - PSYCH_EPSILON;
+  const upper = range.max + PSYCH_EPSILON;
 
-  if (Math.abs(diff) < 0.05) return null;
-  const isHigh = diff > 0;
+  if (value >= lower && value <= upper) return null;
+  const isHigh = value > upper;
+  const diff = isHigh ? value - upper : lower - value;
   const diffText =
     type === "lateAoARatio" || type === "abstractRatio"
       ? Math.abs(diff).toFixed(2)
       : Math.abs(diff).toFixed(1);
 
   return (
-    <span className="ml-2 inline-flex items-center gap-0.5" title={`Target: ${target.toFixed(2)}`}>
+    <span
+      className="ml-2 inline-flex items-center gap-0.5"
+      title={`Benchmark range: ${range.min.toFixed(2)}-${range.max.toFixed(2)}`}
+    >
       {isHigh ? (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3 text-red-500">
           <path fillRule="evenodd" d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z" clipRule="evenodd" />

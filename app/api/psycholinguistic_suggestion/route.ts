@@ -347,14 +347,53 @@ export async function POST(request: Request) {
 
     const promptByMetric: Partial<Record<MetricName, string>> = {};
     const rawResultByMetric: Partial<Record<MetricName, any>> = {};
+    const debugTrace: any = {
+      epsilon: PSYCH_EPSILON,
+      activeMetrics,
+      modelCall: {
+        aoa: { called: false, ok: false, hasRaw: false, error: null as string | null },
+        concreteness: { called: false, ok: false, hasRaw: false, error: null as string | null },
+      },
+      parse: {
+        aoaRawCount: 0,
+        aoaParsedCount: 0,
+        concRawCount: 0,
+        concParsedCount: 0,
+      },
+      fallback: {
+        aoaAdded: false,
+        concAdded: false,
+      },
+      finalCount: {
+        aoa: 0,
+        concreteness: 0,
+      },
+    };
 
     await Promise.all(
       activeMetrics.map(async (metric) => {
         const prompt = buildMetricPrompt(metric, text, normalizedScores, target, evaluation);
         promptByMetric[metric] = prompt;
-        rawResultByMetric[metric] = await generateQwenSuggestion(prompt, dashscopeKey);
+        debugTrace.modelCall[metric].called = true;
+        try {
+          const raw = await generateQwenSuggestion(prompt, dashscopeKey);
+          rawResultByMetric[metric] = raw;
+          debugTrace.modelCall[metric].ok = true;
+          debugTrace.modelCall[metric].hasRaw = Boolean(raw?.raw);
+        } catch (error) {
+          debugTrace.modelCall[metric].error =
+            error instanceof Error ? error.message : "unknown model error";
+          rawResultByMetric[metric] = { word_replacements: [] };
+        }
       }),
     );
+
+    debugTrace.parse.aoaRawCount = Array.isArray(rawResultByMetric.aoa?.word_replacements)
+      ? rawResultByMetric.aoa.word_replacements.length
+      : 0;
+    debugTrace.parse.concRawCount = Array.isArray(rawResultByMetric.concreteness?.word_replacements)
+      ? rawResultByMetric.concreteness.word_replacements.length
+      : 0;
 
     const aoaSuggestions = evaluation.offBenchmark.aoa
       ? normalizeWordReplacements(rawResultByMetric.aoa?.word_replacements).slice(0, MAX_SUGGESTIONS)
@@ -365,13 +404,19 @@ export async function POST(request: Request) {
           MAX_SUGGESTIONS,
         )
       : [];
+    debugTrace.parse.aoaParsedCount = aoaSuggestions.length;
+    debugTrace.parse.concParsedCount = concSuggestions.length;
 
     if (evaluation.offBenchmark.aoa && aoaSuggestions.length < MIN_SUGGESTIONS) {
       aoaSuggestions.push(fallbackReplacement("aoa", text));
+      debugTrace.fallback.aoaAdded = true;
     }
     if (evaluation.offBenchmark.concreteness && concSuggestions.length < MIN_SUGGESTIONS) {
       concSuggestions.push(fallbackReplacement("concreteness", text));
+      debugTrace.fallback.concAdded = true;
     }
+    debugTrace.finalCount.aoa = aoaSuggestions.length;
+    debugTrace.finalCount.concreteness = concSuggestions.length;
 
     const summaryParts: string[] = [];
     if (evaluation.offBenchmark.aoa) summaryParts.push("AoA is off benchmark.");
@@ -400,6 +445,7 @@ export async function POST(request: Request) {
         aoa: aoaSuggestions.length,
         concreteness: concSuggestions.length,
       },
+      debugTrace,
     });
 
     return NextResponse.json({
@@ -412,6 +458,7 @@ export async function POST(request: Request) {
       },
       promptByMetric,
       suggestion,
+      debug: debugTrace,
     });
   } catch (error) {
     console.error("Psycholinguistic suggestion API error:", error);

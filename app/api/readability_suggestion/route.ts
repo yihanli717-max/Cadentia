@@ -33,6 +33,7 @@ type ReadabilitySuggestionResponse = {
   feedbackItems?: FeedbackItem[];
   message?: string;
   dashscopeErrorDetails?: any; // 閲嶅懡鍚嶅瓧娈碉紝閬垮厤涓?DashScope API 鐨?'details' 鍐茬獊
+  debug?: any;
 };
 // --- MODIFICATION END ---
 
@@ -229,6 +230,30 @@ export async function POST(request: Request) {
 
     const finalShouldCallASL = Math.abs(asl - BENCHMARK_ASL) > METRIC_EPSILON;
     const finalShouldCallASW = Math.abs(asw - BENCHMARK_ASW) > METRIC_EPSILON;
+    const debugTrace: any = {
+      epsilon: METRIC_EPSILON,
+      shouldCall: {
+        asl: finalShouldCallASL,
+        asw: finalShouldCallASW,
+      },
+      modelCall: {
+        asl: { ok: false, textLength: 0, error: null as string | null },
+        asw: { ok: false, textLength: 0, error: null as string | null },
+      },
+      parse: {
+        asl: { parsedCount: 0 },
+        asw: { parsedCount: 0 },
+      },
+      fallback: {
+        aslAdded: false,
+        aswAdded: false,
+      },
+      finalCount: {
+        asl: 0,
+        asw: 0,
+        total: 0,
+      },
+    };
 
 
     // 4. 杈呭姪鍑芥暟锛氳皟鐢?DashScope API
@@ -277,9 +302,13 @@ export async function POST(request: Request) {
         const aslText = await callDashScopeAPI(aslPrompt);
         if (aslText && aslText.trim().length > 50) { // 纭繚鏈夊疄闄呭唴瀹?
           allSuggestionTexts.push({ text: aslText, type: "ASL" });
+          debugTrace.modelCall.asl.ok = true;
+          debugTrace.modelCall.asl.textLength = aslText.trim().length;
         }
       } catch (error) {
         console.error("Failed to fetch ASL suggestions:", error);
+        debugTrace.modelCall.asl.error =
+          error instanceof Error ? error.message : "unknown ASL model error";
         // 缁х画澶勭悊鍏朵粬璇锋眰锛屼笉涓柇
       }
     }
@@ -290,9 +319,13 @@ export async function POST(request: Request) {
         const aswText = await callDashScopeAPI(aswPrompt);
         if (aswText && aswText.trim().length > 50) { // 纭繚鏈夊疄闄呭唴瀹?
           allSuggestionTexts.push({ text: aswText, type: "ASW" });
+          debugTrace.modelCall.asw.ok = true;
+          debugTrace.modelCall.asw.textLength = aswText.trim().length;
         }
       } catch (error) {
         console.error("Failed to fetch ASW suggestions:", error);
+        debugTrace.modelCall.asw.error =
+          error instanceof Error ? error.message : "unknown ASW model error";
         // 缁х画澶勭悊鍏朵粬璇锋眰锛屼笉涓柇
       }
     }
@@ -300,7 +333,7 @@ export async function POST(request: Request) {
     // If all readability metrics are on benchmark, return empty suggestions.
     if (allSuggestionTexts.length === 0) {
       return NextResponse.json<ReadabilitySuggestionResponse>(
-        { success: true, feedbackItems: [] },
+        { success: true, feedbackItems: [], debug: debugTrace },
       );
     }
 
@@ -358,6 +391,7 @@ export async function POST(request: Request) {
 
               feedbackItems.push(feedbackItem);
               count++;
+              debugTrace.parse.asl.parsedCount++;
             } else {
               console.warn(`Original sentence not found in essay: "${originalSentence}"`);
             }
@@ -404,6 +438,7 @@ export async function POST(request: Request) {
           revisedContent: replacementWord,
           highlightWords,
         });
+        debugTrace.parse.asw.parsedCount++;
       });
     };
 
@@ -436,6 +471,7 @@ export async function POST(request: Request) {
         revisedContent:
           "Fallback ASL action: split or combine one sentence to move ASL toward benchmark.",
       });
+      debugTrace.fallback.aslAdded = true;
     }
 
     if (finalShouldCallASW && aswCount === 0) {
@@ -456,11 +492,18 @@ export async function POST(request: Request) {
         revisedContent: "use a more suitable synonym",
         highlightWords: [],
       });
+      debugTrace.fallback.aswAdded = true;
     }
+
+    debugTrace.finalCount.asl = feedbackItems.filter((item) => item.type === "ASL").length;
+    debugTrace.finalCount.asw = feedbackItems.filter((item) => item.type === "ASW").length;
+    debugTrace.finalCount.total = feedbackItems.length;
+
+    console.log("[readability_suggestion][debug]", debugTrace);
 
     // 7. Return parsed readability feedback
     return NextResponse.json<ReadabilitySuggestionResponse>(
-        { success: true, feedbackItems: feedbackItems }
+        { success: true, feedbackItems: feedbackItems, debug: debugTrace }
     );
 
   } catch (error) {

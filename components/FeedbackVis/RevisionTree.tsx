@@ -20,11 +20,31 @@ const readabilityBenchmarks: Record<
 
 const psychBenchmarks: Record<
   AudienceLevel,
-  { meanAoA: number; meanConcreteness: number }
+  {
+    meanAoA: { min: number; max: number };
+    lateAoARatio: { min: number; max: number };
+    meanConcreteness: { min: number; max: number };
+    abstractRatio: { min: number; max: number };
+  }
 > = {
-  simple: { meanAoA: 2.0, meanConcreteness: 4.25 },
-  general: { meanAoA: 3.75, meanConcreteness: 3.1 },
-  knowledgeable: { meanAoA: 5.75, meanConcreteness: 1.85 },
+  simple: {
+    meanAoA: { min: 1.0, max: 3.0 },
+    lateAoARatio: { min: 0.0, max: 0.15 },
+    meanConcreteness: { min: 3.5, max: 5.0 },
+    abstractRatio: { min: 0.0, max: 0.15 },
+  },
+  general: {
+    meanAoA: { min: 3.0, max: 4.5 },
+    lateAoARatio: { min: 0.15, max: 0.35 },
+    meanConcreteness: { min: 2.7, max: 3.5 },
+    abstractRatio: { min: 0.15, max: 0.35 },
+  },
+  knowledgeable: {
+    meanAoA: { min: 4.5, max: 7.0 },
+    lateAoARatio: { min: 0.35, max: 1.0 },
+    meanConcreteness: { min: 1.0, max: 2.7 },
+    abstractRatio: { min: 0.35, max: 1.0 },
+  },
 };
 
 type MetricKey = "asl" | "asw" | "aoa" | "concreteness";
@@ -90,7 +110,12 @@ function getDirectionHint(
   key: MetricKey,
   userLevel: AudienceLevel,
   readabilityMetrics: { asl: number | null; asw: number | null },
-  psychMetrics: { meanAoA: number | null; meanConcreteness: number | null },
+  psychMetrics: {
+    meanAoA: number | null;
+    lateAoARatio: number | null;
+    meanConcreteness: number | null;
+    abstractRatio: number | null;
+  },
 ): string | null {
   if (key === "asl") {
     if (readabilityMetrics.asl === null) return null;
@@ -111,29 +136,62 @@ function getDirectionHint(
   }
 
   if (key === "aoa") {
-    if (psychMetrics.meanAoA === null) return null;
-    const diff = psychMetrics.meanAoA - psychBenchmarks[userLevel].meanAoA;
-    if (Math.abs(diff) < DIRECTION_EPSILON) return "AoA is on benchmark; maintain current lexical acquisition level.";
-    return diff > 0
-      ? "need to lower AoA by replacing late-acquired words with earlier-acquired alternatives."
-      : "need to raise AoA by adding more advanced, domain-appropriate terms.";
+    if (psychMetrics.meanAoA === null || psychMetrics.lateAoARatio === null) return null;
+    const bench = psychBenchmarks[userLevel];
+    const meanAbove = psychMetrics.meanAoA > bench.meanAoA.max + DIRECTION_EPSILON;
+    const meanBelow = psychMetrics.meanAoA < bench.meanAoA.min - DIRECTION_EPSILON;
+    const ratioAbove =
+      psychMetrics.lateAoARatio > bench.lateAoARatio.max + DIRECTION_EPSILON;
+    const ratioBelow =
+      psychMetrics.lateAoARatio < bench.lateAoARatio.min - DIRECTION_EPSILON;
+
+    if (!meanAbove && !meanBelow && !ratioAbove && !ratioBelow) {
+      return "AoA is on benchmark; maintain current lexical acquisition level.";
+    }
+    if (meanAbove || ratioAbove) {
+      return "need to lower AoA by replacing late-acquired words with earlier-acquired alternatives.";
+    }
+    if (meanBelow || ratioBelow) {
+      return "need to raise AoA by adding more advanced, domain-appropriate terms.";
+    }
+    return "AoA metrics are mixed; balance lexical sophistication by revising outlier word choices.";
   }
 
-  if (psychMetrics.meanConcreteness === null) return null;
-  const diff = psychMetrics.meanConcreteness - psychBenchmarks[userLevel].meanConcreteness;
-  if (Math.abs(diff) < DIRECTION_EPSILON) {
+  if (psychMetrics.meanConcreteness === null || psychMetrics.abstractRatio === null) {
+    return null;
+  }
+  const bench = psychBenchmarks[userLevel];
+  const concAbove =
+    psychMetrics.meanConcreteness > bench.meanConcreteness.max + DIRECTION_EPSILON;
+  const concBelow =
+    psychMetrics.meanConcreteness < bench.meanConcreteness.min - DIRECTION_EPSILON;
+  const absAbove =
+    psychMetrics.abstractRatio > bench.abstractRatio.max + DIRECTION_EPSILON;
+  const absBelow =
+    psychMetrics.abstractRatio < bench.abstractRatio.min - DIRECTION_EPSILON;
+
+  if (!concAbove && !concBelow && !absAbove && !absBelow) {
     return "Concreteness is on benchmark; keep abstract-concrete balance.";
   }
-  return diff > 0
-    ? "need to lower Concreteness by abstracting concrete examples into concepts."
-    : "need to raise Concreteness by adding specific examples and tangible wording.";
+  if (concAbove || absBelow) {
+    return "need to lower Concreteness by abstracting concrete examples into concepts.";
+  }
+  if (concBelow || absAbove) {
+    return "need to raise Concreteness by adding specific examples and tangible wording.";
+  }
+  return "Concreteness metrics are mixed; rebalance abstract and concrete wording at the phrase level.";
 }
 
 function buildTree(
   feedbackItems: FeedbackItem[],
   userLevel: AudienceLevel,
   readabilityMetrics: { asl: number | null; asw: number | null },
-  psychMetrics: { meanAoA: number | null; meanConcreteness: number | null },
+  psychMetrics: {
+    meanAoA: number | null;
+    lateAoARatio: number | null;
+    meanConcreteness: number | null;
+    abstractRatio: number | null;
+  },
 ): RootNode[] {
   const readability: RootNode = {
     key: "readability",
@@ -246,10 +304,21 @@ const RevisionTree = (props: RevisionTreeProps) => {
         { asl: readabilityMetrics.asl, asw: readabilityMetrics.asw },
         {
           meanAoA: psychMetrics.meanAoA,
+          lateAoARatio: psychMetrics.lateAoARatio,
           meanConcreteness: psychMetrics.meanConcreteness,
+          abstractRatio: psychMetrics.abstractRatio,
         },
       ),
-    [generatedFeedback, psychMetrics.meanAoA, psychMetrics.meanConcreteness, readabilityMetrics.asl, readabilityMetrics.asw, targetAudienceLevel],
+    [
+      generatedFeedback,
+      psychMetrics.meanAoA,
+      psychMetrics.lateAoARatio,
+      psychMetrics.meanConcreteness,
+      psychMetrics.abstractRatio,
+      readabilityMetrics.asl,
+      readabilityMetrics.asw,
+      targetAudienceLevel,
+    ],
   );
   const [minActionability, maxActionability] = useMemo(() => {
     if (!generatedFeedback.length) return [0, 1] as const;
