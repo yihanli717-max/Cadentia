@@ -271,8 +271,6 @@ const Menu = (props: MenuProps) => {
       validReplacements.forEach((item: any) => {
         const original = item.original.trim();
         const replacement = item.replacement.trim();
-        const expectedEffect =
-          typeof item?.expected_effect === "string" ? item.expected_effect.trim() : "";
         const normalizedOriginal = original.toLowerCase();
 
         const matchedSentence = essayData.find((s) =>
@@ -303,7 +301,6 @@ const Menu = (props: MenuProps) => {
           none: 0,
           revisedContent: replacement,
           highlightWords,
-          ...(expectedEffect ? { content: `${metric === "aoa" ? "AoA" : "Concreteness"} word/phrase replacement: "${original}" (${expectedEffect})` } : {}),
         });
       });
     };
