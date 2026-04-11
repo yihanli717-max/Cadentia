@@ -20,7 +20,7 @@ interface MenuProps {
 const READABILITY_SOURCE_ID = 100;
 const READABILITY_PROVIDER_NAME = "Qwen-MAX (Readability)";
 const PSYCH_SOURCE_ID = 101;
-const PSYCH_PROVIDER_NAME = "Qwen-Plus (Psycholinguistic)";
+const PSYCH_PROVIDER_NAME = "Qwen-Plus (Psycholinguistics)";
 
 type PsychScores = {
   aoa: {
@@ -712,7 +712,7 @@ const renderPsychMetricComparison = (
         <div className="flex h-full flex-col gap-3">
           <div className="grid grid-cols-[180px_1fr_auto] items-center gap-3 border-b border-base-300 pb-2">
             <div className="text-2xs font-semibold uppercase opacity-60 whitespace-nowrap">
-              Target Audience Level
+              Target Reader Level
             </div>
             <div className="flex flex-row flex-wrap gap-1">
               <button
@@ -781,7 +781,7 @@ const renderPsychMetricComparison = (
             </div>
 
             <div>
-              <p className="text-xs opacity-50 mb-1">Psycholinguistic</p>
+              <p className="text-xs opacity-50 mb-1">Psycholinguistics</p>
               {psychLoading ? (
                 <span>Calculating...</span>
               ) : psychScores ? (

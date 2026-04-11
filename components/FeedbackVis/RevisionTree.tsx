@@ -217,7 +217,7 @@ function buildTree(
   };
   const psycholinguistic: RootNode = {
     key: "psycholinguistic",
-    title: "Psycholinguistic",
+    title: "Psycholinguistics",
     metrics: [
       {
         key: "aoa",
