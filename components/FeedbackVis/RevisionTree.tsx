@@ -365,12 +365,12 @@ const RevisionTree = (props: RevisionTreeProps) => {
         <div className="mx-auto h-5 w-px bg-base-300" />
 
         <div className="relative mx-auto flex justify-center gap-40">
-          <div className="absolute top-0 h-px w-[520px] bg-base-300" />
+          <div className="absolute left-1/2 top-0 h-px w-[700px] -translate-x-1/2 bg-base-300" />
 
           {treeData.map((rootNode) => (
             <div key={rootNode.key} className="w-[460px]">
               <div className="flex flex-col items-center">
-                <div className="h-5 w-px bg-base-300" />
+                <div className="-mt-px h-[21px] w-px bg-base-300" />
                 <TreeNode
                   label={rootNode.title}
                   classes="bg-base-200 border-base-300 text-neutral-700"
@@ -378,7 +378,7 @@ const RevisionTree = (props: RevisionTreeProps) => {
                 <div className="h-5 w-px bg-base-300" />
 
                 <div className="relative flex justify-center gap-8">
-                  <div className="absolute top-0 h-px w-[260px] bg-base-300" />
+                  <div className="absolute left-1/2 top-0 h-px w-[260px] -translate-x-1/2 bg-base-300" />
 
                   {rootNode.metrics.map((metricNode) => (
                     <div key={metricNode.key} className="flex w-[180px] flex-col items-center">
