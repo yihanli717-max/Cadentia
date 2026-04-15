@@ -69,6 +69,7 @@ components/
   Header.tsx
 
 lib/
+  feedbackScoring.ts
   store.tsx
   type.tsx
   utils.tsx
@@ -87,6 +88,7 @@ Defined in [`lib/type.tsx`](./lib/type.tsx):
 
 - `Sentence`: `{ id, content, paragraph }`
 - `FeedbackItem`: unified item for all feedback and suggestion records
+  - includes `actionability`, which drives Revision Tree circle size
 - `FeedbackSourceItem`: provider-level card metadata
 - `RevisionItem`: generated revision history payload
 
@@ -131,6 +133,7 @@ Implemented in [`components/FeedbackVis/Menu.tsx`](./components/FeedbackVis/Menu
 - Renders benchmark deltas by target audience (`simple/general/knowledgeable`).
 - `Get Suggestion` calls both suggestion APIs in parallel.
 - Parses and normalizes suggestion payloads into `FeedbackItem[]`.
+- Applies shared `actionability` heuristic scoring while materializing suggestion items.
 - Injects provider sources:
   - `100` = Readability
   - `101` = Psycholinguistics
@@ -164,6 +167,8 @@ Implemented in [`components/FeedbackVis/RevisionTree.tsx`](./components/Feedback
 - Circle visuals:
   - color by metric
   - size by `actionability`
+    - computed by shared scoring in [`lib/feedbackScoring.ts`](./lib/feedbackScoring.ts)
+    - factors: edit localization, edit scope, revision clarity, and fallback penalty
   - toggle selection (selected -> gray)
 - Clicking circles updates selected feedback and essay highlights.
 
@@ -214,6 +219,7 @@ File: [`app/api/readability_suggestion/route.ts`](./app/api/readability_suggesti
 - Parses LLM text into structured `FeedbackItem`s:
   - ASL: sentence-level replacements
   - ASW: word-level replacements (+ `highlightWords`)
+- Computes `actionability` for each parsed item using shared heuristic scoring.
 - Per-metric behavior:
   - only trigger metric flow if off-benchmark
   - enforce `1-5` items via parse + fallback logic
@@ -228,6 +234,9 @@ File: [`app/api/psycholinguistic_suggestion/route.ts`](./app/api/psycholinguisti
   - model: `qwen-plus`
   - base URL: DashScope compatible endpoint
 - Enforces `1-5` suggestions per off-benchmark metric (with fallback replacements).
+- Returned lexical suggestions are converted into `FeedbackItem`s in
+  [`components/FeedbackVis/Menu.tsx`](./components/FeedbackVis/Menu.tsx), where the same
+  shared `actionability` heuristic is applied.
 
 ### 6.5 Revision Rewrite APIs
 
@@ -273,7 +282,7 @@ All major stores are persisted via Zustand `persist`.
 3. Suggestion Generation
    - `Menu.fetchReadabilitySuggestion()` -> calls both suggestion endpoints
 4. UI Materialization
-   - new `FeedbackItem`s -> Provider cards + Revision tree circles
+   - new `FeedbackItem`s + heuristic `actionability` scores -> Provider cards + Revision tree circles
 5. Interaction Sync
    - card/circle selection -> `currentSelectedItems`
    - essay highlights update from selected detection ids + `highlightWords`

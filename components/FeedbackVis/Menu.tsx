@@ -6,6 +6,7 @@ import {
   useRevisionListStore,
   useFeedbackSourceStore,
 } from "@/lib/store";
+import { computeActionabilityScore } from "@/lib/feedbackScoring";
 import { cn, getEmbedding, generateRevision, eventTracker } from "@/lib/utils";
 import { removeStopwords } from "stopword";
 // --- MODIFICATION START: Import FeedbackItem ---
@@ -291,7 +292,13 @@ const Menu = (props: MenuProps) => {
               ? `AoA word replacement: "${original}"`
               : `Concreteness word/phrase replacement: "${original}"`,
           type: metric,
-          actionability: 0.85,
+          actionability: computeActionabilityScore({
+            type: metric,
+            detection: matchedSentence ? [matchedSentence.id] : [],
+            highlightWords,
+            wordCount: highlightWords.length || 1,
+            revisedContent: replacement,
+          }),
           specificity: 1,
           justification: 0.85,
           sentiment: 0,
@@ -318,7 +325,14 @@ const Menu = (props: MenuProps) => {
         provider: PSYCH_PROVIDER_NAME,
         content: 'AoA word replacement: "advanced term"',
         type: "aoa",
-        actionability: 0.75,
+        actionability: computeActionabilityScore({
+          type: "aoa",
+          detection: [],
+          highlightWords: ["advanced", "term"],
+          wordCount: 1,
+          revisedContent: "simpler term",
+          isFallback: true,
+        }),
         specificity: 0.75,
         justification: 0.8,
         sentiment: 0,
@@ -338,7 +352,14 @@ const Menu = (props: MenuProps) => {
         provider: PSYCH_PROVIDER_NAME,
         content: 'Concreteness word/phrase replacement: "abstract concept"',
         type: "concreteness",
-        actionability: 0.75,
+        actionability: computeActionabilityScore({
+          type: "concreteness",
+          detection: [],
+          highlightWords: ["abstract", "concept"],
+          wordCount: 2,
+          revisedContent: "specific example",
+          isFallback: true,
+        }),
         specificity: 0.75,
         justification: 0.8,
         sentiment: 0,

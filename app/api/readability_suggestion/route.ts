@@ -1,4 +1,5 @@
 ﻿import { NextResponse } from "next/server";
+import { computeActionabilityScore } from "@/lib/feedbackScoring";
 
 const userLevelConfigs = {
   'simple': { MIN_TARGET: 80, MAX_TARGET: 90, ASL_BENCHMARK: 15, ASW_BENCHMARK: 1.3 },
@@ -378,7 +379,12 @@ export async function POST(request: Request) {
                 provider: "Qwen-MAX (Readability)",
                 content: `ASL Suggestion: ${originalSentence.substring(0, 50)}...`,
                 type: "ASL",
-                actionability: 0.8 + Math.random() * 0.2,
+                actionability: computeActionabilityScore({
+                  type: "ASL",
+                  detection: [detectionId],
+                  wordCount: originalSentence.split(/\s+/).filter(Boolean).length,
+                  revisedContent,
+                }),
                 specificity: 1,
                 justification: 0.7 + Math.random() * 0.3,
                 sentiment: 0,
@@ -427,7 +433,13 @@ export async function POST(request: Request) {
           provider: "Qwen-MAX (Readability)",
           content: `ASW word replacement: "${originalWord}"`,
           type: "ASW",
-          actionability: 0.8 + Math.random() * 0.2,
+          actionability: computeActionabilityScore({
+            type: "ASW",
+            detection: matchedSentence ? [matchedSentence.id] : [],
+            highlightWords,
+            wordCount: highlightWords.length || 1,
+            revisedContent: replacementWord,
+          }),
           specificity: 1,
           justification: 0.7 + Math.random() * 0.3,
           sentiment: 0,
@@ -460,7 +472,14 @@ export async function POST(request: Request) {
         provider: "Qwen-MAX (Readability)",
         content: "ASL fallback: revise one sentence length toward benchmark.",
         type: "ASL",
-        actionability: 0.75,
+        actionability: computeActionabilityScore({
+          type: "ASL",
+          detection: [],
+          wordCount: 8,
+          revisedContent:
+            "Fallback ASL action: split or combine one sentence to move ASL toward benchmark.",
+          isFallback: true,
+        }),
         specificity: 0.7,
         justification: 0.8,
         sentiment: 0,
@@ -481,7 +500,14 @@ export async function POST(request: Request) {
         provider: "Qwen-MAX (Readability)",
         content: "ASW fallback word replacement",
         type: "ASW",
-        actionability: 0.75,
+        actionability: computeActionabilityScore({
+          type: "ASW",
+          detection: [],
+          highlightWords: [],
+          wordCount: 1,
+          revisedContent: "use a more suitable synonym",
+          isFallback: true,
+        }),
         specificity: 0.7,
         justification: 0.8,
         sentiment: 0,
