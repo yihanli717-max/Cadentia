@@ -146,7 +146,8 @@ Implemented in [`components/ProviderGallery/ProviderCard.tsx`](./components/Prov
   - Final answer
 - Hint generation:
   - ASL: operation templates (raise/lower/adjust sentence length)
-  - ASW/AoA/Concreteness: masked word or phrase hints
+  - ASW/AoA: masked word or phrase hints
+  - Concreteness: direction-aware general instruction hints
 - `Select All` syncs selected feedback ids into shared state.
 
 ### 5.5 Revision Tree
@@ -313,4 +314,3 @@ Build check:
 ```bash
 npm run build
 ```
-

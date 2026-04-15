@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { FeedbackSourceItem } from "@/lib/type";
+import { FeedbackItem, FeedbackSourceItem } from "@/lib/type";
 import { cn, getColor, isSimilarSentence, eventTracker } from "@/lib/utils";
 import {
   useSharedConfigStore,
@@ -9,8 +9,6 @@ import {
   useEssayStore,
 } from "@/lib/store";
 import { noto_serif } from "@/app/fonts";
-import { cosineSimilarity } from "fast-cosine-similarity";
-import { set } from "firebase/database";
 
 const typeMap = {
   claim: "Claims/Ideas",
@@ -28,6 +26,150 @@ const typeMap = {
 };
 
 const GENERATED_SUGGESTION_SOURCE_IDS = new Set([100, 101]);
+const PSYCH_EPSILON = 0.05;
+
+type AudienceLevel = "simple" | "general" | "knowledgeable";
+type PsychMetrics = {
+  meanAoA: number | null;
+  lateAoARatio: number | null;
+  meanConcreteness: number | null;
+  abstractRatio: number | null;
+};
+type ConcretenessHintMode = "raise" | "lower" | "rebalance";
+
+const CONCRETENESS_BENCHMARKS: Record<
+  AudienceLevel,
+  {
+    meanConcreteness: { min: number; max: number };
+    abstractRatio: { min: number; max: number };
+  }
+> = {
+  simple: {
+    meanConcreteness: { min: 3.5, max: 5.0 },
+    abstractRatio: { min: 0.0, max: 0.15 },
+  },
+  general: {
+    meanConcreteness: { min: 2.7, max: 3.5 },
+    abstractRatio: { min: 0.15, max: 0.35 },
+  },
+  knowledgeable: {
+    meanConcreteness: { min: 1.0, max: 2.7 },
+    abstractRatio: { min: 0.35, max: 1.0 },
+  },
+};
+
+function getConcretenessHintMode(
+  targetAudienceLevel: AudienceLevel,
+  psychMetrics: PsychMetrics,
+): ConcretenessHintMode {
+  if (
+    psychMetrics.meanConcreteness === null ||
+    psychMetrics.abstractRatio === null
+  ) {
+    return "rebalance";
+  }
+
+  const benchmark = CONCRETENESS_BENCHMARKS[targetAudienceLevel];
+  const concAbove =
+    psychMetrics.meanConcreteness >
+    benchmark.meanConcreteness.max + PSYCH_EPSILON;
+  const concBelow =
+    psychMetrics.meanConcreteness <
+    benchmark.meanConcreteness.min - PSYCH_EPSILON;
+  const absAbove =
+    psychMetrics.abstractRatio > benchmark.abstractRatio.max + PSYCH_EPSILON;
+  const absBelow =
+    psychMetrics.abstractRatio < benchmark.abstractRatio.min - PSYCH_EPSILON;
+
+  if (concAbove || absBelow) return "lower";
+  if (concBelow || absAbove) return "raise";
+  return "rebalance";
+}
+
+function inferConcretenessExampleHint(replacement: string): string {
+  const trimmed = replacement.trim();
+  const lower = trimmed.toLowerCase();
+
+  if (!trimmed) return "replace an abstract idea with a tangible detail";
+
+  if (/\d/.test(trimmed)) {
+    if (/%|\bpercent(age)?\b/.test(lower)) return "give a specific statistic";
+    if (
+      /\$|¥|€|£|\b(dollar|dollars|yuan|rmb|usd|million|billion|trillion)\b/.test(
+        lower,
+      )
+    ) {
+      return "give a concrete amount";
+    }
+    if (
+      /\b(19|20)\d{2}\b/.test(lower) ||
+      /\b(january|february|march|april|may|june|july|august|september|october|november|december)\b/.test(
+        lower,
+      ) ||
+      /\b(year|years|month|months|day|days|week|weeks|hour|hours|minute|minutes|second|seconds)\b/.test(
+        lower,
+      )
+    ) {
+      return "give a specific time reference";
+    }
+    return "give a specific number";
+  }
+
+  if (
+    /\b(study|studies|survey|report|reports|data|evidence|statistic|statistics|research)\b/.test(
+      lower,
+    )
+  ) {
+    return "add a concrete fact or source";
+  }
+
+  if (/\b(for example|for instance|such as)\b/.test(lower)) {
+    return "name a concrete example";
+  }
+
+  if (
+    /\b[A-Z]{2,}\b/.test(trimmed) ||
+    /\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+\b/.test(trimmed)
+  ) {
+    return "name a real person, place, or organization";
+  }
+
+  if (trimmed.split(/\s+/).filter(Boolean).length >= 2) {
+    return "name a specific example or tangible detail";
+  }
+
+  return "replace an abstract term with a more tangible word";
+}
+
+function inferAbstractionExampleHint(replacement: string): string {
+  const trimmed = replacement.trim();
+
+  if (!trimmed) return "replace a tangible example with a broader concept";
+  if (/\d/.test(trimmed)) return "replace exact figures with a broader scale";
+  if (
+    /\b[A-Z]{2,}\b/.test(trimmed) ||
+    /\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+\b/.test(trimmed)
+  ) {
+    return "replace named cases with a broader category";
+  }
+  if (trimmed.split(/\s+/).filter(Boolean).length >= 2) {
+    return "replace a specific example with a broader category";
+  }
+  return "replace a concrete term with a more abstract concept";
+}
+
+function buildConcretenessIntermediate(
+  replacement: string,
+  mode: ConcretenessHintMode,
+): string {
+  if (mode === "lower") {
+    return `Lower concreteness, e.g., ${inferAbstractionExampleHint(replacement)}.`;
+  }
+  if (mode === "raise") {
+    return `Improve concreteness, e.g., ${inferConcretenessExampleHint(replacement)}.`;
+  }
+  return "Adjust concreteness, e.g., balance abstract claims with tangible details.";
+}
 
 type ProviderCardProps = {
   feedbackSourceItem: FeedbackSourceItem;
@@ -42,7 +184,6 @@ export const ProviderCard = (props: ProviderCardProps) => {
   const [showFinalAnswerByFeedback, setShowFinalAnswerByFeedback] = useState<
     Record<number, boolean>
   >({});
-  const revisionList = useRevisionListStore((state) => state.revisionList);
   const essay = useEssayStore((state) => state.essay);
   const [isExpanded, setIsExpanded] = useState(false);
   const allFeedbackItems = useFeedbackStore((state) => state.feedback);
@@ -53,10 +194,9 @@ export const ProviderCard = (props: ProviderCardProps) => {
     hoveredItem,
     setHoveredItem,
     colorDimension,
+    targetAudienceLevel,
+    psychMetrics,
   } = useSharedConfigStore();
-  const selectedFeedbackItems = allFeedbackItems.filter((item) =>
-    currentSelectedItems.includes(item.id),
-  );
   const isGeneratedSuggestionProvider = GENERATED_SUGGESTION_SOURCE_IDS.has(
     props.feedbackSourceItem.id,
   );
@@ -172,6 +312,11 @@ export const ProviderCard = (props: ProviderCardProps) => {
   };
 
   const renderGeneratedSuggestions = () => {
+    const concretenessHintMode = getConcretenessHintMode(
+      targetAudienceLevel,
+      psychMetrics,
+    );
+
     const countSentences = (value: string) =>
       value
         .split(/[.!?]+/)
@@ -194,7 +339,7 @@ export const ProviderCard = (props: ProviderCardProps) => {
     const maskPhrase = (text: string) =>
       text.replace(/[A-Za-z']+/g, (token) => maskWord(token));
 
-    const getOriginalSentenceFromDetection = (feedbackId: number, detection: number[]) => {
+    const getOriginalSentenceFromDetection = (detection: number[]) => {
       if (!detection?.length) return "";
       const sentenceId = detection[0];
       return essay.find((sentence) => sentence.id === sentenceId)?.content || "";
@@ -240,27 +385,30 @@ Cue: split around "${cueSentence}".`;
 Cue: revise "${cueSentence}" with one sentence-length move.`;
     };
 
-    const buildIntermediateAnswer = (feedback: any) => {
+    const buildIntermediateAnswer = (feedback: FeedbackItem) => {
       const type = String(feedback.type || "").toLowerCase();
       const finalAnswer = String(feedback.revisedContent || "");
       if (!finalAnswer) return "";
 
       if (type === "asl") {
         const originalSentence = getOriginalSentenceFromDetection(
-          feedback.id,
           feedback.detection || [],
         );
         return buildAslIntermediate(originalSentence, finalAnswer);
       }
 
-      if (type === "asw" || type === "aoa" || type === "concreteness") {
+      if (type === "concreteness") {
+        return buildConcretenessIntermediate(finalAnswer, concretenessHintMode);
+      }
+
+      if (type === "asw" || type === "aoa") {
         return maskPhrase(finalAnswer);
       }
 
       return finalAnswer;
     };
 
-    const canToggleAnswerState = (feedback: any) => {
+    const canToggleAnswerState = (feedback: FeedbackItem) => {
       const type = String(feedback.type || "").toLowerCase();
       if (!feedback.revisedContent) return false;
       return (
@@ -346,50 +494,7 @@ Cue: revise "${cueSentence}" with one sentence-length move.`;
       setIsExpanded(false);
       setHoveredProvider(null);
     }
-  }, [props.isClicked]);
-
-  // Handle click event
-  const handleClick = (event: React.MouseEvent, d: any) => {
-    // console.log("Clicked on feedback", d.data.id);
-
-    if (event.shiftKey) {
-      // console.log("Shift key pressed");
-      event.preventDefault();
-
-      const { similarityThreshold } = useSharedConfigStore.getState();
-      const clickedEmbeddings = allFeedbackItems.find(
-        (item) => item.id === d.data.id,
-      )?.embeddings as number[];
-
-      if (!clickedEmbeddings) return;
-
-      const matchedIds = allFeedbackItems
-        .filter((item) => {
-          if (!item.embeddings) return false;
-          const similarity = Math.abs(
-            cosineSimilarity(clickedEmbeddings, item.embeddings),
-          );
-          return similarity > similarityThreshold;
-        })
-        .map((item) => item.id);
-
-      const { currentSelectedItems, updateCurrentSelectedItems } =
-        useSharedConfigStore.getState();
-      const combinedIds = Array.from(
-        new Set([...currentSelectedItems, ...matchedIds]),
-      );
-      updateCurrentSelectedItems(combinedIds);
-
-      eventTracker({
-        action: "add all similar feedback to prepstation",
-        data: {
-          feedbackID: d.data.id,
-          similarIDs: matchedIds,
-        },
-      });
-      return;
-    }
-  };
+  }, [props.isClicked, setHoveredProvider]);
 
   // Get cilcle fill color based on categorical dimension
   const getFillColor = (id: number, text: string) => {
